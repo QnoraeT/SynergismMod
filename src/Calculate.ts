@@ -1,4 +1,4 @@
-import Decimal from "break_eternity.js";
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -27,77 +27,6 @@ const EX_ULTRA_OFFERING = 0.125
 const EX_ULTRA_OBTAINIUM = 0.125
 const EX_ULTRA_CUBES = 0.125
 
-/**
- * @param {Decimal} num the input
- * @param {number | String} type what type of scaling/softcap should be used
- * @param {boolean} inverse if there should be an inverse for it
- * @param {Decimal} start when the scale/softcap starts
- * @param {Decimal} str the overall strength of the scaling/softcap (1.0 = 100%, 0.5 = 50%) taken as a power of powScale
- * @param {Decimal} powScale inital value of the scaling/softcap that gets acted upon by str
- * @returns {Decimal}
- */
-
-export const scale = (num: Decimal, type: number | String, inverse = false, start: Decimal, str: number | Decimal, powScale: number | Decimal) => {
-  if (num.lte(start)) { return num; }
-  str = Decimal.pow(powScale, str);
-  switch (type) {
-      // Polynomial
-      case 0:
-      case 0.1:
-      case "P":
-      case "P1":
-          return inverse
-                  ? num.sub(start).mul(str).div(start).add(1).root(str).mul(start)
-                  : num.div(start).pow(str).sub(1).mul(start).div(str).add(start)
-      case 0.2: // alemaninc
-      case "P2":
-          return inverse
-                  ? num.div(start).root(str).sub(1).mul(str).add(1).mul(start)
-                  : num.div(start).sub(1).div(str).add(1).pow(str).mul(start)
-      // Exponential
-      case 1:
-      case 1.1:
-      case "E":
-      case "E1":
-          return inverse 
-                  ? Decimal.min(num, num.div(start).log(str).add(1).mul(start))
-                  : Decimal.max(num, Decimal.pow(str, num.div(start).sub(1)).mul(start))
-      case 1.2:
-      case "E2":
-          return inverse
-                  ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
-                  : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-      case 1.3: // alemaninc
-      case "E3":
-          return inverse // poly exponential scaling
-                  ? num.div(start).ln().mul(str.sub(1)).add(1).root(str.sub(1)).mul(start)
-                  : num.div(start).pow(str.sub(1)).sub(1).div(str.sub(1)).exp().mul(start)
-      // Semi-exponential
-      case 2: 
-      case 2.1:
-      case "SE":
-      case "SE1":
-          return inverse // steep scaling
-                  ? Decimal.pow(start, num.sub(start).mul(str).add(start).log(start).root(str))
-                  : Decimal.pow(start, num.log(start).pow(str)).sub(start).div(str).add(start)
-      case 2.2:
-      case "SE2": // very shallow scaling
-          return inverse
-                  ? Decimal.pow(start, num.log(start).sub(1).mul(str).add(1).root(str))
-                  : Decimal.pow(start, num.log(start).pow(str).sub(1).div(str).add(1))
-      // convergent
-      case 3: // alemaninc
-      case 3.1:
-      case "C":
-      case "C1":
-          return inverse
-                  ? str.mul(num).add(start.pow(2)).sub(start.mul(num).mul(2)).div(str.sub(num))
-                  : str.mul(num).sub(start.pow(2)).div(str.sub(start.mul(2)).add(num));
-      default:
-          throw new Error(`Scaling type ${type} doesn't exist`);
-  }
-}
-
 export const calculateTotalCoinOwned = () => {
   G.totalCoinOwned = player.firstOwnedCoin
     + player.secondOwnedCoin
@@ -107,30 +36,30 @@ export const calculateTotalCoinOwned = () => {
 }
 
 export const calculateTotalAcceleratorBoost = () => {
-  let b = new Decimal(0)
+  let b = 0
   if (player.upgrades[26] > 0.5) {
-    b = b.add(1)
+    b += 1
   }
   if (player.upgrades[31] > 0.5) {
-    b = b.add((Math.floor(G.totalCoinOwned / 2000) * 100) / 100)
+    b += (Math.floor(G.totalCoinOwned / 2000) * 100) / 100
   }
   if (player.achievements[7] > 0.5) {
-    b = b.add(Math.floor(player.firstOwnedCoin / 2000))
+    b += Math.floor(player.firstOwnedCoin / 2000)
   }
   if (player.achievements[14] > 0.5) {
-    b = b.add(Math.floor(player.secondOwnedCoin / 2000))
+    b += Math.floor(player.secondOwnedCoin / 2000)
   }
   if (player.achievements[21] > 0.5) {
-    b = b.add(Math.floor(player.thirdOwnedCoin / 2000))
+    b += Math.floor(player.thirdOwnedCoin / 2000)
   }
   if (player.achievements[28] > 0.5) {
-    b = b.add(Math.floor(player.fourthOwnedCoin / 2000))
+    b += Math.floor(player.fourthOwnedCoin / 2000)
   }
   if (player.achievements[35] > 0.5) {
-    b = b.add(Math.floor(player.fifthOwnedCoin / 2000))
+    b += Math.floor(player.fifthOwnedCoin / 2000)
   }
 
-  b = b.add(player.researches[93]
+  b += player.researches[93]
     * Math.floor(
       (1 / 20)
         * (G.rune1level
@@ -138,75 +67,76 @@ export const calculateTotalAcceleratorBoost = () => {
           + G.rune3level
           + G.rune4level
           + G.rune5level)
-    ))
-  b = b.add(Decimal.floor(Decimal.mul(0.01 + G.rune1level, G.effectiveLevelMult).div(20)))
-  b = b.mul(1
+    )
+  b += Math.floor(((0.01 + G.rune1level) * G.effectiveLevelMult) / 20)
+  b *= 1
     + (1 / 5)
       * player.researches[3]
-      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14])))
-  b = b.mul(1 + (1 / 20) * player.researches[16] + (1 / 20) * player.researches[17])
-  b = b.mul(1 + (1 / 20) * player.researches[88])
-  b = b.mul(calculateSigmoidExponential(
+      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14]))
+  b *= 1 + (1 / 20) * player.researches[16] + (1 / 20) * player.researches[17]
+  b *= 1 + (1 / 20) * player.researches[88]
+  b *= calculateSigmoidExponential(
     20,
     (((player.antUpgrades[4 - 1]! + G.bonusant4) / 1000) * 20) / 19
-  ))
-  b = b.mul(1 + (1 / 100) * player.researches[127])
-  b = b.mul(1 + (0.8 / 100) * player.researches[142])
-  b = b.mul(1 + (0.6 / 100) * player.researches[157])
-  b = b.mul(1 + (0.4 / 100) * player.researches[172])
-  b = b.mul(1 + (0.2 / 100) * player.researches[187])
-  b = b.mul(1 + (0.01 / 100) * player.researches[200])
-  b = b.mul(1 + (0.01 / 100) * player.cubeUpgrades[50])
-  b = b.mul(1 + (1 / 1000) * hepteractEffective('acceleratorBoost'))
+  )
+  b *= 1 + (1 / 100) * player.researches[127]
+  b *= 1 + (0.8 / 100) * player.researches[142]
+  b *= 1 + (0.6 / 100) * player.researches[157]
+  b *= 1 + (0.4 / 100) * player.researches[172]
+  b *= 1 + (0.2 / 100) * player.researches[187]
+  b *= 1 + (0.01 / 100) * player.researches[200]
+  b *= 1 + (0.01 / 100) * player.cubeUpgrades[50]
+  b *= 1 + (1 / 1000) * hepteractEffective('acceleratorBoost')
   if (
     player.upgrades[73] > 0.5
     && player.currentChallenge.reincarnation !== 0
   ) {
-    b = b.mul(2)
+    b *= 2
   }
-  b = Decimal.min(1e100, Decimal.floor(b)) // odd cap
+  b = Math.min(1e100, Math.floor(b))
   G.freeAcceleratorBoost = b
 
-  G.totalAcceleratorBoost = Decimal.add(player.acceleratorBoostBought, G.freeAcceleratorBoost).mul(100).floor().div(100)
+  G.totalAcceleratorBoost = (Math.floor(player.acceleratorBoostBought + G.freeAcceleratorBoost) * 100)
+    / 100
 }
 
 export const calculateAcceleratorMultiplier = () => {
-  G.acceleratorMultiplier = new Decimal(1)
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + player.achievements[60] / 100)
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + player.achievements[61] / 100)
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + player.achievements[62] / 100)
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1
+  G.acceleratorMultiplier = 1
+  G.acceleratorMultiplier *= 1 + player.achievements[60] / 100
+  G.acceleratorMultiplier *= 1 + player.achievements[61] / 100
+  G.acceleratorMultiplier *= 1 + player.achievements[62] / 100
+  G.acceleratorMultiplier *= 1
     + (1 / 5)
       * player.researches[1]
-      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14])))
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1
+      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14]))
+  G.acceleratorMultiplier *= 1
     + (1 / 20) * player.researches[6]
     + (1 / 25) * player.researches[7]
     + (1 / 40) * player.researches[8]
     + (3 / 200) * player.researches[9]
-    + (1 / 200) * player.researches[10])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (1 / 20) * player.researches[86])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (1 / 100) * player.researches[126])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.8 / 100) * player.researches[141])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.6 / 100) * player.researches[156])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.4 / 100) * player.researches[171])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.2 / 100) * player.researches[186])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.01 / 100) * player.researches[200])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1 + (0.01 / 100) * player.cubeUpgrades[50])
-  G.acceleratorMultiplier = G.acceleratorMultiplier.mul(Math.pow(
+    + (1 / 200) * player.researches[10]
+  G.acceleratorMultiplier *= 1 + (1 / 20) * player.researches[86]
+  G.acceleratorMultiplier *= 1 + (1 / 100) * player.researches[126]
+  G.acceleratorMultiplier *= 1 + (0.8 / 100) * player.researches[141]
+  G.acceleratorMultiplier *= 1 + (0.6 / 100) * player.researches[156]
+  G.acceleratorMultiplier *= 1 + (0.4 / 100) * player.researches[171]
+  G.acceleratorMultiplier *= 1 + (0.2 / 100) * player.researches[186]
+  G.acceleratorMultiplier *= 1 + (0.01 / 100) * player.researches[200]
+  G.acceleratorMultiplier *= 1 + (0.01 / 100) * player.cubeUpgrades[50]
+  G.acceleratorMultiplier *= Math.pow(
     1.01,
     player.upgrades[21]
       + player.upgrades[22]
       + player.upgrades[23]
       + player.upgrades[24]
       + player.upgrades[25]
-  ))
+  )
   if (
     (player.currentChallenge.transcension !== 0
       || player.currentChallenge.reincarnation !== 0)
     && player.upgrades[50] > 0.5
   ) {
-    G.acceleratorMultiplier = G.acceleratorMultiplier.mul(1.25)
+    G.acceleratorMultiplier *= 1.25
   }
 }
 
@@ -226,7 +156,7 @@ export const calculateRecycleMultiplier = () => {
     0.005 * player.cubeUpgrades[2]
   ])
 
-  return Decimal.div(1, Decimal.sub(1, recycleFactors))
+  return 1 / (1 - recycleFactors)
 }
 
 export function calculateRuneExpGiven (
@@ -251,7 +181,7 @@ export function calculateRuneExpGiven (
   const recycleMultiplier = calculateRecycleMultiplier()
 
   // Rune multiplier that is summed instead of added
-  let allRuneExpAdditiveMultiplier: Decimal | null = null
+  let allRuneExpAdditiveMultiplier: number | null = null
   if (all) {
     allRuneExpAdditiveMultiplier = sumContents([
       // Challenge 3 completions
@@ -348,7 +278,7 @@ export function calculateRuneExpGiven (
     runeExpMultiplier[runeIndex]
   ]
 
-  return returnFactors ? fact : Decimal.min(1e200, productContents(fact))
+  return returnFactors ? fact : Math.min(1e200, productContents(fact))
 }
 
 export const lookupTableGen = (runeLevel: number) => {
@@ -365,7 +295,7 @@ export const lookupTableGen = (runeLevel: number) => {
   return allRuneExpRequiredMultiplier
 }
 
-let lookupTableRuneExp: Decimal[] | null = null
+let lookupTableRuneExp: number[] | null = null
 
 // Returns the amount of exp required to level a rune
 export const calculateRuneExpToLevel = (
@@ -377,36 +307,36 @@ export const calculateRuneExpToLevel = (
   // For runes 6 and 7 we will apply a special multiplier
   let multiplier = lookupTableRuneExp[runeLevel]
   if (runeIndex === 5) {
-    multiplier = Decimal.pow(100, runeLevel)
+    multiplier = Math.pow(100, runeLevel)
   }
   if (runeIndex === 6) {
-    multiplier = Decimal.pow(1e25, runeLevel).mul(player.highestSingularityCount.add(1))
+    multiplier = Math.pow(1e25, runeLevel) * (player.highestSingularityCount + 1)
   }
-  return multiplier.mul(G.runeexpbase[runeIndex])
+  return multiplier * G.runeexpbase[runeIndex]
 }
 
 export const calculateMaxRunes = (i: number) => {
-  let max = new Decimal(1000)
+  let max = 1000
 
-  const increaseAll = Decimal.add(player.cubeUpgrades[16], player.cubeUpgrades[37]).mul(20)
-    .add(Decimal.mul(3, player.constantUpgrades[7]))
-    .add(Decimal.mul(80, CalcECC('ascension', player.challengecompletions[11])))
-    .add(Decimal.mul(200, CalcECC('ascension', player.challengecompletions[14])))
-    .add(Math.floor(0.04 * player.researches[200] + 0.04 * player.cubeUpgrades[50]))
+  const increaseAll = 20 * (player.cubeUpgrades[16] + player.cubeUpgrades[37])
+    + 3 * player.constantUpgrades[7]
+    + 80 * CalcECC('ascension', player.challengecompletions[11])
+    + 200 * CalcECC('ascension', player.challengecompletions[14])
+    + Math.floor(0.04 * player.researches[200] + 0.04 * player.cubeUpgrades[50])
   const increaseMaxLevel = [
     null,
-    Decimal.add(player.researches[78], player.researches[111]).mul(10).add(increaseAll),
-    Decimal.add(player.researches[80], player.researches[112]).mul(10).add(increaseAll),
-    Decimal.add(player.researches[79], player.researches[113]).mul(10).add(increaseAll),
-    Decimal.add(player.researches[77], player.researches[114]).mul(10).add(increaseAll),
-    Decimal.mul(10, player.researches[115]).add(increaseAll),
+    10 * (player.researches[78] + player.researches[111]) + increaseAll,
+    10 * (player.researches[80] + player.researches[112]) + increaseAll,
+    10 * (player.researches[79] + player.researches[113]) + increaseAll,
+    10 * (player.researches[77] + player.researches[114]) + increaseAll,
+    10 * player.researches[115] + increaseAll,
     -901,
     -999
   ]
 
-  max = Decimal.gt(increaseMaxLevel[i]!, G.runeMaxLvl)
+  max = increaseMaxLevel[i]! > G.runeMaxLvl
     ? G.runeMaxLvl
-    : max.add(increaseMaxLevel[i]!)
+    : max + increaseMaxLevel[i]!
   return max
 }
 
@@ -418,17 +348,17 @@ export const calculateEffectiveIALevel = () => {
   )
 }
 
-export function calculateOfferings (input: resetNames): Decimal
+export function calculateOfferings (input: resetNames): number
 export function calculateOfferings (
   input: resetNames,
   calcMult: false,
   statistic?: boolean
-): Decimal[]
+): number[]
 export function calculateOfferings (
   input: resetNames,
   calcMult: true,
   statistic: boolean
-): Decimal
+): number
 export function calculateOfferings (
   input: resetNames,
   calcMult = true,
@@ -442,31 +372,32 @@ export function calculateOfferings (
     return 0
   }
 
-  let q = new Decimal(0)
-  let a = new Decimal(0)
-  let b = new Decimal(0)
-  let c = new Decimal(0)
+  let q = 0
+  let a = 0
+  let b = 0
+  let c = 0
 
   if (input === 'reincarnation' || input === 'reincarnationChallenge') {
-    a = a.add(3)
+    a += 3
     if (player.achievements[52] > 0.5) {
-      a = a.add(25 * Math.min(player.reincarnationcounter / 1800, 1))
+      a += 25 * Math.min(player.reincarnationcounter / 1800, 1)
     }
     if (player.upgrades[62] > 0.5) {
-      a = a.add(sumContents(player.challengecompletions).mul(0.02))
+      a += (1 / 50) * sumContents(player.challengecompletions)
     }
-    a = a.add(0.6 * player.researches[25])
+    a += 0.6 * player.researches[25]
     if (player.researches[95] === 1) {
-      a = a.add(4)
+      a += 4
     }
-    a = a.add((1 / 200)
+    a += (1 / 200)
       * G.rune5level
       * G.effectiveLevelMult
-      * (1 + player.researches[85] / 200))
-    a = a.mul(Decimal.pow(Decimal.log10(player.reincarnationShards.add(1)), 2 / 3).div(4).add(1))
-    a = a.mul(Math.min(Math.pow(player.reincarnationcounter / 10 + 1, 2), 1))
+      * (1 + player.researches[85] / 200)
+    a *= 1
+      + Math.pow(Decimal.log(player.reincarnationShards.add(1), 10), 2 / 3) / 4
+    a *= Math.min(Math.pow(player.reincarnationcounter / 10 + 1, 2), 1)
     if (player.reincarnationcounter >= 5) {
-      a = a.mul(Math.max(1, player.reincarnationcounter / 10))
+      a *= Math.max(1, player.reincarnationcounter / 10)
     }
   }
   if (
@@ -475,54 +406,54 @@ export function calculateOfferings (
     || input === 'reincarnation'
     || input === 'reincarnationChallenge'
   ) {
-    b = b.add(2)
+    b += 2
     if (player.reincarnationCount > 0) {
-      b = b.add(2)
+      b += 2
     }
     if (player.achievements[44] > 0.5) {
-      b = b.add(15 * Math.min(player.transcendcounter / 1800, 1))
+      b += 15 * Math.min(player.transcendcounter / 1800, 1)
     }
     if (player.challengecompletions[2] > 0) {
-      b = b.add(1)
+      b += 1
     }
-    b = b.add(0.2 * player.researches[24])
-    b = b.add((1 / 200)
+    b += 0.2 * player.researches[24]
+    b += (1 / 200)
       * G.rune5level
       * G.effectiveLevelMult
-      * (1 + player.researches[85] / 200))
-    b = b.mul(Decimal.log10(player.transcendShards.add(1)).sqrt().div(5).add(1))
-    b = b.mul(1 + CalcECC('reincarnation', player.challengecompletions[8]) / 25)
-    b = b.mul(Decimal.min(Decimal.pow(player.transcendcounter.div(10), 2), 1))
-    if (player.transcendCount.gte(5)) {
-      b = b.mul(Decimal.max(1, player.transcendcounter.div(10)))
+      * (1 + player.researches[85] / 200)
+    b *= 1 + Math.pow(Decimal.log(player.transcendShards.add(1), 10), 1 / 2) / 5
+    b *= 1 + CalcECC('reincarnation', player.challengecompletions[8]) / 25
+    b *= Math.min(Math.pow(player.transcendcounter / 10, 2), 1)
+    if (player.transcendCount >= 5) {
+      b *= Math.max(1, player.transcendcounter / 10)
     }
   }
   // This will always be calculated if '0' is not already returned
-  c = c.add(1)
+  c += 1
   if (player.transcendCount > 0 || player.reincarnationCount > 0) {
-    c = c.add(1)
+    c += 1
   }
   if (player.reincarnationCount > 0) {
-    c = c.add(2)
+    c += 2
   }
   if (player.achievements[37] > 0.5) {
-    c = c.add(15 * Math.min(player.prestigecounter / 1800, 1))
+    c += 15 * Math.min(player.prestigecounter / 1800, 1)
   }
   if (player.challengecompletions[2] > 0) {
-    c = c.add(1)
+    c += 1
   }
-  c = c.add(0.2 * player.researches[24])
-  c = c.add((1 / 200)
+  c += 0.2 * player.researches[24]
+  c += (1 / 200)
     * G.rune5level
     * G.effectiveLevelMult
-    * (1 + player.researches[85] / 200))
-  c = c.mul(Decimal.log(player.prestigeShards.add(1), 10).sqrt().div(5).add(1))
-  c = c.mul(1 + CalcECC('reincarnation', player.challengecompletions[6]) / 50)
-  c = c.mul(Math.min(Math.pow(player.prestigecounter / 10, 2), 1))
+    * (1 + player.researches[85] / 200)
+  c *= 1 + Math.pow(Decimal.log(player.prestigeShards.add(1), 10), 1 / 2) / 5
+  c *= 1 + CalcECC('reincarnation', player.challengecompletions[6]) / 50
+  c *= Math.min(Math.pow(player.prestigecounter / 10, 2), 1)
   if (player.prestigeCount >= 5) {
-    c = c.mul(Math.max(1, player.prestigecounter / 10))
+    c *= Math.max(1, player.prestigecounter / 10)
   }
-  q = c.add(b).add(c)
+  q = a + b + c
 
   const arr = [
     1 + (10 * player.achievements[33]) / 100, // Alchemy Achievement 5
@@ -536,7 +467,10 @@ export function calculateOfferings (
     1 + (1 / 50) * player.shopUpgrades.offeringAuto, // Auto Offering Shop
     1 + (1 / 25) * player.shopUpgrades.offeringEX, // Offering EX Shop
     1 + (1 / 100) * player.shopUpgrades.cashGrab, // Cash Grab
-    Decimal.mul(sumContents(player.challengecompletions), player.researches[85]).div(10000).add(1), // Research 4x10
+    1
+    + (1 / 10000)
+      * sumContents(player.challengecompletions)
+      * player.researches[85], // Research 4x10
     1 + Math.pow(player.antUpgrades[6 - 1]! + G.bonusant6, 0.66), // Ant Upgrade:
     G.cubeBonusMultiplier[3], // Brutus
     1 + 0.02 * player.constantUpgrades[3], // Constant Upgrade 3
@@ -568,7 +502,7 @@ export function calculateOfferings (
   ]
 
   if (calcMult) {
-    q = q.mul(productContents(arr))
+    q *= productContents(arr)
   } else {
     return arr
   }
@@ -578,29 +512,30 @@ export function calculateOfferings (
   }
 
   if (G.eventClicked && G.isEvent) {
-    q = q.mul(1.05)
+    q *= 1.05
   }
-  q = q.div(calculateSingularityDebuff('Offering'))
+  q /= calculateSingularityDebuff('Offering')
+  q = (Math.floor(q) * 100) / 100
   if (player.currentChallenge.ascension === 15) {
-    q = q.mul(1 + 7 * player.cubeUpgrades[62])
+    q *= 1 + 7 * player.cubeUpgrades[62]
   }
-  q = q.mul(1 + (1 / 200) * player.shopUpgrades.cashGrab2)
-  q = q.mul(1 + (1 / 100) * player.shopUpgrades.offeringEX2 * player.singularityCount)
-  q = q.mul(Math.pow(1.02, player.shopUpgrades.offeringEX3))
-  q = q.mul(calculateTotalOcteractOfferingBonus())
-  q = Decimal.min(1e300, q) // cap :3
+  q *= 1 + (1 / 200) * player.shopUpgrades.cashGrab2
+  q *= 1 + (1 / 100) * player.shopUpgrades.offeringEX2 * player.singularityCount
+  q *= Math.pow(1.02, player.shopUpgrades.offeringEX3)
+  q *= calculateTotalOcteractOfferingBonus()
+  q = Math.min(1e300, q)
 
-  let persecond = new Decimal(0)
+  let persecond = 0
   if (input === 'prestige') {
-    persecond = Decimal.div(q, Decimal.add(1, player.prestigecounter))
+    persecond = q / (1 + player.prestigecounter)
   }
   if (input === 'transcension' || input === 'transcensionChallenge') {
-    persecond = Decimal.div(q, Decimal.add(1, player.transcendcounter))
+    persecond = q / (1 + player.transcendcounter)
   }
   if (input === 'reincarnation' || input === 'reincarnationChallenge') {
-    persecond = Decimal.div(q, Decimal.add(1, player.reincarnationcounter))
+    persecond = q / (1 + player.reincarnationcounter)
   }
-  if (persecond.gte(player.offeringpersecond)) {
+  if (persecond > player.offeringpersecond) {
     player.offeringpersecond = persecond
   }
 
@@ -608,12 +543,17 @@ export function calculateOfferings (
 }
 
 export const calculateObtainium = () => {
-  G.obtainiumGain = new Decimal(1)
+  G.obtainiumGain = 1
   if (player.upgrades[69] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(10, Decimal.log10(G.reincarnationPointGain.add(10)).sqrt()))
+    G.obtainiumGain *= Math.min(
+      10,
+      new Decimal(
+        Decimal.pow(Decimal.log(G.reincarnationPointGain.add(10), 10), 0.5)
+      ).toNumber()
+    )
   }
   if (player.upgrades[72] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(Math.min(
+    G.obtainiumGain *= Math.min(
       50,
       1
         + 2 * player.challengecompletions[6]
@@ -621,56 +561,56 @@ export const calculateObtainium = () => {
         + 2 * player.challengecompletions[8]
         + 2 * player.challengecompletions[9]
         + 2 * player.challengecompletions[10]
-    ))
+    )
   }
   if (player.upgrades[74] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(1 + 4 * Math.min(1, Math.pow(player.maxofferings / 100000, 0.5)))
+    G.obtainiumGain *= 1 + 4 * Math.min(1, Math.pow(player.maxofferings / 100000, 0.5))
   }
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.researches[65] / 5)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.researches[76] / 10)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.researches[81] / 10)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.shopUpgrades.obtainiumAuto / 50)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.shopUpgrades.cashGrab / 100)
-  G.obtainiumGain = G.obtainiumGain.mul(1
+  G.obtainiumGain *= 1 + player.researches[65] / 5
+  G.obtainiumGain *= 1 + player.researches[76] / 10
+  G.obtainiumGain *= 1 + player.researches[81] / 10
+  G.obtainiumGain *= 1 + player.shopUpgrades.obtainiumAuto / 50
+  G.obtainiumGain *= 1 + player.shopUpgrades.cashGrab / 100
+  G.obtainiumGain *= 1
     + (G.rune5level / 200)
       * G.effectiveLevelMult
       * (1
         + (player.researches[84] / 200)
           * (1
             + (1 * G.effectiveRuneSpiritPower[5] * calculateCorruptionPoints())
-              / 400)))
-  G.obtainiumGain = G.obtainiumGain.mul(
-    Decimal.mul(0.01, player.achievements[84])
-    .add(Decimal.mul(0.03, player.achievements[91]))
-    .add(Decimal.mul(0.05, player.achievements[98]))
-    .add(Decimal.mul(0.07, player.achievements[105]))
-    .add(Decimal.mul(0.09, player.achievements[112]))
-    .add(Decimal.mul(0.11, player.achievements[119]))
-    .add(Decimal.mul(0.13, player.achievements[126]))
-    .add(Decimal.mul(0.15, player.achievements[133]))
-    .add(Decimal.mul(0.17, player.achievements[140]))
-    .add(Decimal.mul(0.19, player.achievements[147])).add(1))
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 2 * Math.pow((player.antUpgrades[10 - 1]! + G.bonusant10) / 50, 2 / 3))
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.achievements[188] * Math.min(2, player.ascensionCount / 5e6))
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 0.6 * player.achievements[250] + 1 * player.achievements[251])
-  G.obtainiumGain = G.obtainiumGain.mul(G.cubeBonusMultiplier[5])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 0.04 * player.constantUpgrades[4])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 0.1 * player.cubeUpgrades[47])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 0.1 * player.cubeUpgrades[3])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 0.5 * CalcECC('ascension', player.challengecompletions[12]))
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (calculateCorruptionPoints() / 400) * G.effectiveRuneSpiritPower[4])
-  G.obtainiumGain = G.obtainiumGain.mul(1
+              / 400))
+  G.obtainiumGain *= 1
+    + 0.01 * player.achievements[84]
+    + 0.03 * player.achievements[91]
+    + 0.05 * player.achievements[98]
+    + 0.07 * player.achievements[105]
+    + 0.09 * player.achievements[112]
+    + 0.11 * player.achievements[119]
+    + 0.13 * player.achievements[126]
+    + 0.15 * player.achievements[133]
+    + 0.17 * player.achievements[140]
+    + 0.19 * player.achievements[147]
+  G.obtainiumGain *= 1 + 2 * Math.pow((player.antUpgrades[10 - 1]! + G.bonusant10) / 50, 2 / 3)
+  G.obtainiumGain *= 1 + player.achievements[188] * Math.min(2, player.ascensionCount / 5e6)
+  G.obtainiumGain *= 1 + 0.6 * player.achievements[250] + 1 * player.achievements[251]
+  G.obtainiumGain *= G.cubeBonusMultiplier[5]
+  G.obtainiumGain *= 1 + 0.04 * player.constantUpgrades[4]
+  G.obtainiumGain *= 1 + 0.1 * player.cubeUpgrades[47]
+  G.obtainiumGain *= 1 + 0.1 * player.cubeUpgrades[3]
+  G.obtainiumGain *= 1 + 0.5 * CalcECC('ascension', player.challengecompletions[12])
+  G.obtainiumGain *= 1 + (calculateCorruptionPoints() / 400) * G.effectiveRuneSpiritPower[4]
+  G.obtainiumGain *= 1
     + ((0.03 * Math.log(player.uncommonFragments + 1)) / Math.log(4))
-      * player.researches[144])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (0.02 / 100) * player.cubeUpgrades[50])
+      * player.researches[144]
+  G.obtainiumGain *= 1 + (0.02 / 100) * player.cubeUpgrades[50]
   if (player.achievements[53] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(1 + (1 / 800) * G.runeSum)
+    G.obtainiumGain *= 1 + (1 / 800) * G.runeSum
   }
   if (player.achievements[128]) {
-    G.obtainiumGain = G.obtainiumGain.mul(1.5)
+    G.obtainiumGain *= 1.5
   }
   if (player.achievements[129]) {
-    G.obtainiumGain = G.obtainiumGain.mul(1.25)
+    G.obtainiumGain *= 1.25
   }
 
   if (player.achievements[51] > 0) {
@@ -682,16 +622,16 @@ export const calculateObtainium = () => {
   if (player.reincarnationcounter >= 5) {
     G.obtainiumGain += 2 * player.researches[64]
   }
-  G.obtainiumGain = G.obtainiumGain.mul(Math.min(1, Math.pow(player.reincarnationcounter / 10, 2)))
-  G.obtainiumGain = G.obtainiumGain.mul(Decimal.mul(player.shopUpgrades.obtainiumEX, 0.04).add(1))
-  if (Decimal.gte(player.reincarnationCount, 5)) {
-    G.obtainiumGain = G.obtainiumGain.mul(Math.max(1, player.reincarnationcounter / 10))
+  G.obtainiumGain *= Math.min(1, Math.pow(player.reincarnationcounter / 10, 2))
+  G.obtainiumGain *= 1 + (1 / 25) * player.shopUpgrades.obtainiumEX
+  if (player.reincarnationCount >= 5) {
+    G.obtainiumGain *= Math.max(1, player.reincarnationcounter / 10)
   }
-  G.obtainiumGain = G.obtainiumGain.mul(Decimal.pow(
-    Decimal.log10(player.transcendShards.add(1)).div(300),
+  G.obtainiumGain *= Math.pow(
+    Decimal.log(player.transcendShards.add(1), 10) / 300,
     2
-  ))
-  G.obtainiumGain = Decimal.pow(
+  )
+  G.obtainiumGain = Math.pow(
     G.obtainiumGain,
     Math.min(
       1,
@@ -702,41 +642,41 @@ export const calculateObtainium = () => {
             * Math.min(100, Math.log10(player.researchPoints + 10)))
     )
   )
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (4 / 100) * player.cubeUpgrades[42])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (3 / 100) * player.cubeUpgrades[43])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.platonicUpgrades[5])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 1.5 * player.platonicUpgrades[9])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 2.5 * player.platonicUpgrades[10])
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 5 * player.platonicUpgrades[15])
-  G.obtainiumGain = G.obtainiumGain.mul(G.challenge15Rewards.obtainium)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + 5 * (player.singularityUpgrades.starterPack.getEffect().bonus ? 1 : 0))
-  G.obtainiumGain = G.obtainiumGain.mul(+player.singularityUpgrades.singObtainium1.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(+player.singularityUpgrades.singObtainium2.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(+player.singularityUpgrades.singObtainium3.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + player.cubeUpgrades[55] / 100) // Cube Upgrade 6x5 (Cx5)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (1 / 200) * player.shopUpgrades.cashGrab2)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + (1 / 100) * player.shopUpgrades.obtainiumEX2 * player.singularityCount)
-  G.obtainiumGain = G.obtainiumGain.mul(1 + calculateEventBuff(BuffType.Obtainium))
-  G.obtainiumGain = G.obtainiumGain.mul(+player.singularityUpgrades.singCitadel.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(+player.singularityUpgrades.singCitadel2.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(+player.octeractUpgrades.octeractObtainium1.getEffect().bonus)
-  G.obtainiumGain = G.obtainiumGain.mul(Math.pow(1.02, player.shopUpgrades.obtainiumEX3))
-  G.obtainiumGain = G.obtainiumGain.mul(calculateTotalOcteractObtainiumBonus())
+  G.obtainiumGain *= 1 + (4 / 100) * player.cubeUpgrades[42]
+  G.obtainiumGain *= 1 + (3 / 100) * player.cubeUpgrades[43]
+  G.obtainiumGain *= 1 + player.platonicUpgrades[5]
+  G.obtainiumGain *= 1 + 1.5 * player.platonicUpgrades[9]
+  G.obtainiumGain *= 1 + 2.5 * player.platonicUpgrades[10]
+  G.obtainiumGain *= 1 + 5 * player.platonicUpgrades[15]
+  G.obtainiumGain *= G.challenge15Rewards.obtainium
+  G.obtainiumGain *= 1 + 5 * (player.singularityUpgrades.starterPack.getEffect().bonus ? 1 : 0)
+  G.obtainiumGain *= +player.singularityUpgrades.singObtainium1.getEffect().bonus
+  G.obtainiumGain *= +player.singularityUpgrades.singObtainium2.getEffect().bonus
+  G.obtainiumGain *= +player.singularityUpgrades.singObtainium3.getEffect().bonus
+  G.obtainiumGain *= 1 + player.cubeUpgrades[55] / 100 // Cube Upgrade 6x5 (Cx5)
+  G.obtainiumGain *= 1 + (1 / 200) * player.shopUpgrades.cashGrab2
+  G.obtainiumGain *= 1 + (1 / 100) * player.shopUpgrades.obtainiumEX2 * player.singularityCount
+  G.obtainiumGain *= 1 + calculateEventBuff(BuffType.Obtainium)
+  G.obtainiumGain *= +player.singularityUpgrades.singCitadel.getEffect().bonus
+  G.obtainiumGain *= +player.singularityUpgrades.singCitadel2.getEffect().bonus
+  G.obtainiumGain *= +player.octeractUpgrades.octeractObtainium1.getEffect().bonus
+  G.obtainiumGain *= Math.pow(1.02, player.shopUpgrades.obtainiumEX3)
+  G.obtainiumGain *= calculateTotalOcteractObtainiumBonus()
 
   if (G.eventClicked && G.isEvent) {
-    G.obtainiumGain = G.obtainiumGain.mul(1.05)
+    G.obtainiumGain *= 1.05
   }
 
   if (player.currentChallenge.ascension === 15) {
     G.obtainiumGain += 1
-    G.obtainiumGain = G.obtainiumGain.mul(1 + 7 * player.cubeUpgrades[62])
+    G.obtainiumGain *= 1 + 7 * player.cubeUpgrades[62]
   }
 
-  G.obtainiumGain = G.obtainiumGain.mul(1
-    + 0.001 * +player.blueberryUpgrades.ambrosiaObtainium1.bonus.obtainiumMult)
+  G.obtainiumGain *= 1
+    + 0.001 * +player.blueberryUpgrades.ambrosiaObtainium1.bonus.obtainiumMult
 
-  G.obtainiumGain = G.obtainiumGain.mul(calculateEXUltraObtainiumBonus())
-  G.obtainiumGain = G.obtainiumGain.mul(calculateEXALTBonusMult())
+  G.obtainiumGain *= calculateEXUltraObtainiumBonus()
+  G.obtainiumGain *= calculateEXALTBonusMult()
 
   if (!isFinite(G.obtainiumGain)) {
     G.obtainiumGain = 1e300
@@ -1187,21 +1127,21 @@ export const calculateAnts = () => {
 }
 
 export const calculateAntSacrificeELO = () => {
-  G.antELO = new Decimal(0)
-  G.effectiveELO = new Decimal(0)
+  G.antELO = 0
+  G.effectiveELO = 0
   const antUpgradeSum = sumContents(player.antUpgrades as number[])
-  if (player.antPoints.gte(1e40)) {
-    G.antELO = G.antELO.add(Decimal.log(player.antPoints, 10))
-    G.antELO = G.antELO.add(antUpgradeSum.mul(0.5))
-    G.antELO = G.antELO.add(player.firstOwnedAnts.mul(0.1))
-    G.antELO = G.antELO.add(player.secondOwnedAnts.mul(0.2))
-    G.antELO = G.antELO.add(player.thirdOwnedAnts.div(3))
-    G.antELO = G.antELO.add(player.fourthOwnedAnts.mul(0.5))
-    G.antELO = G.antELO.add(player.fifthOwnedAnts)
-    G.antELO = G.antELO.add(player.sixthOwnedAnts.mul(2))
-    G.antELO = G.antELO.add(player.seventhOwnedAnts.mul(4))
-    G.antELO = G.antELO.add(player.eighthOwnedAnts.mul(8))
-    G.antELO = G.antELO.add(666 * player.researches[178])
+  if (player.antPoints.gte('1e40')) {
+    G.antELO += Decimal.log(player.antPoints, 10)
+    G.antELO += (1 / 2) * antUpgradeSum
+    G.antELO += (1 / 10) * player.firstOwnedAnts
+    G.antELO += (1 / 5) * player.secondOwnedAnts
+    G.antELO += (1 / 3) * player.thirdOwnedAnts
+    G.antELO += (1 / 2) * player.fourthOwnedAnts
+    G.antELO += player.fifthOwnedAnts
+    G.antELO += 2 * player.sixthOwnedAnts
+    G.antELO += 4 * player.seventhOwnedAnts
+    G.antELO += 8 * player.eighthOwnedAnts
+    G.antELO += 666 * player.researches[178]
     G.antELO *= 1
       + 0.01 * player.achievements[180]
       + 0.02 * player.achievements[181]
@@ -1210,31 +1150,31 @@ export const calculateAntSacrificeELO = () => {
     G.antELO *= 1 + (2.5 * player.researches[148]) / 100
 
     if (player.achievements[176] === 1) {
-      G.antELO = G.antELO.add(25)
+      G.antELO += 25
     }
     if (player.achievements[177] === 1) {
-      G.antELO = G.antELO.add(50)
+      G.antELO += 50
     }
     if (player.achievements[178] === 1) {
-      G.antELO = G.antELO.add(75)
+      G.antELO += 75
     }
     if (player.achievements[179] === 1) {
-      G.antELO = G.antELO.add(100)
+      G.antELO += 100
     }
-    G.antELO = G.antELO.add(25 * player.researches[108])
-    G.antELO = G.antELO.add(25 * player.researches[109])
-    G.antELO = G.antELO.add(40 * player.researches[123])
-    G.antELO = G.antELO.add(100 * CalcECC('reincarnation', player.challengecompletions[10]))
-    G.antELO = G.antELO.add(75 * player.upgrades[80])
+    G.antELO += 25 * player.researches[108]
+    G.antELO += 25 * player.researches[109]
+    G.antELO += 40 * player.researches[123]
+    G.antELO += 100 * CalcECC('reincarnation', player.challengecompletions[10])
+    G.antELO += 75 * player.upgrades[80]
     G.antELO = (1 / 10) * Math.floor(10 * G.antELO)
 
-    G.effectiveELO = G.antELO.add(0.5 * Math.min(3500, G.antELO))
-    G.effectiveELO = G.antELO.add(0.1 * Math.min(4000, G.antELO))
-    G.effectiveELO = G.antELO.add(0.1 * Math.min(6000, G.antELO))
-    G.effectiveELO = G.antELO.add(0.1 * Math.min(10000, G.antELO))
-    G.effectiveELO = G.antELO.add(0.2 * G.antELO)
-    G.effectiveELO = G.antELO.add(G.cubeBonusMultiplier[8] - 1)
-    G.effectiveELO = G.antELO.add(1 * player.cubeUpgrades[50])
+    G.effectiveELO += 0.5 * Math.min(3500, G.antELO)
+    G.effectiveELO += 0.1 * Math.min(4000, G.antELO)
+    G.effectiveELO += 0.1 * Math.min(6000, G.antELO)
+    G.effectiveELO += 0.1 * Math.min(10000, G.antELO)
+    G.effectiveELO += 0.2 * G.antELO
+    G.effectiveELO += G.cubeBonusMultiplier[8] - 1
+    G.effectiveELO += 1 * player.cubeUpgrades[50]
     G.effectiveELO *= 1 + 0.03 * player.upgrades[124]
   }
 }
@@ -1469,7 +1409,7 @@ export const calculateOffline = async (forceTime = 0) => {
   player.transcendCount += resetAdd.transcension
   player.reincarnationCount += resetAdd.reincarnation
   timerAdd.ascension = player.ascensionCounter - timerAdd.ascension
-  timerAdd.quarks = Decimal.sub(quarkHandler().gain, timerAdd.quarks)
+  timerAdd.quarks = quarkHandler().gain - timerAdd.quarks
 
   // 200 simulated all ticks [July 12, 2021]
   const runOffline = setInterval(() => {
@@ -1482,7 +1422,7 @@ export const calculateOffline = async (forceTime = 0) => {
     addTimers('reincarnation', timeTick)
     addTimers('octeracts', timeTick)
 
-    resourceGain(Decimal.mul(timeTick, G.timeMultiplier))
+    resourceGain(timeTick * G.timeMultiplier)
 
     // Auto Obtainium Stuff
     if (player.researches[61] > 0 && player.currentChallenge.ascension !== 14) {
@@ -1635,18 +1575,18 @@ export const exitOffline = () => {
 }
 
 export const calculateSigmoid = (
-  constant: number | Decimal,
-  factor: number | Decimal,
-  divisor: number | Decimal
+  constant: number,
+  factor: number,
+  divisor: number
 ) => {
-  return Decimal.sub(constant, 1).mul(Decimal.sub(1, Decimal.neg(factor).div(divisor).pow_base(2))).add(1)
+  return 1 + (constant - 1) * (1 - Math.pow(2, -factor / divisor))
 }
 
 export const calculateSigmoidExponential = (
-  constant: number | Decimal,
-  coefficient: number | Decimal
+  constant: number,
+  coefficient: number
 ) => {
-  return Decimal.sub(constant, 1).mul(Decimal.sub(1, Decimal.neg(coefficient).exp())).add(1)
+  return 1 + (constant - 1) * (1 - Math.exp(-coefficient))
 }
 
 export const calculateCubeBlessings = () => {
@@ -1758,19 +1698,21 @@ export const calculateAllCubeMultiplier = () => {
     + (6 / 100) * player.achievements[250]
     + (10 / 100) * player.achievements[251],
     // Speed Achievement
-    Decimal.min(
+    1
+    + player.achievements[240]
+      * Math.min(
         0.5,
-        Decimal.max(
+        Math.max(
           0.1,
-          Decimal.log10(calculateTimeAcceleration().mult.add(1)).mul(0.05)
+          (1 / 20) * Math.log10(calculateTimeAcceleration().mult + 0.01)
         )
-      ).mul(player.achievements[240]).add(1),
+      ),
     // Challenge 15: All Cube Gain bonuses 1-5
     G.challenge15Rewards.cube1
-    .mul(G.challenge15Rewards.cube2)
-    .mul(G.challenge15Rewards.cube3)
-    .mul(G.challenge15Rewards.cube4)
-    .mul(G.challenge15Rewards.cube5),
+    * G.challenge15Rewards.cube2
+    * G.challenge15Rewards.cube3
+    * G.challenge15Rewards.cube4
+    * G.challenge15Rewards.cube5,
     // Rune 6: Infinite Ascent
     1 + (1 / 100) * calculateEffectiveIALevel(),
     // BETA: 2x Cubes
@@ -1841,19 +1783,19 @@ export const calculateAllCubeMultiplier = () => {
 
   const extraMult = G.isEvent && G.eventClicked ? 1.05 : 1
   return {
-    mult: Decimal.mul(productContents(arr), extraMult),
+    mult: productContents(arr) * extraMult,
     list: arr
   }
 }
 
-export const calculateCubeMultiplier = (score = new Decimal(-1)) => {
-  if (score.lt(0)) {
+export const calculateCubeMultiplier = (score = -1) => {
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(score.div(3000), 1 / 4.1),
+    Math.pow(score / 3000, 1 / 4.1),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 1
@@ -1875,13 +1817,23 @@ export const calculateCubeMultiplier = (score = new Decimal(-1)) => {
     * (1 + player.cubeUpgrades[11] / 11) // 2x1
     * (1 + 0.4 * player.cubeUpgrades[30]), // 3x10
     // Constant Upgrade 10
-    Decimal.log(player.ascendShards.add(1), 4).mul(Math.min(1, player.constantUpgrades[10])).mul(0.01).add(1),
+    1
+    + 0.01
+      * Decimal.log(player.ascendShards.add(1), 4)
+      * Math.min(1, player.constantUpgrades[10]),
     // Achievement 189 Bonus
     1 + player.achievements[189] * Math.min(2, player.ascensionCount / 2.5e8),
     // Achievement 193 Bonus
-    Decimal.mul(player.achievements[193], Decimal.log10(player.ascendShards.add(1))).div(400).add(1),
+    1
+    + (player.achievements[193] * Decimal.log(player.ascendShards.add(1), 10))
+      / 400,
     // Achievement 195 Bonus
-    Decimal.min(250, Decimal.mul(player.achievements[195], Decimal.log10(player.ascendShards.add(1))).div(400).add(1)
+    1
+    + Math.min(
+      250,
+      (player.achievements[195]
+        * Decimal.log(player.ascendShards.add(1), 10))
+        / 400
     ),
     // Achievement 198-201 Bonus
     1
@@ -1891,14 +1843,18 @@ export const calculateCubeMultiplier = (score = new Decimal(-1)) => {
         + player.achievements[200])
     + (3 / 100) * player.achievements[201],
     // Achievement 254 Bonus
-    Decimal.min(0.15, Decimal.log10(score.add(1)).mul(0.006))
-      .mul(player.achievements[254]).add(1),
+    1
+    + Math.min(0.15, (0.6 / 100) * Math.log10(score + 1))
+      * player.achievements[254],
     // Spirit Power
     1 + (calculateCorruptionPoints() / 400) * G.effectiveRuneSpiritPower[2],
     // Platonic Cube Opening Bonus
     G.platonicBonusMultiplier[0],
     // Platonic 1x1
-    Decimal.mul(sumContents(player.usedCorruptions), player.platonicUpgrades[1]).mul(0.00009).add(1),
+    1
+    + 0.00009
+      * sumContents(player.usedCorruptions)
+      * player.platonicUpgrades[1],
     // Cube Upgrade 63 (Cx13)
     1
     + Math.pow(1.03, Math.log10(Math.max(1, player.wowAbyssals)))
@@ -1914,30 +1870,36 @@ export const calculateCubeMultiplier = (score = new Decimal(-1)) => {
   }
 }
 
-export const calculateTesseractMultiplier = (score = new Decimal(-1)) => {
-  if (score.lt(0)) {
+export const calculateTesseractMultiplier = (score = -1) => {
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const corrSum = sumContents(player.usedCorruptions.slice(2, 10))
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.max(0, score.sub(1e5)).div(1e3).add(1), 0.35),
+    Math.pow(1 + Math.max(0, score - 1e5) / 1e4, 0.35),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 1
     1 + (2.25 * player.shopUpgrades.seasonPass) / 100,
     // 10th Const Upgrade +Tesseract%
-    Decimal.mul(Decimal.log(player.ascendShards.add(1), 4), Math.min(1, player.constantUpgrades[10])).mul(0.01).add(1),
+    1
+    + 0.01
+      * Decimal.log(player.ascendShards.add(1), 4)
+      * Math.min(1, player.constantUpgrades[10]),
     // Cube Upgrade 3x10
     1 + 0.4 * player.cubeUpgrades[30],
     // Cube Upgrade 4x8
-    Decimal.mul(player.cubeUpgrades[38], corrSum).mul(0.005).add(1),
+    1 + (1 / 200) * player.cubeUpgrades[38] * corrSum,
     // Achievement 195 Bonus
-    Decimal.min(
+    1
+    + Math.min(
       250,
-      (Decimal.mul(player.achievements[195], Decimal.log(player.ascendShards.add(1), 10))).div(400)
-    ).add(1),
+      (player.achievements[195]
+        * Decimal.log(player.ascendShards.add(1), 10))
+        / 400
+    ),
     // Achievement 202 Bonus
     1 + player.achievements[202] * Math.min(2, player.ascensionCount / 5e8),
     // Achievement 205-208 Bonus
@@ -1948,11 +1910,13 @@ export const calculateTesseractMultiplier = (score = new Decimal(-1)) => {
         + player.achievements[207])
     + (3 / 100) * player.achievements[208],
     // Achievement 255 Bonus
-    Decimal.min(0.15, Decimal.log10(score.add(1).mul(0.006))).mul(player.achievements[256]).add(1),
+    1
+    + Math.min(0.15, (0.6 / 100) * Math.log10(score + 1))
+      * player.achievements[255],
     // Platonic Cube Bonus
     G.platonicBonusMultiplier[1],
     // Platonic Upgrade 1x2
-    Decimal.mul(corrSum, player.platonicUpgrades[2]).mul(0.00018).add(1)
+    1 + 0.00018 * corrSum * player.platonicUpgrades[2]
     // Total Tesseract Multipliers: 12
   ]
 
@@ -1962,14 +1926,14 @@ export const calculateTesseractMultiplier = (score = new Decimal(-1)) => {
   }
 }
 
-export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
-  if (score.lt(0)) {
+export const calculateHypercubeMultiplier = (score = -1) => {
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.max(0, score.sub(1e9)).div(1e8).add(1), 0.5),
+    Math.pow(1 + Math.max(0, score - 1e9) / 1e8, 0.5),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
@@ -1986,13 +1950,18 @@ export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
     // Achievement 253 Bonus
     1 + (1 / 10) * player.achievements[253],
     // Achievement 256 Bonus
-    Decimal.min(0.15, Decimal.log10(score.add(1).mul(0.006))).mul(player.achievements[256]).add(1),
+    1
+    + Math.min(0.15, (0.6 / 100) * Math.log10(score + 1))
+      * player.achievements[256],
     // Achievement 265 Bonus
     1 + Math.min(2, player.ascensionCount / 2.5e10) * player.achievements[265],
     // Platonic Cubes Opened Bonus
     G.platonicBonusMultiplier[2],
     // Platonic Upgrade 1x3
-    Decimal.mul(sumContents(player.usedCorruptions), player.platonicUpgrades[3]).mul(0.00054).add(1),
+    1
+    + 0.00054
+      * sumContents(player.usedCorruptions)
+      * player.platonicUpgrades[3],
     // Hyperreal Hepteract Bonus
     1 + (0.6 / 1000) * hepteractEffective('hyperrealism')
     // Total Hypercube Multipliers: 11
@@ -2004,23 +1973,25 @@ export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
   }
 }
 
-export const calculatePlatonicMultiplier = (score = new Decimal(-1)) => {
-  if (score.lt(0)) {
+export const calculatePlatonicMultiplier = (score = -1) => {
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.max(0, score.sub(2.666e12)).div(2.666e11).add(1).pow(0.75),
+    Math.pow(1 + Math.max(0, score - 2.666e12) / 2.666e11, 0.75),
     // Global Multipliers
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
     1 + (1.5 * player.shopUpgrades.seasonPass2) / 100,
     // Achievement 196 Bonus
-    Decimal.min(
+    1
+    + Math.min(
       20,
-      Decimal.mul(Decimal.div(player.achievements[196], 5000), Decimal.log10(player.ascendShards.add(1)))
-    ).add(1),
+      ((player.achievements[196] * 1) / 5000)
+        * Decimal.log(player.ascendShards.add(1), 10)
+    ),
     // Achievement 219-222 Bonus
     1
     + (4 / 100)
@@ -2031,7 +2002,9 @@ export const calculatePlatonicMultiplier = (score = new Decimal(-1)) => {
     // Achievement 223 Bonus
     1 + player.achievements[223] * Math.min(2, player.ascensionCount / 1.337e9),
     // Achievement 257 Bonus
-    Decimal.min(0.15, Decimal.log10(score.add(1).mul(0.006))).mul(player.achievements[256]).add(1),
+    1
+    + Math.min(0.15, (0.6 / 100) * Math.log10(score + 1))
+      * player.achievements[257],
     // Platonic Cube Opening Bonus
     G.platonicBonusMultiplier[3],
     // Platonic Upgrade 1x4
@@ -2045,28 +2018,33 @@ export const calculatePlatonicMultiplier = (score = new Decimal(-1)) => {
   }
 }
 
-export const calculateHepteractMultiplier = (score = new Decimal(-1)) => {
-  if (score.lt(0)) {
+export const calculateHepteractMultiplier = (score = -1) => {
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.max(0, score.sub(1.666e16)).div(3.33e16).add(1), 0.85),
+    Math.pow(1 + Math.max(0, score - 1.666e16) / 3.33e16, 0.85),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 3
     1 + (1.5 * player.shopUpgrades.seasonPass3) / 100,
     // Achievement 258 Bonus
-    Decimal.min(0.15, Decimal.log10(score.add(1).mul(0.006))).mul(player.achievements[256]).add(1),
+    1
+    + Math.min(0.15, (0.6 / 100) * Math.log10(score + 1))
+      * player.achievements[258],
     // Achievement 264 Bonus [Max: 8T Asc]
     1 + Math.min(0.4, player.ascensionCount / 2e13) * player.achievements[264],
     // Achievement 265 Bonus [Max: 160T Asc]
     1 + Math.min(0.2, player.ascensionCount / 8e14) * player.achievements[265],
     // Achievement 270 Bonus
-    Decimal.min(
+    Math.min(
       2,
-      Decimal.mul(Decimal.log10(player.ascendShards.add(1)), player.achievements[270]).div(1e6).add(1)
+      1
+        + (1 / 1000000)
+          * Decimal.log(player.ascendShards.add(1), 10)
+          * player.achievements[270]
     )
     // Total Hepteract Multipliers: 7
   ]
@@ -2085,19 +2063,24 @@ export const getOcteractValueMultipliers = () => {
     1 + (player.shopUpgrades.seasonPassZ * player.singularityCount) / 100,
     1 + player.shopUpgrades.seasonPassLost / 1000,
     // cube upgrade 70, ie Cx20
-    1 + ((corruptionLevelSum.gte(14) ? 8 : 0) * player.cubeUpgrades[70]) / 10000,
-    1 + (corruptionLevelSum.gte(14) ? 8 : 0) * (player.singularityUpgrades.divinePack.getEffect().bonus ? 1 : 0),
+    1 + (+(corruptionLevelSum >= 14 * 8) * player.cubeUpgrades[70]) / 10000,
+    1
+    + +(corruptionLevelSum >= 14 * 8)
+      * +player.singularityUpgrades.divinePack.getEffect().bonus,
     // next three are flame/blaze/inferno
-    player.singularityUpgrades.singCubes1.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singCubes2.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singCubes3.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singOcteractGain.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singOcteractGain2.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singOcteractGain3.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singOcteractGain4.getEffect().bonus ? 1 : 0,
-    player.singularityUpgrades.singOcteractGain5.getEffect().bonus ? 1 : 0,
+    +player.singularityUpgrades.singCubes1.getEffect().bonus,
+    +player.singularityUpgrades.singCubes2.getEffect().bonus,
+    +player.singularityUpgrades.singCubes3.getEffect().bonus,
+    // absinthe through eighth wonder
+    +player.singularityUpgrades.singOcteractGain.getEffect().bonus,
+    +player.singularityUpgrades.singOcteractGain2.getEffect().bonus,
+    +player.singularityUpgrades.singOcteractGain3.getEffect().bonus,
+    +player.singularityUpgrades.singOcteractGain4.getEffect().bonus,
+    +player.singularityUpgrades.singOcteractGain5.getEffect().bonus,
     // Patreon bonus
-    player.worlds.BONUS.div(100).mul(player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus ? 1 : 0).add(1),
+    1
+    + (player.worlds.BONUS / 100)
+      * +player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus,
     // octeracts for dummies
     1 + 0.2 * +player.octeractUpgrades.octeractStarter.getEffect().bonus,
     // cogenesis and trigenesis
@@ -2139,47 +2122,53 @@ export const getOcteractValueMultipliers = () => {
 }
 
 export const octeractGainPerSecond = () => {
-  const SCOREREQ = new Decimal(1e23)
+  const SCOREREQ = 1e23
   const currentScore = calculateAscensionScore().effectiveScore
 
-  const baseMultiplier: Decimal = currentScore.gte(SCOREREQ) ? currentScore.div(SCOREREQ) : new Decimal(0)
+  const baseMultiplier = currentScore >= SCOREREQ ? currentScore / SCOREREQ : 0
 
   const valueMultipliers = getOcteractValueMultipliers()
 
   const ascensionSpeed = player.singularityUpgrades.oneMind.getEffect().bonus
-    ? 3.1622776601683795
-    : calculateAscensionAcceleration().sqrt()
+    ? Math.pow(10, 1 / 2)
+    : Math.pow(calculateAscensionAcceleration(), 1 / 2)
   const oneMindModifier = player.singularityUpgrades.oneMind.getEffect().bonus
-    ? Decimal.pow(
-      calculateAscensionAcceleration().div(10),
-      player.octeractUpgrades.octeractOneMindImprover.getEffect().bonus ? 1 : 0
+    ? Math.pow(
+      calculateAscensionAcceleration() / 10,
+      +player.octeractUpgrades.octeractOneMindImprover.getEffect().bonus
     )
-    : new Decimal(1)
+    : 1
   const extraMult = G.isEvent && G.eventClicked ? 1.05 : 1
-  const perSecond = baseMultiplier.mul(productContents(valueMultipliers)).mul(ascensionSpeed).mul(oneMindModifier).mul(extraMult).mul(3.1709791983764586e-23)
+  const perSecond = (1 / (24 * 3600 * 365 * 1e15))
+    * baseMultiplier
+    * productContents(valueMultipliers)
+    * ascensionSpeed
+    * oneMindModifier
+    * extraMult
   return perSecond
 }
 
 // This is an old calculation used only for Stats for Nerds
-export const calculateOcteractMultiplier = (score = new Decimal(-1)) => {
-  const SCOREREQ = new Decimal(1e23)
-  if (score.lt(0)) {
+export const calculateOcteractMultiplier = (score = -1) => {
+  const SCOREREQ = 1e23
+  if (score < 0) {
     score = calculateAscensionScore().effectiveScore
   }
 
   const arr = getOcteractValueMultipliers()
 
   // add base score to the beginning and ascension speed mult to the end of the list
-  arr.unshift(score.gte(SCOREREQ) ? score.div(SCOREREQ) : new Decimal(0))
+  arr.unshift(score >= SCOREREQ ? score / SCOREREQ : 0)
   const ascensionSpeed = calculateAscensionAcceleration()
 
   const ascensionSpeedMulti = player.singularityUpgrades.oneMind.getEffect()
       .bonus
-    ? Decimal.pow(
-        ascensionSpeed.div(10),
-        player.octeractUpgrades.octeractOneMindImprover.getEffect().bonus ? 1 : 0
-      ).mul(3.1622776601683795)
-    : ascensionSpeed.sqrt()
+    ? Math.pow(10, 1 / 2)
+      * Math.pow(
+        ascensionSpeed / 10,
+        +player.octeractUpgrades.octeractOneMindImprover.getEffect().bonus
+      )
+    : Math.pow(ascensionSpeed, 1 / 2)
   arr.push(ascensionSpeedMulti)
 
   return {
@@ -2208,34 +2197,34 @@ export const calculateTimeAcceleration = () => {
   ]
 
   // Global Speed softcap + Corruption / Corruption-like effects
-  const corruptionArr: Decimal[] = [
+  const corruptionArr: number[] = [
     G.lazinessMultiplier[player.usedCorruptions[3]] // Corruption:  Spacial Dilation
   ]
 
-  const corruptableTimeMult = productContents(preCorruptionArr).mul(corruptionArr[0]) // DR applies after base corruption.
+  const corruptableTimeMult = productContents(preCorruptionArr) * corruptionArr[0] // DR applies after base corruption.
 
-  if (corruptableTimeMult.gt(100)) {
-    const postSoftcap = corruptableTimeMult.sqrt().mul(100)
-    const softcapRatio = postSoftcap.div(corruptableTimeMult)
+  if (corruptableTimeMult > 100) {
+    const postSoftcap = 10 * Math.sqrt(corruptableTimeMult)
+    const softcapRatio = postSoftcap / corruptableTimeMult
 
     corruptionArr.push(softcapRatio)
   } else {
-    corruptionArr.push(new Decimal(1))
+    corruptionArr.push(1)
   }
 
-  if (corruptableTimeMult.lt(1)) {
-    const postPlat2x2 = Decimal.pow(
+  if (corruptableTimeMult < 1) {
+    const postPlat2x2 = Math.pow(
       corruptableTimeMult,
       1 - player.platonicUpgrades[7] / 30
     )
-    const plat2x2Ratio = postPlat2x2.div(corruptableTimeMult)
+    const plat2x2Ratio = postPlat2x2 / corruptableTimeMult
 
     corruptionArr.push(plat2x2Ratio)
   } else {
-    corruptionArr.push(new Decimal(1))
+    corruptionArr.push(1)
   }
 
-  corruptionArr.push(Decimal.recip(calculateSingularityDebuff('Global Speed')))
+  corruptionArr.push(1.0 / calculateSingularityDebuff('Global Speed'))
 
   // Uncorruptable effects
   const postCorruptionArr = [
@@ -2247,13 +2236,13 @@ export const calculateTimeAcceleration = () => {
   ]
 
   const timeMult = productContents(preCorruptionArr)
-    .mul(productContents(corruptionArr))
-    .mul(productContents(postCorruptionArr))
+    * productContents(corruptionArr)
+    * productContents(postCorruptionArr)
 
   if (player.usedCorruptions[3] >= 6 && player.achievements[241] < 1) {
     achievementaward(241)
   }
-  if (timeMult.gt(3600) && player.achievements[242] < 1) {
+  if (timeMult > 3600 && player.achievements[242] < 1) {
     achievementaward(242)
   }
 
@@ -2291,7 +2280,8 @@ export const calculateAscensionSpeedMultiplier = () => {
     1
     + Math.min(0.1, (1 / 100) * Math.log10(player.ascensionCount + 1))
       * player.achievements[263], // Achievement 263 Bonus
-    Decimal.mul(sumContents(player.usedCorruptions), player.platonicUpgrades[15]).mul(0.002).add(1), // Platonic Omega
+    1
+    + 0.002 * sumContents(player.usedCorruptions) * player.platonicUpgrades[15], // Platonic Omega
     G.challenge15Rewards.ascensionSpeed, // Challenge 15 Reward
     1 + (1 / 400) * player.cubeUpgrades[59], // Cookie Upgrade 9
     1
@@ -2315,27 +2305,27 @@ export const calculateAscensionSpeedMultiplier = () => {
     1 / calculateLimitedAscensionsDebuff(), // EXALT Debuff
     Math.pow(
       1
-        + (player.singularityChallenges.limitedAscensions.rewards.ascensionSpeedMult ? 1 : 0),
+        + +player.singularityChallenges.limitedAscensions.rewards
+          .ascensionSpeedMult,
       1 + Math.max(0, Math.floor(Math.log10(player.ascensionCount)))
-    ) // EXALT Buff
+    ) // EXALT Buff                                                                                                 // EXALT Buff
   ]
 
   // A hecking good ascension speedup!
   const baseMultiplier = productContents(arr)
   const exponent = player.singularityUpgrades.singAscensionSpeed.level > 0
-    ? baseMultiplier.gte(1)
+    ? baseMultiplier >= 1
       ? 1.03
       : 0.97
     : 1
-  arr.push(Decimal.pow(baseMultiplier, exponent).div(baseMultiplier))
+  arr.push(Math.pow(baseMultiplier, exponent) / baseMultiplier)
 
   // Singularity Penalty
   arr.push(1 / calculateSingularityDebuff('Ascension Speed'))
 
   let multiplier = productContents(arr)
-  if (!Decimal.isFinite(multiplier)) {
-    console.log(arr)
-    throw new Error("multiplier is not finite ???")
+  if (!isFinite(multiplier)) {
+    multiplier = 0
   }
 
   return {
@@ -2495,7 +2485,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
 
   const arr = [
     1 + Math.max(0, Math.log10(player.challenge15Exponent + 1) - 20) / 2, // Challenge 15 Exponent
-    player.worlds.BONUS.div(100).add(1), // Patreon Bonus
+    1 + player.worlds.BONUS / 100, // Patreon Bonus
     +player.singularityUpgrades.goldenQuarks1.getEffect().bonus, // Golden Quarks I
     1 + 0.12 * player.cubeUpgrades[69], // Cookie Upgrade 19
     +player.singularityChallenges.noSingularityUpgrades.rewards.goldenQuarks, // No Singularity Upgrades
@@ -2511,7 +2501,9 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
   arr.push(
     computeMultiplier
       ? 1 / 1e5
-      : (Decimal.add(base, player.quarksThisSingularity.div(1e5)).mul(productContents(arr)).add(bonus)).div(productContents(arr))
+      : ((base + player.quarksThisSingularity / 1e5) * productContents(arr)
+        + bonus)
+        / productContents(arr)
   )
 
   return {
@@ -2520,7 +2512,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
   }
 }
 
-export const calculateGoldenQuarkGain = (computeMultiplier = false): Decimal => {
+export const calculateGoldenQuarkGain = (computeMultiplier = false): number => {
   return calculateGoldenQuarkMultiplier(computeMultiplier).mult
 }
 
@@ -2698,39 +2690,40 @@ export const calculateCubicSumData = (
 */
 
 export const computeAscensionScoreBonusMultiplier = () => {
-  let multiplier = new Decimal(1)
-  multiplier = multiplier.mul(G.challenge15Rewards.score)
-  multiplier = multiplier.mul(G.platonicBonusMultiplier[6])
+  let multiplier = 1
+  multiplier *= G.challenge15Rewards.score
+  multiplier *= G.platonicBonusMultiplier[6]
 
   if (player.cubeUpgrades[21] > 0) {
-    multiplier = multiplier.mul(1 + 0.05 * player.cubeUpgrades[21])
+    multiplier *= 1 + 0.05 * player.cubeUpgrades[21]
   }
   if (player.cubeUpgrades[31] > 0) {
-    multiplier = multiplier.mul(1 + 0.05 * player.cubeUpgrades[31])
+    multiplier *= 1 + 0.05 * player.cubeUpgrades[31]
   }
   if (player.cubeUpgrades[41] > 0) {
-    multiplier = multiplier.mul(1 + 0.05 * player.cubeUpgrades[41])
+    multiplier *= 1 + 0.05 * player.cubeUpgrades[41]
   }
   if (player.achievements[267] > 0) {
-    multiplier = multiplier.mul(Decimal.min(1, Decimal.log10(player.ascendShards.add(1)).div(1e5)).add(1))
+    multiplier *= 1
+      + Math.min(1, (1 / 100000) * Decimal.log(player.ascendShards.add(1), 10))
   }
   if (player.achievements[259] > 0) {
-    multiplier = multiplier.mul(Math.max(
+    multiplier *= Math.max(
       1,
       Math.pow(1.01, Math.log2(player.hepteractCrafts.abyss.CAP))
-    ))
+    )
   }
   if (G.isEvent) {
-    multiplier = multiplier.mul(1 + calculateEventBuff(BuffType.AscensionScore))
+    multiplier *= 1 + calculateEventBuff(BuffType.AscensionScore)
   }
 
   return multiplier
 }
 
 export const calculateAscensionScore = () => {
-  let baseScore = new Decimal(0)
-  let corruptionMultiplier = new Decimal(1)
-  let effectiveScore = new Decimal(0)
+  let baseScore = 0
+  let corruptionMultiplier = 1
+  let effectiveScore = 0
 
   let bonusLevel = player.singularityUpgrades.corruptionFifteen.getEffect()
       .bonus
@@ -2775,23 +2768,23 @@ export const calculateAscensionScore = () => {
   // Transcend Challenge: First Threshold at 75 completions, second at 750
   // Reincarnation Challenge: First at 25, second at 60. It probably should be higher but Platonic is a dumb dumb
   for (let i = 1; i <= 10; i++) {
-    baseScore = baseScore.add(challengeScoreArrays1[i] * player.highestchallengecompletions[i])
+    baseScore += challengeScoreArrays1[i] * player.highestchallengecompletions[i]
     if (i <= 5 && player.highestchallengecompletions[i] >= 75) {
-      baseScore = baseScore.add(challengeScoreArrays2[i] * (player.highestchallengecompletions[i] - 75))
+      baseScore += challengeScoreArrays2[i] * (player.highestchallengecompletions[i] - 75)
       if (player.highestchallengecompletions[i] >= 750) {
-        baseScore = baseScore.add(challengeScoreArrays3[i]
-          * (player.highestchallengecompletions[i] - 750))
+        baseScore += challengeScoreArrays3[i]
+          * (player.highestchallengecompletions[i] - 750)
       }
       if (player.highestchallengecompletions[i] >= 9000) {
-        baseScore = baseScore.add(challengeScoreArrays4[i]
-          * (player.highestchallengecompletions[i] - 9000))
+        baseScore += challengeScoreArrays4[i]
+          * (player.highestchallengecompletions[i] - 9000)
       }
     }
     if (i <= 10 && i > 5 && player.highestchallengecompletions[i] >= 25) {
-      baseScore = baseScore.add(challengeScoreArrays2[i] * (player.highestchallengecompletions[i] - 25))
+      baseScore += challengeScoreArrays2[i] * (player.highestchallengecompletions[i] - 25)
       if (player.highestchallengecompletions[i] >= 60) {
-        baseScore = baseScore.add(challengeScoreArrays3[i]
-          * (player.highestchallengecompletions[i] - 60))
+        baseScore += challengeScoreArrays3[i]
+          * (player.highestchallengecompletions[i] - 60)
       }
     }
   }
@@ -2802,12 +2795,12 @@ export const calculateAscensionScore = () => {
   // 0.0025 from Platonic ALPHA (Plat 1x5)
   // 0.005 from Platonic BETA (Plat 2x5)
   // Max: 1.0425
-  baseScore = baseScore.mul(Math.pow(
+  baseScore *= Math.pow(
     1.03
       + 0.005 * player.cubeUpgrades[39]
       + 0.0025 * (player.platonicUpgrades[5] + player.platonicUpgrades[10]),
     player.highestchallengecompletions[10]
-  ))
+  )
   // Corruption Multiplier is the product of all Corruption Score multipliers based on used corruptions
   let bonusVal = player.singularityUpgrades.advancedPack.getEffect().bonus
     ? 0.33
@@ -2819,30 +2812,30 @@ export const calculateAscensionScore = () => {
         + 2 * Math.min(1, player.platonicUpgrades[17])
         + 0.04 * player.platonicUpgrades[17]
       : 1
-    corruptionMultiplier = corruptionMultiplier.mul(Decimal.pow(
+    corruptionMultiplier *= Math.pow(
       G.corruptionPointMultipliers[player.usedCorruptions[i] + bonusLevel],
       exponent
-    ).add(bonusVal))
+    ) + bonusVal
 
     if (
       player.usedCorruptions[i] >= 14
       && player.singularityUpgrades.masterPack.getEffect().bonus
     ) {
-      corruptionMultiplier = corruptionMultiplier.mul(1.1)
+      corruptionMultiplier *= 1.1
     }
   }
 
   const bonusMultiplier = computeAscensionScoreBonusMultiplier()
 
-  effectiveScore = baseScore.mul(corruptionMultiplier).mul(bonusMultiplier)
-  if (effectiveScore.gte(1e23)) {
-    effectiveScore = effectiveScore.div(1e23).sqrt().mul(1e23)
+  effectiveScore = baseScore * corruptionMultiplier * bonusMultiplier
+  if (effectiveScore > 1e23) {
+    effectiveScore = Math.pow(effectiveScore, 0.5) * Math.pow(1e23, 0.5)
   }
 
-  if (player.singularityUpgrades.expertPack.getEffect().bonus) {
-    effectiveScore = effectiveScore.mul(1.5)
-  }
-  
+  player.singularityUpgrades.expertPack.getEffect().bonus
+    ? (effectiveScore *= 1.5)
+    : (effectiveScore *= 1)
+
   return {
     baseScore,
     corruptionMultiplier,
@@ -2852,7 +2845,7 @@ export const calculateAscensionScore = () => {
 }
 
 export const CalcCorruptionStuff = () => {
-  let cubeBank = new Decimal(0)
+  let cubeBank = 0
   let challengeModifier = 1
   const scores = calculateAscensionScore()
 
@@ -2863,70 +2856,70 @@ export const CalcCorruptionStuff = () => {
 
   for (let i = 1; i <= 10; i++) {
     challengeModifier = i >= 6 ? 2 : 1
-    cubeBank = cubeBank.add(Decimal.mul(challengeModifier, player.highestchallengecompletions[i]))
+    cubeBank += challengeModifier * player.highestchallengecompletions[i]
   }
 
   const oneMindModifier = player.singularityUpgrades.oneMind.getEffect().bonus
-    ? calculateAscensionAcceleration().div(10)
+    ? calculateAscensionAcceleration() / 10
     : 1
 
   // Calculation of Cubes :)
   let cubeGain = cubeBank
-  cubeGain = cubeGain.add(calculateCubeMultiplier(effectiveScore).mult)
-  cubeGain = cubeGain.add(oneMindModifier)
+  cubeGain *= calculateCubeMultiplier(effectiveScore).mult
+  cubeGain *= oneMindModifier
 
   const bonusCubeExponent = player.singularityUpgrades.platonicTau.getEffect()
       .bonus
     ? 1.01
     : 1
-  cubeGain = Decimal.pow(cubeGain, bonusCubeExponent)
+  cubeGain = Math.pow(cubeGain, bonusCubeExponent)
 
   // Calculation of Tesseracts :))
-  let tesseractGain = new Decimal(1)
-  if (effectiveScore.gte(100000)) {
-    tesseractGain = tesseractGain.add(0.5)
+  let tesseractGain = 1
+  if (effectiveScore >= 100000) {
+    tesseractGain += 0.5
   }
-  tesseractGain = tesseractGain.add(calculateTesseractMultiplier(effectiveScore).mult)
-  tesseractGain = tesseractGain.add(oneMindModifier)
+  tesseractGain *= calculateTesseractMultiplier(effectiveScore).mult
+  tesseractGain *= oneMindModifier
 
   // Calculation of Hypercubes :)))
-  let hypercubeGain = effectiveScore.gte(1e9) ? new Decimal(1) : new Decimal(0)
-  hypercubeGain = hypercubeGain.add(calculateHypercubeMultiplier(effectiveScore).mult)
-  hypercubeGain = hypercubeGain.add(oneMindModifier)
+  let hypercubeGain = effectiveScore >= 1e9 ? 1 : 0
+  hypercubeGain *= calculateHypercubeMultiplier(effectiveScore).mult
+  hypercubeGain *= oneMindModifier
 
   // Calculation of Platonic Cubes :))))
-  let platonicGain = effectiveScore.gte(2.666e12) ? new Decimal(1) : new Decimal(0)
-  platonicGain = platonicGain.add(calculatePlatonicMultiplier(effectiveScore).mult)
-  platonicGain = platonicGain.add(oneMindModifier)
+  let platonicGain = effectiveScore >= 2.666e12 ? 1 : 0
+  platonicGain *= calculatePlatonicMultiplier(effectiveScore).mult
+  platonicGain *= oneMindModifier
 
   // Calculation of Hepteracts :)))))
   let hepteractGain = G.challenge15Rewards.hepteractUnlocked
-      && effectiveScore.gte(1.666e17)
+      && effectiveScore >= 1.666e17
       && player.achievements[255] > 0
-    ? new Decimal(1) : new Decimal(0)
-  hepteractGain = hepteractGain.add(calculateHepteractMultiplier(effectiveScore).mult)
-  hepteractGain = hepteractGain.add(oneMindModifier)
+    ? 1
+    : 0
+  hepteractGain *= calculateHepteractMultiplier(effectiveScore).mult
+  hepteractGain *= oneMindModifier
 
   return [
     cubeBank,
-    Decimal.floor(baseScore),
+    Math.floor(baseScore),
     corruptionMultiplier,
-    Decimal.floor(effectiveScore),
-    // CAPS EVERYWHEREEEE
-    Decimal.min(1e300, Decimal.floor(cubeGain)),
-    Decimal.min(
+    Math.floor(effectiveScore),
+    Math.min(1e300, Math.floor(cubeGain)),
+    Math.min(
       1e300,
-      Decimal.max(player.singularityCount, Decimal.floor(tesseractGain))
+      Math.max(player.singularityCount, Math.floor(tesseractGain))
     ),
-    Decimal.min(1e300, Decimal.floor(hypercubeGain)),
-    Decimal.min(1e300, Decimal.floor(platonicGain)),
-    Decimal.min(1e300, Decimal.floor(hepteractGain)),
+    Math.min(1e300, Math.floor(hypercubeGain)),
+    Math.min(1e300, Math.floor(platonicGain)),
+    Math.min(1e300, Math.floor(hepteractGain)),
     bonusMultiplier
   ]
 }
 
 export const calcAscensionCount = () => {
-  let ascCount = new Decimal(1)
+  let ascCount = 1
 
   if (player.singularityChallenges.limitedAscensions.enabled) {
     return ascCount
@@ -2937,41 +2930,41 @@ export const calcAscensionCount = () => {
 
     if (player.ascensionCounter >= 10) {
       if (player.achievements[188] > 0) {
-        ascCount = ascCount.add(99)
+        ascCount += 99
       }
 
-      ascCount = ascCount.add(1
+      ascCount *= 1
         + (player.ascensionCounter / 10 - 1)
           * 0.2
           * (player.achievements[189]
             + player.achievements[202]
             + player.achievements[209]
             + player.achievements[216]
-            + player.achievements[223]))
+            + player.achievements[223])
     }
 
-    ascCount = ascCount.add(player.achievements[187] && Decimal.floor(effectiveScore).gt(1e8)
-      ? Decimal.log10(Decimal.floor(effectiveScore).add(1)).sub(1)
-      : 1)
-    ascCount = ascCount.add(G.challenge15Rewards.ascensions)
-    ascCount = ascCount.add(player.achievements[260] > 0 ? 1.1 : 1)
-    ascCount = ascCount.add(player.achievements[261] > 0 ? 1.1 : 1)
-    ascCount = ascCount.add(player.platonicUpgrades[15] > 0 ? 2 : 1)
-    ascCount = ascCount.add(1 + 0.02 * player.platonicUpgrades[16])
-    ascCount = ascCount.add(1
+    ascCount *= player.achievements[187] && Math.floor(effectiveScore) > 1e8
+      ? Math.log10(Math.floor(effectiveScore) + 1) - 1
+      : 1
+    ascCount *= G.challenge15Rewards.ascensions
+    ascCount *= player.achievements[260] > 0 ? 1.1 : 1
+    ascCount *= player.achievements[261] > 0 ? 1.1 : 1
+    ascCount *= player.platonicUpgrades[15] > 0 ? 2 : 1
+    ascCount *= 1 + 0.02 * player.platonicUpgrades[16]
+    ascCount *= 1
       + 0.02
         * player.platonicUpgrades[16]
-        * Math.min(1, player.overfluxPowder / 100000))
-    ascCount = ascCount.add(1 + player.singularityCount / 10)
-    ascCount = ascCount.add(+player.singularityUpgrades.ascensions.getEffect().bonus)
-    ascCount = ascCount.add(+player.octeractUpgrades.octeractAscensions.getEffect().bonus)
-    ascCount = ascCount.add(+player.octeractUpgrades.octeractAscensions2.getEffect().bonus)
-    ascCount = ascCount.add(player.singularityUpgrades.oneMind.getEffect().bonus
-      ? calculateAscensionAcceleration().div(10)
-      : 1)
+        * Math.min(1, player.overfluxPowder / 100000)
+    ascCount *= 1 + player.singularityCount / 10
+    ascCount *= +player.singularityUpgrades.ascensions.getEffect().bonus
+    ascCount *= +player.octeractUpgrades.octeractAscensions.getEffect().bonus
+    ascCount *= +player.octeractUpgrades.octeractAscensions2.getEffect().bonus
+    ascCount *= player.singularityUpgrades.oneMind.getEffect().bonus
+      ? calculateAscensionAcceleration() / 10
+      : 1
   }
 
-  return Decimal.floor(ascCount)
+  return Math.floor(ascCount)
 }
 
 /**
@@ -2998,65 +2991,65 @@ export const calculatePowderConversion = () => {
 export const calculateCubeQuarkMultiplier = () => {
   return (
     (calculateSigmoid(2, Math.pow(player.overfluxOrbs, 0.5), 40)
-      .add(calculateSigmoid(1.5, Math.pow(player.overfluxOrbs, 0.5), 160))
-      .add(calculateSigmoid(1.5, Math.pow(player.overfluxOrbs, 0.5), 640))
-      .add(calculateSigmoid(
+      + calculateSigmoid(1.5, Math.pow(player.overfluxOrbs, 0.5), 160)
+      + calculateSigmoid(1.5, Math.pow(player.overfluxOrbs, 0.5), 640)
+      + calculateSigmoid(
         1.15,
         +(player.highestSingularityCount >= 1)
           * Math.pow(player.overfluxOrbs, 0.45),
         2560
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.15,
         +(player.highestSingularityCount >= 2)
           * Math.pow(player.overfluxOrbs, 0.4),
         10000
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.25,
         +(player.highestSingularityCount >= 5)
           * Math.pow(player.overfluxOrbs, 0.35),
         40000
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.25,
         +(player.highestSingularityCount >= 10)
           * Math.pow(player.overfluxOrbs, 0.32),
         160000
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.35,
         +(player.highestSingularityCount >= 15)
           * Math.pow(player.overfluxOrbs, 0.27),
         640000
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.45,
         +(player.highestSingularityCount >= 20)
           * Math.pow(player.overfluxOrbs, 0.24),
         2e6
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.55,
         +(player.highestSingularityCount >= 25)
           * Math.pow(player.overfluxOrbs, 0.21),
         1e7
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         1.85,
         +(player.highestSingularityCount >= 30)
           * Math.pow(player.overfluxOrbs, 0.18),
         4e7
-      ))
-      .add(calculateSigmoid(
+      )
+      + calculateSigmoid(
         3,
         +(player.highestSingularityCount >= 35)
           * Math.pow(player.overfluxOrbs, 0.15),
         1e8
-      ))
-      .sub(11))
-    .mul(1 + (1 / 500) * player.shopUpgrades.cubeToQuarkAll)
-    .mul(player.autoWarpCheck ? 1 + player.dailyPowderResetUses : 1)
+      )
+      - 11)
+    * (1 + (1 / 500) * player.shopUpgrades.cubeToQuarkAll)
+    * (player.autoWarpCheck ? 1 + player.dailyPowderResetUses : 1)
   )
 }
 
@@ -3329,7 +3322,7 @@ export const forcedDailyReset = (rewards = false) => {
   player.platonicCubeOpenedDaily = 0
 
   if (rewards) {
-    player.overfluxPowder = player.overfluxPowder.mul(Decimal.mul(player.overfluxOrbs, calculatePowderConversion().mult))
+    player.overfluxPowder += player.overfluxOrbs * calculatePowderConversion().mult
     player.overfluxOrbs = G.challenge15Rewards.freeOrbs
   }
 }

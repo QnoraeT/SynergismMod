@@ -195,7 +195,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: '7',
         get unlocked () {
-          return player.challenge15Exponent.gte(1e15)
+          return player.challenge15Exponent >= 1e15
         },
         buttonID: 'switchCubeSubTab7'
       }

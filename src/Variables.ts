@@ -1,4 +1,4 @@
-import Decimal from "break_eternity.js";
+import Decimal from 'break_infinity.js'
 import { Tabs } from './Tabs'
 import type { GlobalVariables } from './types/Synergism'
 
@@ -27,7 +27,7 @@ export const Globals: GlobalVariables = {
   ],
 
   // Mega list of Variables to be used elsewhere
-  crystalUpgradesCost: [new Decimal(6), new Decimal(15), new Decimal(20), new Decimal(40), new Decimal(100), new Decimal(200), new Decimal(500), new Decimal(1000)],
+  crystalUpgradesCost: [6, 15, 20, 40, 100, 200, 500, 1000],
   crystalUpgradeCostIncrement: [8, 15, 20, 40, 100, 200, 500, 1000],
   // dprint-ignore
   researchBaseCosts: [
@@ -122,27 +122,27 @@ export const Globals: GlobalVariables = {
 
   costDivisor: 1,
 
-  freeAccelerator: new Decimal(0),
-  totalAccelerator: new Decimal(0),
-  freeAcceleratorBoost: new Decimal(0),
-  totalAcceleratorBoost: new Decimal(0),
-  acceleratorPower: new Decimal(1.10),
+  freeAccelerator: 0,
+  totalAccelerator: 0,
+  freeAcceleratorBoost: 0,
+  totalAcceleratorBoost: 0,
+  acceleratorPower: 1.10,
   acceleratorEffect: new Decimal(1),
   acceleratorEffectDisplay: new Decimal(1),
   generatorPower: new Decimal(1),
 
-  freeMultiplier: new Decimal(0),
-  totalMultiplier: new Decimal(0),
-  multiplierPower: new Decimal(2),
+  freeMultiplier: 0,
+  totalMultiplier: 0,
+  multiplierPower: 2,
   multiplierEffect: new Decimal(1),
   challengeOneLog: 3,
-  freeMultiplierBoost: new Decimal(0),
-  totalMultiplierBoost: new Decimal(0),
+  freeMultiplierBoost: 0,
+  totalMultiplierBoost: 0,
 
   globalCoinMultiplier: new Decimal(1),
   totalCoinOwned: 0,
   prestigeMultiplier: new Decimal(1),
-  buildingPower: new Decimal(1),
+  buildingPower: 1,
   reincarnationMultiplier: new Decimal(1),
 
   coinOneMulti: new Decimal(1),
@@ -202,7 +202,7 @@ export const Globals: GlobalVariables = {
 
   uFourteenMulti: new Decimal(1),
   uFifteenMulti: new Decimal(1),
-  tuSevenMulti: new Decimal(1),
+  tuSevenMulti: 1,
   currentTab: Tabs.Buildings,
 
   researchfiller1: 'Hover over the grid to get details about researches!',
@@ -216,8 +216,8 @@ export const Globals: GlobalVariables = {
   challengeBaseRequirements: [10, 20, 60, 100, 200, 125, 500, 7500, 2.0e8, 3.5e9],
 
   prestigeamount: 1,
-  taxdivisor: new Decimal(1),
-  taxdivisorcheck: new Decimal(1),
+  taxdivisor: new Decimal('1'),
+  taxdivisorcheck: new Decimal('1'),
   runemultiplierincrease: {
     one: 1,
     two: 1,
@@ -226,30 +226,30 @@ export const Globals: GlobalVariables = {
     five: 1
   },
 
-  mythosupgrade13: new Decimal(1),
-  mythosupgrade14: new Decimal(1),
-  mythosupgrade15: new Decimal(1),
+  mythosupgrade13: new Decimal('1'),
+  mythosupgrade14: new Decimal('1'),
+  mythosupgrade15: new Decimal('1'),
   challengefocus: 0,
 
-  maxexponent: new Decimal(10000),
+  maxexponent: 10000,
 
-  effectiveLevelMult: new Decimal(1),
+  effectiveLevelMult: 1,
   optimalOfferingTimer: 600,
   optimalObtainiumTimer: 3600,
 
   runeSum: 0,
 
-  globalAntMult: new Decimal(1),
-  antMultiplier: new Decimal(1),
+  globalAntMult: new Decimal('1'),
+  antMultiplier: new Decimal('1'),
 
-  antOneProduce: new Decimal(1),
-  antTwoProduce: new Decimal(1),
-  antThreeProduce: new Decimal(1),
-  antFourProduce: new Decimal(1),
-  antFiveProduce: new Decimal(1),
-  antSixProduce: new Decimal(1),
-  antSevenProduce: new Decimal(1),
-  antEightProduce: new Decimal(1),
+  antOneProduce: new Decimal('1'),
+  antTwoProduce: new Decimal('1'),
+  antThreeProduce: new Decimal('1'),
+  antFourProduce: new Decimal('1'),
+  antFiveProduce: new Decimal('1'),
+  antSixProduce: new Decimal('1'),
+  antSevenProduce: new Decimal('1'),
+  antEightProduce: new Decimal('1'),
 
   antCostGrowth: [1e41, 3, 10, 1e2, 1e4, 1e8, 1e16, 1e32],
 
@@ -431,57 +431,57 @@ export const Globals: GlobalVariables = {
 
   corruptionPointMultipliers: [1, 3, 4, 5, 6, 7, 7.75, 8.5, 9.25, 10, 10.75, 11.5, 12.25, 13, 16, 20, 25, 33, 35],
   ascendBuildingProduction: {
-    first: new Decimal(0),
-    second: new Decimal(0),
-    third: new Decimal(0),
-    fourth: new Decimal(0),
-    fifth: new Decimal(0)
+    first: new Decimal('0'),
+    second: new Decimal('0'),
+    third: new Decimal('0'),
+    fourth: new Decimal('0'),
+    fifth: new Decimal('0')
   },
-  freeUpgradeAccelerator: new Decimal(0),
-  freeUpgradeMultiplier: new Decimal(0),
+  freeUpgradeAccelerator: 0,
+  freeUpgradeMultiplier: 0,
 
-  acceleratorMultiplier: new Decimal(1),
-  multiplierMultiplier: new Decimal(1),
+  acceleratorMultiplier: 1,
+  multiplierMultiplier: 1,
 
   constUpgradeCosts: [null, 1, 13, 17, 237, 316, 4216, 5623, 74989, 1e10, 1e24],
 
-  globalConstantMult: new Decimal(1),
+  globalConstantMult: new Decimal('1'),
   autoTalismanTimer: 0,
 
   autoChallengeTimerIncrement: 0,
   corruptionTrigger: 1,
 
   challenge15Rewards: {
-    cube1: new Decimal(1),
-    ascensions: new Decimal(1),
-    coinExponent: new Decimal(1),
-    taxes: new Decimal(1),
-    obtainium: new Decimal(1),
-    offering: new Decimal(1),
-    accelerator: new Decimal(1),
-    multiplier: new Decimal(1),
-    runeExp: new Decimal(1),
-    runeBonus: new Decimal(1),
-    cube2: new Decimal(1),
-    transcendChallengeReduction: new Decimal(1),
-    reincarnationChallengeReduction: new Decimal(1),
-    antSpeed: new Decimal(1),
-    bonusAntLevel: new Decimal(1),
-    cube3: new Decimal(1),
-    talismanBonus: new Decimal(1),
-    globalSpeed: new Decimal(1),
-    blessingBonus: new Decimal(1),
-    constantBonus: new Decimal(1),
-    cube4: new Decimal(1),
-    spiritBonus: new Decimal(1),
-    score: new Decimal(1),
-    quarks: new Decimal(1),
-    hepteractUnlocked: new Decimal(0),
-    cube5: new Decimal(1),
-    powder: new Decimal(1),
-    exponent: new Decimal(1),
-    freeOrbs: new Decimal(0),
-    ascensionSpeed: new Decimal(1)
+    cube1: 1,
+    ascensions: 1,
+    coinExponent: 1,
+    taxes: 1,
+    obtainium: 1,
+    offering: 1,
+    accelerator: 1,
+    multiplier: 1,
+    runeExp: 1,
+    runeBonus: 1,
+    cube2: 1,
+    transcendChallengeReduction: 1,
+    reincarnationChallengeReduction: 1,
+    antSpeed: 1,
+    bonusAntLevel: 1,
+    cube3: 1,
+    talismanBonus: 1,
+    globalSpeed: 1,
+    blessingBonus: 1,
+    constantBonus: 1,
+    cube4: 1,
+    spiritBonus: 1,
+    score: 1,
+    quarks: 1,
+    hepteractUnlocked: 0,
+    cube5: 1,
+    powder: 1,
+    exponent: 1,
+    freeOrbs: 0,
+    ascensionSpeed: 1
   },
 
   autoResetTimers: {

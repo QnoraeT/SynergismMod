@@ -1,4 +1,4 @@
-import Decimal from "break_eternity.js";
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { type IBlueberryData, updateLoadoutHoverClasses } from './BlueberryUpgrades'
 import { BlueberryUpgrade, blueberryUpgradeData } from './BlueberryUpgrades'
@@ -91,9 +91,9 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.wowCubes === undefined) {
-    player.wowCubes = new WowCubes(new Decimal(0))
-    player.wowTesseracts = new WowTesseracts(new Decimal(0))
-    player.wowHypercubes = new WowHypercubes(new Decimal(0))
+    player.wowCubes = new WowCubes()
+    player.wowTesseracts = new WowTesseracts(0)
+    player.wowHypercubes = new WowHypercubes(0)
     // dprint-ignore
     player.cubeUpgrades = [
       null,
@@ -330,7 +330,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   for (let i = 0; i <= 4; i++) {
-    if (Decimal.gt(player.runelevels[i], calculateMaxRunes(i + 1))) {
+    if (player.runelevels[i] > calculateMaxRunes(i + 1)) {
       player.runelevels[i] = 0
     }
   }
@@ -911,13 +911,13 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.usedCorruptions[0] = 0
   }
   if (player.antSacrificeTimerReal === undefined) {
-    player.antSacrificeTimerReal = player.antSacrificeTimer.div(calculateTimeAcceleration().mult)
+    player.antSacrificeTimerReal = player.antSacrificeTimer / calculateTimeAcceleration().mult
   }
   if (player.subtabNumber === undefined || data.subtabNumber === undefined) {
     player.subtabNumber = 0
   }
   if (data.wowPlatonicCubes === undefined) {
-    player.wowPlatonicCubes = new WowPlatonicCubes(new Decimal(0))
+    player.wowPlatonicCubes = new WowPlatonicCubes(0)
     player.wowAbyssals = 0
   }
   if (data.platonicBlessings === undefined) {
@@ -1298,7 +1298,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
           * player.singularityUpgrades[k].costPerLevel)
           / 2
         if (
-          player.singularityUpgrades[k].maxLevel.neq(-1)
+          player.singularityUpgrades[k].maxLevel !== -1
           && player.singularityUpgrades[k].level
             <= player.singularityUpgrades[k].maxLevel
           && player.singularityUpgrades[k].goldenQuarksInvested.toExponential(
@@ -1341,7 +1341,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
         )
 
         if (
-          player.octeractUpgrades[k].maxLevel.neq(-1)
+          player.octeractUpgrades[k].maxLevel !== -1
           && player.octeractUpgrades[k].level > player.octeractUpgrades[k].maxLevel
         ) {
           player.octeractUpgrades[k].refund()
@@ -1387,7 +1387,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
         )
 
         if (
-          player.blueberryUpgrades[k].maxLevel.neq(-1)
+          player.blueberryUpgrades[k].maxLevel !== -1
           && player.blueberryUpgrades[k].level
             > player.blueberryUpgrades[k].maxLevel
         ) {
@@ -1482,10 +1482,10 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.singularityUpgrades.ascensions.refund()
 
     if (player.codes.get(40) && player.singularityCount > 0) {
-      player.singularityUpgrades.singCubes1.freeLevels     = player.singularityUpgrades.singCubes1.freeLevels    .add(5)
-      player.singularityUpgrades.singOfferings1.freeLevels = player.singularityUpgrades.singOfferings1.freeLevels.add(5)
-      player.singularityUpgrades.singObtainium1.freeLevels = player.singularityUpgrades.singObtainium1.freeLevels.add(5)
-      player.singularityUpgrades.ascensions.freeLevels     = player.singularityUpgrades.ascensions.freeLevels    .add(5)
+      player.singularityUpgrades.singCubes1.freeLevels += 5
+      player.singularityUpgrades.singOfferings1.freeLevels += 5
+      player.singularityUpgrades.singObtainium1.freeLevels += 5
+      player.singularityUpgrades.ascensions.freeLevels += 5
     }
 
     if (player.singularityCount > 0) {
@@ -1532,11 +1532,11 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
       player.goldenQuarks += 100 * Math.min(10, player.singularityCount)
 
       if (player.singularityCount >= 5) {
-        player.singularityUpgrades.goldenQuarks3.freeLevels = player.singularityUpgrades.goldenQuarks3.freeLevels.add(1)
+        player.singularityUpgrades.goldenQuarks3.freeLevels += 1
       }
 
       if (player.singularityCount >= 10) {
-        player.singularityUpgrades.goldenQuarks3.freeLevels = player.singularityUpgrades.goldenQuarks3.freeLevels.add(2)
+        player.singularityUpgrades.goldenQuarks3.freeLevels += 2
       }
     }
   }
@@ -1596,7 +1596,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
 
   if (data.loadedV21007Hotfix1 === undefined) {
     player.loadedV21007Hotfix1 = true
-    if (player.octeractUpgrades.octeractQuarkGain.level.gte(10000)) {
+    if (player.octeractUpgrades.octeractQuarkGain.level >= 10000) {
       player.octeractUpgrades.octeractQuarkGain.refund()
     }
   }
@@ -1614,7 +1614,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
 
   if (data.spentBlueberries === undefined) {
     player.spentBlueberries = 0
-    if (player.singularityUpgrades.blueberries.level.gt(10)) {
+    if (player.singularityUpgrades.blueberries.level > 10) {
       player.singularityUpgrades.blueberries.refund()
     }
 

@@ -6,7 +6,6 @@ import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Prompt, revealStuff } from './UpdateHTML'
 import { toOrdinal } from './Utility'
-import Decimal from "break_eternity.js";
 
 export const updateSingularityPenalties = (): void => {
   const singularityCount = player.singularityCount
@@ -170,7 +169,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
    */
   toString (): string {
     const costNextLevel = this.getCostTNL()
-    const maxLevel = this.maxLevel.eq(-1) ? '' : `/${format(this.computeMaxLevel(), 0, true)}`
+    const maxLevel = this.maxLevel === -1 ? '' : `/${format(this.computeMaxLevel(), 0, true)}`
     const color = this.computeMaxLevel() === this.level ? 'plum' : 'white'
     const minReqColor = player.highestSingularityCount < this.minimumSingularity
       ? 'var(--crimson-text-color)'
@@ -301,10 +300,10 @@ export class SingularityUpgrade extends DynamicUpgrade {
       GQBudget = Math.min(player.goldenQuarks, GQBudget)
     }
 
-    if (this.maxLevel.gt(0)) {
-      maxPurchasable = Decimal.min(
+    if (this.maxLevel > 0) {
+      maxPurchasable = Math.min(
         maxPurchasable,
-        this.computeMaxLevel().sub(this.level)
+        this.computeMaxLevel() - this.level
       )
     }
 
@@ -323,7 +322,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
         player.goldenQuarks -= cost
         GQBudget -= cost
         this.goldenQuarksInvested += cost
-        this.level = this.level.add(1)
+        this.level += 1
         purchased += 1
         maxPurchasable -= 1
       }
@@ -361,14 +360,14 @@ export class SingularityUpgrade extends DynamicUpgrade {
     revealStuff()
   }
 
-  public computeFreeLevelSoftcap (): Decimal {
+  public computeFreeLevelSoftcap (): number {
     return (
       Math.min(this.level, this.freeLevels)
       + Math.sqrt(Math.max(0, this.freeLevels - this.level))
     )
   }
 
-  public computeMaxLevel (): Decimal {
+  public computeMaxLevel (): number {
     if (!this.canExceedCap) {
       return this.maxLevel
     } else {
@@ -386,7 +385,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
     }
   }
 
-  public actualTotalLevels (): Decimal {
+  public actualTotalLevels (): number {
     if (
       player.singularityChallenges.noSingularityUpgrades.enabled
       && !this.qualityOfLife
@@ -402,20 +401,20 @@ export class SingularityUpgrade extends DynamicUpgrade {
     }
 
     const actualFreeLevels = this.computeFreeLevelSoftcap()
-    const linearLevels = Decimal.add(this.level, actualFreeLevels)
-    let polynomialLevels = new Decimal(0)
+    const linearLevels = this.level + actualFreeLevels
+    let polynomialLevels = 0
     if (player.octeractUpgrades.octeractImprovedFree.getEffect().bonus) {
       let exponent = 0.6
       exponent += +player.octeractUpgrades.octeractImprovedFree2.getEffect().bonus
       exponent += +player.octeractUpgrades.octeractImprovedFree3.getEffect().bonus
       exponent += +player.octeractUpgrades.octeractImprovedFree4.getEffect().bonus
-      polynomialLevels = Decimal.pow(this.level * actualFreeLevels, exponent)
+      polynomialLevels = Math.pow(this.level * actualFreeLevels, exponent)
     }
 
-    return Decimal.max(linearLevels, polynomialLevels)
+    return Math.max(linearLevels, polynomialLevels)
   }
 
-  public getEffect (): { bonus: number; desc: string } {
+  public getEffect (): { bonus: number | boolean; desc: string } {
     return this.effect(this.actualTotalLevels())
   }
 
@@ -429,7 +428,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
 
   public refund (): void {
     player.goldenQuarks += this.goldenQuarksInvested
-    this.level = new Decimal(0)
+    this.level = 0
     this.goldenQuarksInvested = 0
   }
 }
@@ -439,15 +438,15 @@ export const singularityData: Record<
   ISingularityData
 > = {
   goldenQuarks1: {
-    maxLevel: new Decimal(15),
+    maxLevel: 15,
     costPerLevel: 12,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.1).add(1),
+        bonus: 1 + 0.1 * n,
         get desc () {
           return i18next.t('singularity.data.goldenQuarks1.effect', {
-            n: format(this.bonus.sub(1).mul(100), 0, true)
+            n: format(10 * n, 0, true)
           })
         }
       }
@@ -455,10 +454,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   goldenQuarks2: {
-    maxLevel: new Decimal(75),
+    maxLevel: 75,
     costPerLevel: 60,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n > 250 ? 1 / Math.log2(n / 62.5) : 1 - Math.min(0.5, n / 500),
         get desc () {
@@ -473,9 +472,9 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   goldenQuarks3: {
-    maxLevel: new Decimal(1000),
+    maxLevel: 1000,
     costPerLevel: 1000,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: (n * (n + 1)) / 2,
         get desc () {
@@ -487,28 +486,28 @@ export const singularityData: Record<
     }
   },
   starterPack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 10,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.starterPack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.starterPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   wowPass: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 350,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.wowPass.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.wowPass.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -516,14 +515,14 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   cookies: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 100,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.cookies.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.cookies.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -531,14 +530,14 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   cookies2: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 500,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.cookies2.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.cookies2.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -546,14 +545,14 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   cookies3: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 24999,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.cookies3.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.cookies3.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -561,14 +560,14 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   cookies4: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 499999,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.cookies4.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.cookies4.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -576,15 +575,15 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   cookies5: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1.66e15,
     minimumSingularity: 209,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.cookies5.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.cookies5.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -592,9 +591,9 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   ascensions: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 5,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: (1 + (2 * n) / 100) * (1 + Math.floor(n / 10) / 100),
         get desc () {
@@ -610,16 +609,16 @@ export const singularityData: Record<
     }
   },
   corruptionFourteen: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1000,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.corruptionFourteen.effect${n.gt(0) ? 'Have' : 'HaveNot'}`,
+            `singularity.data.corruptionFourteen.effect${n > 0 ? 'Have' : 'HaveNot'}`,
             {
-              m: n.gt(0) ? ':)' : ':('
+              m: n > 0 ? ':)' : ':('
             }
           )
         }
@@ -627,16 +626,16 @@ export const singularityData: Record<
     }
   },
   corruptionFifteen: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 40000,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.corruptionFifteen.effect${n.gt(0) ? 'Have' : 'HaveNot'}`,
+            `singularity.data.corruptionFifteen.effect${n > 0 ? 'Have' : 'HaveNot'}`,
             {
-              m: n.gt(0) ? ':)' : ':('
+              m: n > 0 ? ':)' : ':('
             }
           )
         }
@@ -644,9 +643,9 @@ export const singularityData: Record<
     }
   },
   singOfferings1: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.02 * n,
         get desc () {
@@ -658,10 +657,10 @@ export const singularityData: Record<
     }
   },
   singOfferings2: {
-    maxLevel: new Decimal(25),
+    maxLevel: 25,
     costPerLevel: 25,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.08 * n,
         get desc () {
@@ -673,10 +672,10 @@ export const singularityData: Record<
     }
   },
   singOfferings3: {
-    maxLevel: new Decimal(40),
+    maxLevel: 40,
     costPerLevel: 500,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.04 * n,
         get desc () {
@@ -688,9 +687,9 @@ export const singularityData: Record<
     }
   },
   singObtainium1: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.02 * n,
         get desc () {
@@ -702,10 +701,10 @@ export const singularityData: Record<
     }
   },
   singObtainium2: {
-    maxLevel: new Decimal(25),
+    maxLevel: 25,
     costPerLevel: 25,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.08 * n,
         get desc () {
@@ -717,10 +716,10 @@ export const singularityData: Record<
     }
   },
   singObtainium3: {
-    maxLevel: new Decimal(40),
+    maxLevel: 40,
     costPerLevel: 500,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.04 * n,
         get desc () {
@@ -732,9 +731,9 @@ export const singularityData: Record<
     }
   },
   singCubes1: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.01 * n,
         get desc () {
@@ -746,10 +745,10 @@ export const singularityData: Record<
     }
   },
   singCubes2: {
-    maxLevel: new Decimal(25),
+    maxLevel: 25,
     costPerLevel: 25,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.08 * n,
         get desc () {
@@ -761,10 +760,10 @@ export const singularityData: Record<
     }
   },
   singCubes3: {
-    maxLevel: new Decimal(40),
+    maxLevel: 40,
     costPerLevel: 500,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.04 * n,
         get desc () {
@@ -776,10 +775,10 @@ export const singularityData: Record<
     }
   },
   singCitadel: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 500000,
     minimumSingularity: 100,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: (1 + 0.02 * n) * (1 + Math.floor(n / 10) / 100),
         get desc () {
@@ -793,11 +792,11 @@ export const singularityData: Record<
     }
   },
   singCitadel2: {
-    maxLevel: new Decimal(100),
+    maxLevel: 100,
     costPerLevel: 1e14,
     minimumSingularity: 204,
     specialCostForm: 'Quadratic',
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: (1 + 0.02 * n) * (1 + Math.floor(n / 10) / 100),
         get desc () {
@@ -811,15 +810,15 @@ export const singularityData: Record<
     }
   },
   octeractUnlock: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 8888,
     minimumSingularity: 8,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.octeractUnlock.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.octeractUnlock.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -827,12 +826,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singOcteractPatreonBonus: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 9999,
     minimumSingularity: 12,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t('singularity.data.singOcteractPatreonBonus.effect', {
             n
@@ -842,10 +841,10 @@ export const singularityData: Record<
     }
   },
   offeringAutomatic: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1e14,
     minimumSingularity: 222,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -855,90 +854,90 @@ export const singularityData: Record<
     }
   },
   intermediatePack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1,
     minimumSingularity: 4,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.intermediatePack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.intermediatePack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   advancedPack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 200,
     minimumSingularity: 9,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.advancedPack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.advancedPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   expertPack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 800,
     minimumSingularity: 16,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.expertPack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.expertPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   masterPack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 3200,
     minimumSingularity: 25,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.masterPack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.masterPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   divinePack: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 12800,
     minimumSingularity: 36,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.divinePack.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.divinePack.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
     }
   },
   wowPass2: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 19999,
     minimumSingularity: 11,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.wowPass2.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.wowPass2.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -946,15 +945,15 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   wowPass3: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 3e7 - 1,
     minimumSingularity: 83,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
-            `singularity.data.wowPass3.effect${n.gt(0) ? 'Have' : 'HaveNot'}`
+            `singularity.data.wowPass3.effect${n > 0 ? 'Have' : 'HaveNot'}`
           )
         }
       }
@@ -962,11 +961,11 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   potionBuff: {
-    maxLevel: new Decimal(10),
+    maxLevel: 10,
     costPerLevel: 999,
     minimumSingularity: 4,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: Math.max(1, 10 * Math.pow(n, 2)),
         get desc () {
@@ -978,11 +977,11 @@ export const singularityData: Record<
     }
   },
   potionBuff2: {
-    maxLevel: new Decimal(10),
+    maxLevel: 10,
     costPerLevel: 1e8,
     minimumSingularity: 119,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: Math.max(1, 2 * n),
         get desc () {
@@ -994,11 +993,11 @@ export const singularityData: Record<
     }
   },
   potionBuff3: {
-    maxLevel: new Decimal(10),
+    maxLevel: 10,
     costPerLevel: 1e12,
     minimumSingularity: 191,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: Math.max(1, 1 + 0.5 * n),
         get desc () {
@@ -1010,10 +1009,10 @@ export const singularityData: Record<
     }
   },
   singChallengeExtension: {
-    maxLevel: new Decimal(4),
+    maxLevel: 4,
     costPerLevel: 999,
     minimumSingularity: 11,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1026,10 +1025,10 @@ export const singularityData: Record<
     }
   },
   singChallengeExtension2: {
-    maxLevel: new Decimal(3),
+    maxLevel: 3,
     costPerLevel: 29999,
     minimumSingularity: 26,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1042,10 +1041,10 @@ export const singularityData: Record<
     }
   },
   singChallengeExtension3: {
-    maxLevel: new Decimal(3),
+    maxLevel: 3,
     costPerLevel: 749999,
     minimumSingularity: 51,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1058,12 +1057,12 @@ export const singularityData: Record<
     }
   },
   singQuarkImprover1: {
-    maxLevel: new Decimal(30),
+    maxLevel: 30,
     costPerLevel: 1,
     minimumSingularity: 173,
     canExceedCap: true,
     specialCostForm: 'Exponential2',
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n / 200,
         get desc () {
@@ -1076,10 +1075,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singQuarkHepteract: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 14999,
     minimumSingularity: 5,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n / 100,
         get desc () {
@@ -1092,10 +1091,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singQuarkHepteract2: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 449999,
     minimumSingularity: 30,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n / 100,
         get desc () {
@@ -1108,10 +1107,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singQuarkHepteract3: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 13370000,
     minimumSingularity: 61,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n / 100,
         get desc () {
@@ -1124,10 +1123,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singOcteractGain: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 20000,
     minimumSingularity: 36,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.0125 * n,
         get desc () {
@@ -1139,11 +1138,11 @@ export const singularityData: Record<
     }
   },
   singOcteractGain2: {
-    maxLevel: new Decimal(25),
+    maxLevel: 25,
     costPerLevel: 40000,
     minimumSingularity: 36,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.05 * n,
         get desc () {
@@ -1155,11 +1154,11 @@ export const singularityData: Record<
     }
   },
   singOcteractGain3: {
-    maxLevel: new Decimal(50),
+    maxLevel: 50,
     costPerLevel: 250000,
     minimumSingularity: 55,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.025 * n,
         get desc () {
@@ -1171,11 +1170,11 @@ export const singularityData: Record<
     }
   },
   singOcteractGain4: {
-    maxLevel: new Decimal(100),
+    maxLevel: 100,
     costPerLevel: 750000,
     minimumSingularity: 77,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.02 * n,
         get desc () {
@@ -1187,11 +1186,11 @@ export const singularityData: Record<
     }
   },
   singOcteractGain5: {
-    maxLevel: new Decimal(200),
+    maxLevel: 200,
     costPerLevel: 7777777,
     minimumSingularity: 100,
     canExceedCap: true,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + 0.01 * n,
         get desc () {
@@ -1203,12 +1202,12 @@ export const singularityData: Record<
     }
   },
   platonicTau: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 100000,
     minimumSingularity: 29,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicTau.effect${n ? 'Have' : 'HaveNot'}`
@@ -1219,12 +1218,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   platonicAlpha: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 2e7,
     minimumSingularity: 70,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicAlpha.effect${n ? 'Have' : 'HaveNot'}`
@@ -1235,12 +1234,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   platonicDelta: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 5e9,
     minimumSingularity: 110,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicDelta.effect${n ? 'Have' : 'HaveNot'}`
@@ -1250,12 +1249,12 @@ export const singularityData: Record<
     }
   },
   platonicPhi: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 2e11,
     minimumSingularity: 149,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicPhi.effect${n ? 'Have' : 'HaveNot'}`
@@ -1266,12 +1265,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singFastForward: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 7e6 - 1,
     minimumSingularity: 50,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.singFastForward.effect${n ? 'Have' : 'HaveNot'}`
@@ -1282,12 +1281,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singFastForward2: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1e11 - 1,
     minimumSingularity: 147,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.singFastForward2.effect${n ? 'Have' : 'HaveNot'}`
@@ -1298,10 +1297,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   singAscensionSpeed: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1e10,
     minimumSingularity: 128,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1314,10 +1313,10 @@ export const singularityData: Record<
     }
   },
   singAscensionSpeed2: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1e12,
     minimumSingularity: 147,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1327,10 +1326,10 @@ export const singularityData: Record<
     }
   },
   WIP: {
-    maxLevel: new Decimal(100),
+    maxLevel: 100,
     costPerLevel: 1e300,
     minimumSingularity: 251,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1340,16 +1339,16 @@ export const singularityData: Record<
     }
   },
   ultimatePen: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 2.22e22,
     minimumSingularity: 300,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t('singularity.data.ultimatePen.effect', {
             n: n ? '' : 'NOT',
-            m: n.gt(0)
+            m: n > 0
               ? ' However, the pen just ran out of ink. How will you get more?'
               : ''
           })
@@ -1358,12 +1357,12 @@ export const singularityData: Record<
     }
   },
   oneMind: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 1.66e13,
     minimumSingularity: 162,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.oneMind.effect${n ? 'Have' : 'HaveNot'}`
@@ -1374,12 +1373,12 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   wowPass4: {
-    maxLevel: new Decimal(1),
+    maxLevel: 1,
     costPerLevel: 66666666666,
     minimumSingularity: 147,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? 1 : 0,
+        bonus: n > 0,
         get desc () {
           return i18next.t(
             `singularity.data.wowPass4.effect${n ? 'Have' : 'HaveNot'}`
@@ -1390,10 +1389,10 @@ export const singularityData: Record<
     qualityOfLife: true
   },
   blueberries: {
-    maxLevel: new Decimal(10),
+    maxLevel: 10,
     costPerLevel: 1e16,
     minimumSingularity: 215,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -1408,10 +1407,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaLuck: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1e9,
     minimumSingularity: 187,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 4 * n,
         get desc () {
@@ -1428,10 +1427,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaLuck2: {
-    maxLevel: new Decimal(30),
+    maxLevel: 30,
     costPerLevel: 4e5,
     minimumSingularity: 50,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 2 * n,
         get desc () {
@@ -1447,10 +1446,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaLuck3: {
-    maxLevel: new Decimal(30),
+    maxLevel: 30,
     costPerLevel: 2e8,
     minimumSingularity: 119,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 3 * n,
         get desc () {
@@ -1466,10 +1465,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaLuck4: {
-    maxLevel: new Decimal(50),
+    maxLevel: 50,
     costPerLevel: 1e19,
     minimumSingularity: 256,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 5 * n,
         get desc () {
@@ -1485,10 +1484,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaGeneration: {
-    maxLevel: new Decimal(-1),
+    maxLevel: -1,
     costPerLevel: 1e9,
     minimumSingularity: 187,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + n / 100,
         get desc () {
@@ -1505,10 +1504,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaGeneration2: {
-    maxLevel: new Decimal(20),
+    maxLevel: 20,
     costPerLevel: 8e5,
     minimumSingularity: 50,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + n / 100,
         get desc () {
@@ -1524,10 +1523,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaGeneration3: {
-    maxLevel: new Decimal(35),
+    maxLevel: 35,
     costPerLevel: 3e8,
     minimumSingularity: 119,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + n / 100,
         get desc () {
@@ -1543,10 +1542,10 @@ export const singularityData: Record<
     ]
   },
   singAmbrosiaGeneration4: {
-    maxLevel: new Decimal(50),
+    maxLevel: 50,
     costPerLevel: 1e19,
     minimumSingularity: 256,
-    effect: (n: Decimal) => {
+    effect: (n: number) => {
       return {
         bonus: 1 + (2 * n) / 100,
         get desc () {

@@ -1,24 +1,21 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { octeractGainPerSecond, scale } from './Calculate'
+import { octeractGainPerSecond } from './Calculate'
 import type { IUpgradeData } from './DynamicUpgrade'
 import { DynamicUpgrade } from './DynamicUpgrade'
 import { format, formatTimeShort, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Prompt } from './UpdateHTML'
-import Decimal from "break_eternity.js";
 
 export interface IOcteractData extends Omit<IUpgradeData, 'name' | 'description'> {
-  costFormula(this: void, level: Decimal, baseCost: Decimal): Decimal
-  target(this: void, level: Decimal, baseCost: Decimal): Decimal
+  costFormula(this: void, level: number, baseCost: number): number
   cacheUpdates?: (() => void)[] // TODO: Improve this type signature -Plat
   octeractsInvested?: number
   qualityOfLife?: boolean
 }
 
 export class OcteractUpgrade extends DynamicUpgrade {
-  readonly costFormula: (level: Decimal, baseCost: Decimal) => Decimal
-  readonly target: (level: Decimal, baseCost: Decimal) => Decimal
+  readonly costFormula: (level: number, baseCost: number) => number
   public octeractsInvested = 0
   public qualityOfLife: boolean
   readonly cacheUpdates: (() => void)[] | undefined
@@ -28,19 +25,18 @@ export class OcteractUpgrade extends DynamicUpgrade {
     const description = i18next.t(`octeract.data.${key}.description`)
     super({ ...data, name, description })
     this.costFormula = data.costFormula
-    this.target = data.target
     this.octeractsInvested = data.octeractsInvested ?? 0
     this.qualityOfLife = data.qualityOfLife ?? false
     this.cacheUpdates = data.cacheUpdates ?? undefined
   }
 
-  getCostTNL(): Decimal {
+  getCostTNL (): number {
     if (this.level === this.maxLevel) {
-      return new Decimal(0)
+      return 0
     }
 
     return this.costFormula(this.level, this.costPerLevel)
-}
+  }
 
   /**
    * Buy levels up until togglebuy or maxed.
@@ -49,48 +45,48 @@ export class OcteractUpgrade extends DynamicUpgrade {
    */
   public async buyLevel (event: MouseEvent): Promise<void> {
     let purchased = 0
-    let maxPurchasable = new Decimal(1)
-    let OCTBudget = new Decimal(player.wowOcteracts)
+    let maxPurchasable = 1
+    let OCTBudget = player.wowOcteracts
 
     if (event.shiftKey) {
-      maxPurchasable = new Decimal(1000000)
-      const buy = new Decimal(Number(
+      maxPurchasable = 1000000
+      const buy = Number(
         await Prompt(`${i18next.t('octeract.buyLevel.buyPrompt', { n: format(player.wowOcteracts, 0, true) })}`)
-      ))
+      )
 
-      if (Decimal.isNaN(buy) || !Decimal.isFinite(buy) || !Number.isInteger(buy)) { // nan + Infinity checks
+      if (isNaN(buy) || !isFinite(buy) || !Number.isInteger(buy)) { // nan + Infinity checks
         return Alert(i18next.t('general.validation.finite'))
       }
 
-      if (buy.eq(-1)) {
-        OCTBudget = new Decimal(player.wowOcteracts)
-      } else if (buy.lte(0)) {
+      if (buy === -1) {
+        OCTBudget = player.wowOcteracts
+      } else if (buy <= 0) {
         return Alert(i18next.t('octeract.buyLevel.cancelPurchase'))
       } else {
         OCTBudget = buy
       }
-      OCTBudget = Decimal.min(player.wowOcteracts, OCTBudget)
+      OCTBudget = Math.min(player.wowOcteracts, OCTBudget)
     }
 
-    if (this.maxLevel.gt(0)) {
-      maxPurchasable = Decimal.min(maxPurchasable, Decimal.sub(this.maxLevel, this.level))
+    if (this.maxLevel > 0) {
+      maxPurchasable = Math.min(maxPurchasable, this.maxLevel - this.level)
     }
 
-    if (maxPurchasable.eq(0)) {
+    if (maxPurchasable === 0) {
       return Alert(i18next.t('octeract.buyLevel.alreadyMax'))
     }
 
-    while (maxPurchasable.gt(0)) {
+    while (maxPurchasable > 0) {
       const cost = this.getCostTNL()
-      if (player.wowOcteracts.toLocaleString(cost) || OCTBudget.lt(cost)) {
+      if (player.wowOcteracts < cost || OCTBudget < cost) {
         break
       } else {
-        player.wowOcteracts = player.wowOcteracts.sub(cost)
-        OCTBudget = OCTBudget.sub(cost)
-        this.octeractsInvested = this.octeractsInvested.add(cost)
-        this.level = this.level.add(1)
+        player.wowOcteracts -= cost
+        OCTBudget -= cost
+        this.octeractsInvested += cost
+        this.level += 1
         purchased += 1
-        maxPurchasable = maxPurchasable.sub(1)
+        maxPurchasable -= 1
       }
     }
 
@@ -115,13 +111,13 @@ export class OcteractUpgrade extends DynamicUpgrade {
    */
   toString (): string {
     const costNextLevel = this.getCostTNL()
-    const maxLevel = this.maxLevel.eq(-1)
+    const maxLevel = this.maxLevel === -1
       ? ''
       : `/${format(this.maxLevel, 0, true)}`
     const isMaxLevel = this.maxLevel === this.level
     const color = isMaxLevel ? 'plum' : 'white'
 
-    let freeLevelInfo = this.freeLevels.gt(0)
+    let freeLevelInfo = this.freeLevels > 0
       ? `<span style="color: orange"> [+${format(this.freeLevels, 1, true)}]</span>`
       : ''
 
@@ -131,12 +127,12 @@ export class OcteractUpgrade extends DynamicUpgrade {
       }</span>`
     }
 
-    const isAffordable = costNextLevel.lte(player.wowOcteracts)
+    const isAffordable = costNextLevel <= player.wowOcteracts
     let affordTime = ''
     if (!isMaxLevel && !isAffordable) {
       const octPerSecond = octeractGainPerSecond()
-      affordTime = octPerSecond.gt(0)
-        ? formatTimeShort(Decimal.sub(costNextLevel, player.wowOcteracts).div(octPerSecond))
+      affordTime = octPerSecond > 0
+        ? formatTimeShort((costNextLevel - player.wowOcteracts) / octPerSecond)
         : `${i18next.t('general.infinity')}`
     }
     const affordableInfo = isMaxLevel
@@ -152,38 +148,38 @@ export class OcteractUpgrade extends DynamicUpgrade {
     }${maxLevel}${freeLevelInfo}</span>
                 <span style="color: gold">${this.getEffect().desc}</span>
                 ${i18next.t('octeract.toString.costNextLevel')} ${
-      format(costNextLevel, 2, true)
+      format(costNextLevel, 2, true, true, true)
     } Octeracts${affordableInfo}
-                ${i18next.t('general.spent')} Octeracts: ${format(this.octeractsInvested, 2, true)}`
+                ${i18next.t('general.spent')} Octeracts: ${format(this.octeractsInvested, 2, true, true, true)}`
   }
 
   public updateUpgradeHTML (): void {
     DOMCacheGetOrSet('singularityOcteractsMultiline').innerHTML = this.toString()
     DOMCacheGetOrSet('octeractAmount').innerHTML = i18next.t('octeract.amount', {
-      octeracts: format(player.wowOcteracts, 2, true)
+      octeracts: format(player.wowOcteracts, 2, true, true, true)
     })
   }
 
-  public computeFreeLevelSoftcap (): Decimal {
-    return Decimal.min(this.level, this.freeLevels).add(Decimal.sqrt(Decimal.max(0, Decimal.sub(this.freeLevels, this.level))))
+  public computeFreeLevelSoftcap (): number {
+    return Math.min(this.level, this.freeLevels) + Math.sqrt(Math.max(0, this.freeLevels - this.level))
   }
 
-  public actualTotalLevels (): Decimal {
+  public actualTotalLevels (): number {
     if (player.singularityChallenges.noOcteracts.enabled && !this.qualityOfLife) {
-      return new Decimal(0)
+      return 0
     }
     const actualFreeLevels = this.computeFreeLevelSoftcap()
-    const linearLevels = Decimal.add(this.level, actualFreeLevels)
+    const linearLevels = this.level + actualFreeLevels
     return linearLevels // There is currently no 'improvement' to oct free upgrades.
   }
 
-  public getEffect (): { bonus: Decimal; desc: string } {
+  public getEffect (): { bonus: number | boolean; desc: string } {
     return this.effect(this.actualTotalLevels())
   }
 
   public refund (): void {
     player.wowOcteracts += this.octeractsInvested
-    this.level = new Decimal(0)
+    this.level = 0
     this.octeractsInvested = 0
   }
 
@@ -196,41 +192,31 @@ export class OcteractUpgrade extends DynamicUpgrade {
   }
 }
 
-// all targets are based on level
 export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractData> = {
   octeractStarter: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).mul(baseCost)
-      // y = a(x+1)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (level + 1)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1)
-    },
-    maxLevel: new Decimal(1),
-    costPerLevel: new Decimal(1e-15),
-    effect: (n: Decimal) => {
+    maxLevel: 1,
+    costPerLevel: 1e-15,
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? new Decimal(1) : new Decimal(0),
+        bonus: n > 0,
         get desc () {
-          return i18next.t('octeract.data.octeractStarter.effect', { n: (n.gt(0)) ? '' : 'not' })
+          return i18next.t('octeract.data.octeractStarter.effect', { n: (n > 0) ? '' : 'not' })
         }
       }
     }
   },
   octeractGain: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.pow(5.5).sub(1).mul(1.3).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (Math.pow(level + 1, 6) - Math.pow(level, 6))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1).div(1.3).add(1).root(5.5)
-    },
-    maxLevel: new Decimal(1e8),
-    costPerLevel: new Decimal(1e-8),
-    effect: (n: Decimal) => {
+    maxLevel: 1e8,
+    costPerLevel: 1e-8,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.011).add(1),
+        bonus: 1 + 0.011 * n,
         get desc () {
           return i18next.t('octeract.data.octeractGain.effect', { n: format(n, 0, true) })
         }
@@ -238,18 +224,14 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractGain2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level.sqrt().div(3)).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(10, Math.pow(level, 0.5) / 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log10().mul(3).pow(2)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e10),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e10,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.01).add(1),
+        bonus: 1 + 0.01 * n,
         get desc () {
           return i18next.t('octeract.data.octeractGain2.effect', { n: format(n, 0, true) })
         }
@@ -257,60 +239,49 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractQuarkGain: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      let i = level
-      i = scale(i, 0.2, false, new Decimal(10000), new Decimal(1), new Decimal(2))
-      i = scale(i, 1.1, false, new Decimal(1000), new Decimal(1), new Decimal(2))
-      return i.add(1).pow(6.15).sub(1).mul(2).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      if (level < 1000) {
+        return baseCost * (Math.pow(level + 1, 7) - Math.pow(level, 7))
+      } else {
+        const fasterMult = (level >= 10000) ? (Math.pow(10, (level - 10000) / 250)) : 1
+        const fasterMult2 = (level >= 15000) ? (Math.pow(10, (level - 15000) / 250)) : 1
+        return baseCost * (Math.pow(1001, 7) - Math.pow(1000, 7)) * Math.pow(10, level / 1000) * fasterMult
+          * fasterMult2
+      }
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      let i = amt.div(baseCost).sub(1).div(2).add(1).root(6.15).sub(1)
-      i = scale(i, 1.1, true, new Decimal(1000), new Decimal(1), new Decimal(2))
-      i = scale(i, 0.2, true, new Decimal(10000), new Decimal(1), new Decimal(2))
-      return i
-    },
-    maxLevel: new Decimal(20000),
-    costPerLevel: new Decimal(1e-7),
-    effect: (n: Decimal) => {
+    maxLevel: 20000,
+    costPerLevel: 1e-7,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.011).add(1),
+        bonus: 1 + 0.011 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractQuarkGain.effect', { n: format(n.mul(1.1), 0, true) })
+          return i18next.t('octeract.data.octeractQuarkGain.effect', { n: format(1.1 * n, 0, true) })
         }
       }
     }
   },
   octeractQuarkGain2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e20, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e20, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e20)
-    },
-    maxLevel: new Decimal(5),
-    costPerLevel: new Decimal(1e22),
-    effect: (n: Decimal) => {
+    maxLevel: 5,
+    costPerLevel: 1e22,
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? new Decimal(1) : new Decimal(0),
+        bonus: n > 0,
         get desc () {
-          return i18next.t('octeract.data.octeractQuarkGain2.effect', { n: n.gt(0) ? '' : 'NOT' })
+          return i18next.t('octeract.data.octeractQuarkGain2.effect', { n: n > 0 ? '' : 'NOT' })
         }
       }
     }
   },
   octeractCorruption: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e10, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(10, level * 10)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e10)
-    },
-    maxLevel: new Decimal(2),
-    costPerLevel: new Decimal(10),
-    effect: (n: Decimal) => {
+    maxLevel: 2,
+    costPerLevel: 10,
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -320,18 +291,14 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractGQCostReduce: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(2, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(2, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log2()
-    },
-    maxLevel: new Decimal(50),
-    costPerLevel: new Decimal(1e-9),
-    effect: (n: Decimal) => {
+    maxLevel: 50,
+    costPerLevel: 1e-9,
+    effect: (n: number) => {
       return {
-        bonus: Decimal.sub(1, n.div(100)),
+        bonus: 1 - n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractGQCostReduce.effect', { n })
         }
@@ -339,35 +306,27 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractExportQuarks: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).cbrt().sub(1)
-    },
-    maxLevel: new Decimal(100),
-    costPerLevel: new Decimal(1),
-    effect: (n: Decimal) => {
+    maxLevel: 100,
+    costPerLevel: 1,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.4).add(1),
+        bonus: 4 * n / 10 + 1,
         get desc () {
-          return i18next.t('octeract.data.octeractExportQuarks.effect', { n: format(n.mul(40), 0, true) })
+          return i18next.t('octeract.data.octeractExportQuarks.effect', { n: format(40 * n, 0, true) })
         }
       }
     }
   },
   octeractImprovedDaily: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1.6, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1.6, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1.6)
-    },
-    maxLevel: new Decimal(50),
-    costPerLevel: new Decimal(1e-3),
-    effect: (n: Decimal) => {
+    maxLevel: 50,
+    costPerLevel: 1e-3,
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -378,18 +337,14 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     qualityOfLife: true
   },
   octeractImprovedDaily2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(2, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(2, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log2()
-    },
-    maxLevel: new Decimal(50),
-    costPerLevel: new Decimal(1e-2),
-    effect: (n: Decimal) => {
+    maxLevel: 50,
+    costPerLevel: 1e-2,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.01).add(1),
+        bonus: 1 + 0.01 * n,
         get desc () {
           return i18next.t('octeract.data.octeractImprovedDaily2.effect', { n })
         }
@@ -398,57 +353,45 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     qualityOfLife: true
   },
   octeractImprovedDaily3: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(20, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(20, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(20)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e20),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e20,
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedDaily3.effect', { n: `${n} +${n.mul(0.5)}%` })
+          return i18next.t('octeract.data.octeractImprovedDaily3.effect', { n: `${n} +${0.5 * n}%` })
         }
       }
     },
     qualityOfLife: true
   },
   octeractImprovedQuarkHept: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e6, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e6, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e6)
-    },
-    maxLevel: new Decimal(3),
-    costPerLevel: new Decimal(0.1),
-    effect: (n: Decimal) => {
+    maxLevel: 3,
+    costPerLevel: 1 / 10,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100),
+        bonus: n / 100,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedQuarkHept.effect', { n: format(n.div(100), 2, true) })
+          return i18next.t('octeract.data.octeractImprovedQuarkHept.effect', { n: format(n / 100, 2, true) })
         }
       }
     }
   },
   octeractImprovedGlobalSpeed: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).root(3).sub(1)
-    },
-    maxLevel: new Decimal(1000),
-    costPerLevel: new Decimal(1e-5),
-    effect: (n: Decimal) => {
+    maxLevel: 1000,
+    costPerLevel: 1e-5,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100),
+        bonus: n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractImprovedGlobalSpeed.effect', { n: format(n, 0, true) })
         }
@@ -456,132 +399,104 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractImprovedAscensionSpeed: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e9, level.div(100)).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e9, level / 100)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e9).mul(100)
-    },
-    maxLevel: new Decimal(100),
-    costPerLevel: new Decimal(100),
-    effect: (n: Decimal) => {
+    maxLevel: 100,
+    costPerLevel: 100,
+    effect: (n: number) => {
       return {
-        bonus: n.div(2000),
+        bonus: n / 2000,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedAscensionSpeed.effect', { n: format(n.div(20), 2, true) })
+          return i18next.t('octeract.data.octeractImprovedAscensionSpeed.effect', { n: format(n / 20, 2, true) })
         }
       }
     }
   },
   octeractImprovedAscensionSpeed2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e12, level.div(250)).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e12, level / 250)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e12).mul(250)
-    },
-    maxLevel: new Decimal(250),
-    costPerLevel: new Decimal(1e5),
-    effect: (n: Decimal) => {
+    maxLevel: 250,
+    costPerLevel: 1e5,
+    effect: (n: number) => {
       return {
-        bonus: n.div(2000),
+        bonus: n / 2000,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedAscensionSpeed2.effect', { n: format(n.div(50), 2, true) })
+          return i18next.t('octeract.data.octeractImprovedAscensionSpeed2.effect', { n: format(n / 50, 2, true) })
         }
       }
     }
   },
   octeractImprovedFree: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).cbrt().sub(1)
-    },
-    maxLevel: new Decimal(1),
-    costPerLevel: new Decimal(100),
-    effect: (n: Decimal) => {
+    maxLevel: 1,
+    costPerLevel: 100,
+    effect: (n: number) => {
       return {
-        bonus: n.gt(0) ? new Decimal(1) : new Decimal(0),
+        bonus: n > 0,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedFree.effect', { n: (n.gt(0)) ? '' : 'NOT' })
+          return i18next.t('octeract.data.octeractImprovedFree.effect', { n: (n > 0) ? '' : 'NOT' })
         }
       }
     }
   },
   octeractImprovedFree2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).cbrt().sub(1)
-    },
-    maxLevel: new Decimal(1),
-    costPerLevel: new Decimal(1e7),
-    effect: (n: Decimal) => {
+    maxLevel: 1,
+    costPerLevel: 1e7,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.05),
+        bonus: 0.05 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedFree2.effect', { n: format(n.mul(0.05), 2, true) })
+          return i18next.t('octeract.data.octeractImprovedFree2.effect', { n: format(n / 20, 2, true) })
         }
       }
     }
   },
   octeractImprovedFree3: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).cbrt().sub(1)
-    },
-    maxLevel: new Decimal(1),
-    costPerLevel: new Decimal(1e17),
-    effect: (n: Decimal) => {
+    maxLevel: 1,
+    costPerLevel: 1e17,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.05),
+        bonus: 0.05 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractImprovedFree3.effect', { n: format(n.mul(0.05), 2, true) })
+          return i18next.t('octeract.data.octeractImprovedFree3.effect', { n: format(n / 20, 2, true) })
         }
       }
     }
   },
   octeractImprovedFree4: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e20, level.div(40)).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e20, level / 40)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e20).mul(40)
-    },
-    maxLevel: new Decimal(40),
-    costPerLevel: new Decimal(1e20),
-    effect: (n: Decimal) => {
+    maxLevel: 40,
+    costPerLevel: 1e20,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.001).add((n.gt(0)) ? 0.01 : 0),
+        bonus: 0.001 * n + ((n > 0) ? 0.01 : 0),
         get desc () {
           return i18next.t('octeract.data.octeractImprovedFree4.effect', {
-            n: format(n.mul(0.001).add((n.gt(0)) ? 0.01 : 0), 3, true)
+            n: format(0.001 * n + ((n > 0) ? 0.01 : 0), 3, true)
           })
         }
       }
     }
   },
   octeractSingUpgradeCap: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e3, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e3, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e3)
-    },
-    maxLevel: new Decimal(10),
-    costPerLevel: new Decimal(1e10),
-    effect: (n: Decimal) => {
+    maxLevel: 10,
+    costPerLevel: 1e10,
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
@@ -592,22 +507,18 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     qualityOfLife: true
   },
   octeractOfferings1: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      let i = level.add(1).pow(5).mul(baseCost)
-      i = scale(i, 1.1, false, new Decimal(25), new Decimal(1), new Decimal(10))
-      return i
+    costFormula: (level: number, baseCost: number) => {
+      if (level < 25) {
+        return baseCost * Math.pow(level + 1, 5)
+      } else {
+        return baseCost * 1e15 * Math.pow(10, level / 25 - 1)
+      }
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      let i = amt.div(baseCost).root(5).sub(1)
-      i = scale(i, 1.1, true, new Decimal(25), new Decimal(1), new Decimal(10))
-      return i
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e-15),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e-15,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.01).add(1),
+        bonus: 1 + 0.01 * n,
         get desc () {
           return i18next.t('octeract.data.octeractOfferings1.effect', { n: format(n) })
         }
@@ -615,22 +526,18 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractObtainium1: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      let i = level.add(1).pow(5).mul(baseCost)
-      i = scale(i, 1.1, false, new Decimal(25), new Decimal(1), new Decimal(10))
-      return i
+    costFormula: (level: number, baseCost: number) => {
+      if (level < 25) {
+        return baseCost * Math.pow(level + 1, 5)
+      } else {
+        return baseCost * 1e15 * Math.pow(10, level / 25 - 1)
+      }
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      let i = amt.div(baseCost).root(5).sub(1)
-      i = scale(i, 1.1, true, new Decimal(25), new Decimal(1), new Decimal(10))
-      return i
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e-15),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e-15,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.01).add(1),
+        bonus: 1 + 0.01 * n,
         get desc () {
           return i18next.t('octeract.data.octeractObtainium1.effect', { n: format(n) })
         }
@@ -638,60 +545,48 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractAscensions: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(3).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(level + 1, 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).cbrt().sub(1)
-    },
-    maxLevel: new Decimal(1000000),
-    costPerLevel: new Decimal(1),
-    effect: (n: Decimal) => {
+    maxLevel: 1000000,
+    costPerLevel: 1,
+    effect: (n: number) => {
       return {
-        bonus: Decimal.mul(n.div(100).add(1), Decimal.floor(n.div(10).floor()).mul(0.02).add(1)),
+        bonus: (1 + n / 100) * (1 + 2 * Math.floor(n / 10) / 100),
         get desc () {
           return i18next.t('octeract.data.octeractAscensions.effect', {
-            n: format(this.bonus.sub(1).mul(100), 1, true)
+            n: format((100 + n) * (1 + 2 * Math.floor(n / 10) / 100) - 100, 1, true)
           })
         }
       }
     }
   },
   octeractAscensions2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level.sqrt().div(3)).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(10, Math.pow(level, 0.5) / 3)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log10().mul(3).pow(2)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e12),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e12,
+    effect: (n: number) => {
       return {
-        bonus: Decimal.mul(n.div(100).add(1), Decimal.floor(n.div(10).floor()).mul(0.02).add(1)),
+        bonus: (1 + n / 100) * (1 + 2 * Math.floor(n / 10) / 100),
         get desc () {
           return i18next.t('octeract.data.octeractAscensions2.effect', {
-            n: format(this.bonus.sub(1).mul(100), 1, true)
+            n: format((100 + n) * (1 + 2 * Math.floor(n / 10) / 100) - 100, 1, true)
           })
         }
       }
     }
   },
   octeractAscensionsOcteractGain: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(40, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(40, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(40)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1000),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1000,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100),
+        bonus: n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractAscensionsOcteractGain.effect', { n: format(n, 1, true) })
         }
@@ -699,101 +594,79 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     }
   },
   octeractFastForward: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(1e8, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(1e8, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(1e8)
-    },
-    maxLevel: new Decimal(2),
-    costPerLevel: new Decimal(1e8),
-    effect: (n: Decimal) => {
+    maxLevel: 2,
+    costPerLevel: 1e8,
+    effect: (n: number) => {
       return {
         bonus: n,
         get desc () {
-          return i18next.t('octeract.data.octeractFastForward.effect', { n100: n.mul(100), n })
+          return i18next.t('octeract.data.octeractFastForward.effect', { n100: 100 * n, n })
         }
       }
     }
   },
   octeractAutoPotionSpeed: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(10, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(10)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1e-10),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e-10,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(0.04).add(1),
+        bonus: 1 + 4 * n / 100,
         get desc () {
-          return i18next.t('octeract.data.octeractAutoPotionSpeed.effect', { n: n.mul(4) })
+          return i18next.t('octeract.data.octeractAutoPotionSpeed.effect', { n: 4 * n })
         }
       }
     }
   },
   octeractAutoPotionEfficiency: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * Math.pow(10, level)
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(10)
-    },
-    maxLevel: new Decimal(100),
-    costPerLevel: new Decimal(3.16e-10),
-    effect: (n: Decimal) => {
+    maxLevel: 100,
+    costPerLevel: 1e-10 * Math.pow(10, 0.5),
+    effect: (n: number) => {
       return {
-        bonus: n.div(50).add(1),
+        bonus: 1 + 2 * n / 100,
         get desc () {
-          return i18next.t('octeract.data.octeractAutoPotionEfficiency.effect', { n: n.mul(2) })
+          return i18next.t('octeract.data.octeractAutoPotionEfficiency.effect', { n: 2 * n })
         }
       }
     }
   },
   octeractOneMindImprover: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      let i = level
-      i = scale(i, 0.2, false, new Decimal(10), new Decimal(1), new Decimal(1.2))
-      return Decimal.pow(1e5, i).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      const fasterMult = (level >= 10) ? (Math.pow(1e3, level - 10)) : 1
+      return baseCost * Math.pow(1e5, level) * fasterMult
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      let i = amt.div(baseCost).log(1e5)
-      i = scale(i, 0.2, true, new Decimal(10), new Decimal(1), new Decimal(1.2))
-      return i
-    },
-    maxLevel: new Decimal(16),
-    costPerLevel: new Decimal(1e25),
-    effect: (n: Decimal) => {
+    maxLevel: 16,
+    costPerLevel: 1e25,
+    effect: (n: number) => {
       return {
-        bonus: n.div(150).add(0.55),
+        bonus: 0.55 + n / 150,
         get desc () {
-          return i18next.t('octeract.data.octeractOneMindImprover.effect', { n: format(this.bonus, 3, true) })
+          return i18next.t('octeract.data.octeractOneMindImprover.effect', { n: format(0.55 + n / 150, 3, true) })
         }
       }
     },
     qualityOfLife: true
   },
   octeractAmbrosiaLuck: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      const useLevel = level + 1
+      return baseCost * (Math.pow(10, useLevel) - Math.pow(10, useLevel - 1))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(10)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1.11111e59),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e60 / 9,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(4),
+        bonus: 4 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractAmbrosiaLuck.effect', { n: format(n.mul(4)) })
+          return i18next.t('octeract.data.octeractAmbrosiaLuck.effect', { n: format(4 * n) })
         }
       }
     },
@@ -801,20 +674,16 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaLuck.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaLuck2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(5.1).sub(1).mul(4).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (Math.pow(level + 1, 6) - Math.pow(level, 6))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1).div(4).add(1).root(5.1).sub(1)
-    },
-    maxLevel: new Decimal(30),
-    costPerLevel: new Decimal(1),
-    effect: (n: Decimal) => {
+    maxLevel: 30,
+    costPerLevel: 1,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(2),
+        bonus: 2 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractAmbrosiaLuck2.effect', { n: format(n.mul(2)) })
+          return i18next.t('octeract.data.octeractAmbrosiaLuck2.effect', { n: format(2 * n) })
         }
       }
     },
@@ -822,20 +691,16 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaLuck.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaLuck3: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(7.15).sub(1).mul(4).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (Math.pow(level + 1, 8) - Math.pow(level, 8))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1).div(4).add(1).root(7.15).sub(1)
-    },
-    maxLevel: new Decimal(30),
-    costPerLevel: new Decimal(1e30),
-    effect: (n: Decimal) => {
+    maxLevel: 30,
+    costPerLevel: 1e30,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(3),
+        bonus: 3 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractAmbrosiaLuck3.effect', { n: format(n.mul(3)) })
+          return i18next.t('octeract.data.octeractAmbrosiaLuck3.effect', { n: format(3 * n) })
         }
       }
     },
@@ -843,20 +708,17 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaLuck.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaLuck4: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(3, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      const useLevel = level + 1
+      return baseCost * (Math.pow(3, useLevel) - Math.pow(3, useLevel - 1))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(3)
-    },
-    maxLevel: new Decimal(50),
-    costPerLevel: new Decimal(5e69),
-    effect: (n: Decimal) => {
+    maxLevel: 50,
+    costPerLevel: 1e70 / 2,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(5),
+        bonus: 5 * n,
         get desc () {
-          return i18next.t('octeract.data.octeractAmbrosiaLuck4.effect', { n: format(n.mul(5)) })
+          return i18next.t('octeract.data.octeractAmbrosiaLuck4.effect', { n: format(5 * n) })
         }
       }
     },
@@ -864,18 +726,15 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaLuck.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaGeneration: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(10, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      const useLevel = level + 1
+      return baseCost * (Math.pow(10, useLevel) - Math.pow(10, useLevel - 1))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(10)
-    },
-    maxLevel: new Decimal(-1),
-    costPerLevel: new Decimal(1.11111e59),
-    effect: (n: Decimal) => {
+    maxLevel: -1,
+    costPerLevel: 1e60 / 9,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100).add(1),
+        bonus: 1 + n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractAmbrosiaGeneration.effect', { n: format(n) })
         }
@@ -885,18 +744,14 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaGeneration.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaGeneration2: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(5.1).sub(1).mul(4).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (Math.pow(level + 1, 6) - Math.pow(level, 6))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1).div(4).add(1).root(5.1).sub(1)
-    },
-    maxLevel: new Decimal(20),
-    costPerLevel: new Decimal(1),
-    effect: (n: Decimal) => {
+    maxLevel: 20,
+    costPerLevel: 1,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100).add(1),
+        bonus: 1 + n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractAmbrosiaGeneration2.effect', { n: format(n) })
         }
@@ -906,19 +761,14 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaGeneration.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaGeneration3: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return level.add(1).pow(7.15).sub(1).mul(4).add(1).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      return baseCost * (Math.pow(level + 1, 8) - Math.pow(level, 8))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).sub(1).div(4).add(1).root(7.15).sub(1)
-    },
-
-    maxLevel: new Decimal(35),
-    costPerLevel: new Decimal(1e30),
-    effect: (n: Decimal) => {
+    maxLevel: 35,
+    costPerLevel: 1e30,
+    effect: (n: number) => {
       return {
-        bonus: n.div(100).add(1),
+        bonus: 1 + n / 100,
         get desc () {
           return i18next.t('octeract.data.octeractAmbrosiaGeneration3.effect', { n: format(n) })
         }
@@ -928,20 +778,17 @@ export const octeractData: Record<keyof Player['octeractUpgrades'], IOcteractDat
     cacheUpdates: [() => player.caches.ambrosiaGeneration.updateVal('OcteractBerries')]
   },
   octeractAmbrosiaGeneration4: {
-    costFormula: (level: Decimal, baseCost: Decimal) => {
-      return Decimal.pow(3, level).mul(baseCost)
+    costFormula: (level: number, baseCost: number) => {
+      const useLevel = level + 1
+      return baseCost * (Math.pow(3, useLevel) - Math.pow(3, useLevel - 1))
     },
-    target: (amt: Decimal, baseCost: Decimal) => {
-      if (amt.lt(baseCost)) { return new Decimal(0) }
-      return amt.div(baseCost).log(3)
-    },
-    maxLevel: new Decimal(50),
-    costPerLevel: new Decimal(5e69),
-    effect: (n: Decimal) => {
+    maxLevel: 50,
+    costPerLevel: 1e70 / 2,
+    effect: (n: number) => {
       return {
-        bonus: n.mul(2).div(100).add(1),
+        bonus: 1 + 2 * n / 100,
         get desc () {
-          return i18next.t('octeract.data.octeractAmbrosiaGeneration4.effect', { n: format(this.bonus.sub(1).mul(100)) })
+          return i18next.t('octeract.data.octeractAmbrosiaGeneration4.effect', { n: format(2 * n) })
         }
       }
     },

@@ -1,4 +1,4 @@
-import Decimal from "break_eternity.js";
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { CalcCorruptionStuff, calculateTimeAcceleration } from './Calculate'
@@ -71,34 +71,34 @@ export const areward = (i: number): string => {
       ),
       4
     ),
-    169: format(Decimal.log10(player.antPoints.add(10)), 2),
-    174: format(Decimal.log10(player.antPoints.add(1)).mul(0.4), 2),
+    169: format(Decimal.log(player.antPoints.add(10), 10), 2),
+    174: format(0.4 * Decimal.log(player.antPoints.add(1), 10), 2),
     187: {
-      x: format(Decimal.max(1, Decimal.log10(corr[3].add(1)).sub(7)), 2),
-      y: format(Decimal.min(100, player.ascensionCount / 10000), 2)
+      x: format(Math.max(1, Math.log10(corr[3] + 1) - 7), 2),
+      y: format(Math.min(100, player.ascensionCount / 10000), 2)
     },
-    188: format(Decimal.min(100, player.ascensionCount / 50000), 2),
-    189: format(Decimal.min(200, player.ascensionCount / 2.5e6), 2),
-    193: format(Decimal.log10(player.ascendShards.add(1)).div(4), 2),
-    195: format(Decimal.min(25000, Decimal.log10(player.ascendShards.add(1)).div(4)), 2),
-    196: format(Decimal.min(2000, Decimal.log10(player.ascendShards.add(1)).div(50)), 2),
-    202: format(Decimal.min(200, player.ascensionCount / 5e6), 2),
-    216: format(Decimal.min(200, player.ascensionCount / 1e7), 2),
-    223: format(Decimal.min(200, player.ascensionCount / 13370000), 2),
-    240: format(Decimal.min(1.5, Decimal.max(2, Decimal.log10(calculateTimeAcceleration().mult)).div(20).add(1.5)), 2),
-    254: format(Decimal.min(15, Decimal.log10(corr[3].add(1)).mul(0.6)), 2, true),
-    255: format(Decimal.min(15, Decimal.log10(corr[3].add(1)).mul(0.6)), 2, true),
-    256: format(Decimal.min(15, Decimal.log10(corr[3].add(1)).mul(0.6)), 2, true),
-    257: format(Decimal.min(15, Decimal.log10(corr[3].add(1)).mul(0.6)), 2, true),
-    258: format(Decimal.min(15, Decimal.log10(corr[3].add(1)).mul(0.6)), 2, true),
-    262: format(Decimal.min(10, Decimal.log10(player.ascensionCount.add(1))), 2),
-    263: format(Decimal.min(10, Decimal.log10(player.ascensionCount.add(1))), 2),
-    264: format(Decimal.min(40, player.ascensionCount.div(2e11)), 2),
-    265: format(Decimal.min(20, player.ascensionCount.div(8e12)), 2),
-    266: format(Decimal.min(10, player.ascensionCount.div(1e14)), 2),
-    267: format(Decimal.min(100, Decimal.log10(player.ascendShards.add(1)).div(1000)), 2),
-    270: format(Decimal.min(100, Decimal.log10(player.ascendShards.add(1)).div(10000)), 2),
-    271: format(Decimal.max(0, Decimal.min(1, Decimal.log10(player.ascendShards.add(1)).sub(1e5).div(9e5))), 2, true)
+    188: format(Math.min(100, player.ascensionCount / 50000), 2),
+    189: format(Math.min(200, player.ascensionCount / 2.5e6), 2),
+    193: format(Decimal.log(player.ascendShards.add(1), 10) / 4, 2),
+    195: format(Math.min(25000, Decimal.log(player.ascendShards.add(1), 10) / 4), 2),
+    196: format(Math.min(2000, Decimal.log(player.ascendShards.add(1), 10) / 50), 2),
+    202: format(Math.min(200, player.ascensionCount / 5e6), 2),
+    216: format(Math.min(200, player.ascensionCount / 1e7), 2),
+    223: format(Math.min(200, player.ascensionCount / 13370000), 2),
+    240: format(Math.min(1.5, 1 + Math.max(2, Math.log10(calculateTimeAcceleration().mult)) / 20), 2),
+    254: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    255: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    256: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    257: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    258: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    262: format(Math.min(10, Math.log10(player.ascensionCount + 1)), 2),
+    263: format(Math.min(10, Math.log10(player.ascensionCount + 1)), 2),
+    264: format(Math.min(40, player.ascensionCount / 2e11), 2),
+    265: format(Math.min(20, player.ascensionCount / 8e12), 2),
+    266: format(Math.min(10, player.ascensionCount / 1e14), 2),
+    267: format(Math.min(100, Decimal.log(player.ascendShards.add(1), 10) / 1000), 2),
+    270: format(Math.min(100, Decimal.log(player.ascendShards.add(1), 10) / 10000), 2),
+    271: format(Math.max(0, Math.min(1, (Decimal.log(player.ascendShards.add(1), 10) - 1e5) / 9e5)), 2, true)
   }
 
   // dprint-ignore
@@ -288,11 +288,11 @@ export const challengeachievementcheck = (i: number, auto?: boolean) => {
     const [gte, ach] = challengeCompletionsNotAuto[i]
     if (i === 5) {
       if (
-        player.coinsThisTranscension.gte(gte) && player.acceleratorBought.eq(0) && player.acceleratorBoostBought.eq(0)
+        player.coinsThisTranscension.gte(gte) && player.acceleratorBought === 0 && player.acceleratorBoostBought === 0
       ) {
         achievementaward(ach)
       }
-    } else if (player.coinsThisTranscension.gte(gte) && generatorcheck.eq(0)) {
+    } else if (player.coinsThisTranscension.gte(gte) && generatorcheck === 0) {
       achievementaward(ach)
     }
   }
@@ -430,12 +430,12 @@ export const getAchievementQuarks = (i: number) => {
   }
 
   const globalQuarkMultiplier = player.worlds.applyBonus(1)
-  let actualMultiplier = Decimal.mul(multiplier, globalQuarkMultiplier)
-  if (actualMultiplier.gte(100)) {
-    actualMultiplier = actualMultiplier.div(100).pow(0.6).mul(100)
+  let actualMultiplier = multiplier * globalQuarkMultiplier
+  if (actualMultiplier > 100) {
+    actualMultiplier = Math.pow(100, 0.6) * Math.pow(actualMultiplier, 0.4)
   }
 
-  return Decimal.floor(Decimal.mul(achievementpointvalues[i], actualMultiplier))
+  return Math.floor(achievementpointvalues[i] * actualMultiplier)
 }
 
 export const achievementdescriptions = (i: number) => {
