@@ -4,8 +4,9 @@ import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateCubeQuarkMultiplier, calculateQuarkMultiplier } from './Calculate'
 import { format, player } from './Synergism'
 import { Alert } from './UpdateHTML'
+import Decimal from "break_eternity.js";
 
-const getBonus = async (): Promise<null | number> => {
+const getBonus = async (): Promise<null | number | Decimal> => {
   if (!navigator.onLine) {
     return null
   }
@@ -15,7 +16,7 @@ const getBonus = async (): Promise<null | number> => {
 
   try {
     const r = await fetch('https://synergism-quarks.khafra.workers.dev/')
-    const j = await r.json() as { bonus: number }
+    const j = await r.json() as { bonus: number | Decimal }
 
     return j.bonus
   } catch (e) {
@@ -30,7 +31,7 @@ const getBonus = async (): Promise<null | number> => {
     })
 
     const t = await r.json() as { files: Record<string, { content: string }> }
-    const b = Number(t.files['SynergismQuarkBoost.txt'].content)
+    const b = new Decimal(t.files['SynergismQuarkBoost.txt'].content)
 
     return b
   } catch (e) {
@@ -69,26 +70,26 @@ export const quarkHandler = () => {
   // Return maxTime, quarkPerHour, capacity and quarkGain as object
   return {
     maxTime,
-    perHour: quarkPerHour,
+    perHour: new Decimal(quarkPerHour),
     capacity,
-    gain: quarkGain,
+    gain: new Decimal(quarkGain),
     cubeMult
   }
 }
 
 export class QuarkHandler {
   /** Global quark bonus */
-  public BONUS = 0
+  public BONUS = new Decimal(0)
   /** Quark amount */
-  private QUARKS = 0
+  private QUARKS = new Decimal(0)
 
   private interval: ReturnType<typeof setInterval> | null = null
 
-  constructor ({ bonus, quarks }: { bonus?: number; quarks: number }) {
-    this.QUARKS = quarks
+  constructor ({ bonus, quarks }: { bonus?: number | Decimal; quarks: number | Decimal }) {
+    this.QUARKS = new Decimal(quarks)
 
     if (bonus) {
-      this.BONUS = bonus
+      this.BONUS = new Decimal(bonus)
     } else {
       void this.getBonus()
     }
@@ -100,23 +101,23 @@ export class QuarkHandler {
   }
 
   /*** Calculates the number of quarks to give with the current bonus. */
-  applyBonus (amount: number) {
+  applyBonus (amount: number | Decimal) {
     const nonPatreon = calculateQuarkMultiplier()
-    return amount * (1 + (this.BONUS / 100)) * nonPatreon
+    return Decimal.mul(amount, this.BONUS.div(100).add(1)).mul(nonPatreon)
   }
 
   /** Subtracts quarks, as the name suggests. */
-  add (amount: number, useBonus = true) {
-    this.QUARKS += useBonus ? this.applyBonus(amount) : amount
-    player.quarksThisSingularity += useBonus ? this.applyBonus(amount) : amount
+  add (amount: number | Decimal, useBonus = true) {
+    this.QUARKS = this.QUARKS.add(useBonus ? this.applyBonus(amount) : amount)
+    player.quarksThisSingularity = player.quarksThisSingularity.add(useBonus ? this.applyBonus(amount) : amount)
     return this
   }
 
   /** Add quarks, as suggested by the function's name. */
-  sub (amount: number) {
-    this.QUARKS -= amount
-    if (this.QUARKS < 0) {
-      this.QUARKS = 0
+  sub (amount: number | Decimal) {
+    this.QUARKS = this.QUARKS.sub(amount)
+    if (Decimal.lt(this.QUARKS, 0)) {
+      this.QUARKS = new Decimal(0)
     }
 
     return this
@@ -130,10 +131,10 @@ export class QuarkHandler {
     }
 
     if (localStorage.getItem('quarkBonus') !== null) { // is in cache
-      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: number; fetched: number }
+      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: number | Decimal; fetched: number }
       if (Date.now() - fetched < 60 * 1000 * 15) { // cache is younger than 15 minutes
         el.textContent = `Generous patrons give you a bonus of ${bonus}% more Quarks!`
-        return this.BONUS = bonus
+        return this.BONUS = new Decimal(bonus)
       }
     } else if (!navigator.onLine) {
       return el.textContent = 'Current Bonus: N/A% (offline)!'
@@ -145,28 +146,28 @@ export class QuarkHandler {
 
     if (b === null) {
       return
-    } else if (Number.isNaN(b) || typeof b !== 'number') {
+    } else if (Decimal.isNaN(b) || typeof b !== 'number') {
       return Alert('No bonus could be applied, a network error occurred! [Invalid Bonus] :(')
-    } else if (!Number.isFinite(b)) {
+    } else if (!Decimal.isFinite(b)) {
       return Alert('No bonus could be applied, an error occurred. [Infinity] :(')
-    } else if (b < 0) {
+    } else if (Decimal.lt(b, 0)) {
       return Alert('No bonus could be applied, an error occurred. [Zero] :(')
     }
 
-    el.textContent = `Generous patrons give you a bonus of ${b}% more Quarks!`
+    el.textContent = `Generous patrons give you a bonus of ${format(b)}% more Quarks!`
     localStorage.setItem('quarkBonus', JSON.stringify({ bonus: b, fetched: Date.now() }))
-    this.BONUS = b
+    this.BONUS = new Decimal(b)
   }
 
-  public toString (val: number): string {
-    return format(Math.floor(this.applyBonus(val)), 0, true)
+  public toString (val: number | Decimal): string {
+    return format(Decimal.floor(this.applyBonus(val)), 0, true)
   }
 
   /**
    * Resets the amount of quarks saved but keeps the bonus amount.
    */
   public reset () {
-    this.QUARKS = 0
+    this.QUARKS = new Decimal(0)
   }
 
   [Symbol.toPrimitive] = (t: string) => t === 'number' ? this.QUARKS : null

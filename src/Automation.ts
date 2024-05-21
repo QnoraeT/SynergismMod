@@ -1,4 +1,4 @@
-import Decimal from 'break_infinity.js'
+import Decimal from "break_eternity.js";
 import { achievementaward } from './Achievements'
 import { buyUpgrades } from './Buy'
 import { player } from './Synergism'

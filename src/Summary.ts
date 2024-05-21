@@ -174,7 +174,7 @@ export const generateExportSummary = async (): Promise<void> => {
       ascension = `${ascension}Platonic β: ${player.platonicUpgrades[10] > 0 ? '✔' : '✖'}\n`
       ascension = `${ascension}Platonic Ω: ${player.platonicUpgrades[15] > 0 ? '✔' : '✖'}\n`
     }
-    if (player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0) {
+    if (player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0) {
       ascension = `${ascension}----- HEPTERACTS -----\n`
       ascension = `${ascension}Chronos Hepteract: ${format(player.hepteractCrafts.chronos.BAL, 0, true)}/${
         format(player.hepteractCrafts.chronos.CAP, 0, true)
@@ -369,7 +369,7 @@ export const generateExportSummary = async (): Promise<void> => {
       const singUpg = player.singularityUpgrades[key]
 
       totalSingUpgradeCount += 1
-      if (singUpg.maxLevel === -1) {
+      if (singUpg.maxLevel.eq(-1)) {
         totalSingInfiniteLevel += 1
       }
       if (singUpg.level === singUpg.maxLevel) {
@@ -383,7 +383,7 @@ export const generateExportSummary = async (): Promise<void> => {
 
       let unicodeSymbol = '[✖]'
       if (player.singularityCount >= singUpg.minimumSingularity) {
-        if (singUpg.maxLevel === -1) {
+        if (singUpg.maxLevel.eq(-1)) {
           unicodeSymbol = '[∞]'
         } else if (singUpg.level === singUpg.maxLevel) {
           unicodeSymbol = '[★]'
@@ -394,14 +394,14 @@ export const generateExportSummary = async (): Promise<void> => {
 
       upgradeText = upgradeText + unicodeSymbol
       upgradeText = `${upgradeText} ${singUpg.name}:`
-      upgradeText = upgradeText + (singUpg.maxLevel === -1
+      upgradeText = upgradeText + (singUpg.maxLevel.eq(-1)
         ? ` Level ${singUpg.level}`
         : ` Level ${singUpg.level}/${singUpg.maxLevel}`)
-      upgradeText = upgradeText + (singUpg.freeLevels > 0
+      upgradeText = upgradeText + (singUpg.freeLevels.gt(0)
         ? ` [+${format(singUpg.computeFreeLevelSoftcap(), 2, true)}]`
         : '')
 
-      upgradeText = upgradeText + (singUpg.freeLevels > 0
+      upgradeText = upgradeText + (singUpg.freeLevels.gt(0)
         ? ` =+= Effective Level: ${format(singUpg.actualTotalLevels(), 2, true)}`
         : '')
 
@@ -434,7 +434,7 @@ export const generateExportSummary = async (): Promise<void> => {
       let upgradeText = ''
       const octUpg = player.octeractUpgrades[key]
 
-      if (octUpg.maxLevel !== -1) {
+      if (octUpg.maxLevel.neq(-1)) {
         totalOctUpgradeCount += 1
       }
       if (octUpg.level === octUpg.maxLevel) {
@@ -443,7 +443,7 @@ export const generateExportSummary = async (): Promise<void> => {
       totalOcteractsSpent += octUpg.octeractsInvested
 
       let unicodeSymbol = '[ ]'
-      if (octUpg.maxLevel === -1) {
+      if (octUpg.maxLevel.eq(-1)) {
         unicodeSymbol = '[∞]'
       } else if (octUpg.level === octUpg.maxLevel) {
         unicodeSymbol = '[★]'
@@ -451,14 +451,14 @@ export const generateExportSummary = async (): Promise<void> => {
 
       upgradeText = upgradeText + unicodeSymbol
       upgradeText = `${upgradeText + octUpg.name}:`
-      upgradeText = upgradeText + (octUpg.maxLevel === -1
+      upgradeText = upgradeText + (octUpg.maxLevel.eq(-1)
         ? ` Level ${octUpg.level}`
         : ` Level ${octUpg.level}/${octUpg.maxLevel}`)
-      upgradeText = upgradeText + (octUpg.freeLevels > 0
+      upgradeText = upgradeText + (octUpg.freeLevels.gt(0)
         ? ` [+${format(octUpg.computeFreeLevelSoftcap(), 2, true)}]`
         : '')
 
-      upgradeText = upgradeText + (octUpg.freeLevels > 0
+      upgradeText = upgradeText + (octUpg.freeLevels.gt(0)
         ? ` =+= Effective Level: ${format(octUpg.actualTotalLevels(), 2, true)}`
         : '')
 

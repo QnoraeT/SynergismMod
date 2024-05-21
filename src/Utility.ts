@@ -1,4 +1,4 @@
-import Decimal from 'break_infinity.js'
+import Decimal from 'break_eternity.js'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { format } from './Synergism'
 
@@ -18,34 +18,39 @@ export const isDecimal = (o: unknown): o is Decimal =>
  * Since ceil(log2(x)-53) was 53 until 2^53+23, I changed it to floor(log2(x)-52)
  * This is incremented to 53 at 2^53-21 and is probably guaranteed thereafter. from by httpsnet
  */
-export const smallestInc = (x = 0): number => {
-  if (x <= Number.MAX_SAFE_INTEGER) {
-    return 1
+export const smallestInc = (x = new Decimal(0)): Decimal => {
+  if (x.lte(Number.MAX_SAFE_INTEGER)) {
+    return new Decimal(1)
   } else {
-    return 2 ** Math.floor(Math.log2(x) - 52)
+    return Decimal.pow(2, Decimal.floor(Decimal.log2(x).sub(52)))
   }
 }
 
 /**
  * Returns the sum of all contents in an array
- * @param array {(number|string)[]}
- * @returns {number}
+ * @param array {(Decimal)[]}
+ * @returns {Decimal}
  */
-export const sumContents = (array: number[]): number => {
-  array = Array.isArray(array)
-    ? array
-    : Object.values(array)
-
-  return array.reduce((a, b) => a + b, 0)
+export const sumContents = (array: (number | Decimal)[]): Decimal => {
+  let sum = new Decimal(0)
+  for (let i in array) {
+    sum = sum.add(array[i])
+  }
+  return sum
 }
 
 /**
  * Returns the product of all contents in an array
- * @param array {number[]}
- * @returns {number}
+ * @param array {Decimal[]}
+ * @returns {Decimal}
  */
-// TODO: Add a productContents for Decimal, but callable using productContents...
-export const productContents = (array: number[]): number => array.reduce((a, b) => a * b)
+export const productContents = (array: (number | Decimal)[]): Decimal => {
+  let sum = new Decimal(0)
+  for (let i in array) {
+    sum = sum.mul(array[i])
+  }
+  return sum
+}
 
 export const sortWithIndices = (toSort: number[]) => {
   return Array

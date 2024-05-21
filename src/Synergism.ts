@@ -1,6 +1,5 @@
 import '@ungap/custom-elements'
-import type { DecimalSource } from 'break_infinity.js'
-import Decimal from 'break_infinity.js'
+import Decimal, { DecimalSource } from "break_eternity.js";
 import LZString from 'lz-string'
 
 import {
@@ -177,192 +176,192 @@ import type { PlayerSave } from './types/LegacySynergism'
 
 export const player: Player = {
   firstPlayed: new Date().toISOString(),
-  worlds: new QuarkHandler({ quarks: 0, bonus: 0 }),
-  coins: new Decimal('1e2'),
-  coinsThisPrestige: new Decimal('1e2'),
-  coinsThisTranscension: new Decimal('1e2'),
-  coinsThisReincarnation: new Decimal('1e2'),
-  coinsTotal: new Decimal('100'),
+  worlds: new QuarkHandler({ quarks: new Decimal(0), bonus: new Decimal(0) }),
+  coins: new Decimal(100),
+  coinsThisPrestige: new Decimal(100),
+  coinsThisTranscension: new Decimal(100),
+  coinsThisReincarnation: new Decimal(100),
+  coinsTotal: new Decimal(100),
 
   firstOwnedCoin: 0,
-  firstGeneratedCoin: new Decimal('0'),
-  firstCostCoin: new Decimal('100'),
+  firstGeneratedCoin: new Decimal(0),
+  firstCostCoin: new Decimal(100),
   firstProduceCoin: 0.25,
 
   secondOwnedCoin: 0,
-  secondGeneratedCoin: new Decimal('0'),
-  secondCostCoin: new Decimal('1e3'),
+  secondGeneratedCoin: new Decimal(0),
+  secondCostCoin: new Decimal(1000),
   secondProduceCoin: 2.5,
 
   thirdOwnedCoin: 0,
-  thirdGeneratedCoin: new Decimal('0'),
+  thirdGeneratedCoin: new Decimal(0),
   thirdCostCoin: new Decimal('2e4'),
   thirdProduceCoin: 25,
 
   fourthOwnedCoin: 0,
-  fourthGeneratedCoin: new Decimal('0'),
+  fourthGeneratedCoin: new Decimal(0),
   fourthCostCoin: new Decimal('4e5'),
   fourthProduceCoin: 250,
 
   fifthOwnedCoin: 0,
-  fifthGeneratedCoin: new Decimal('0'),
+  fifthGeneratedCoin: new Decimal(0),
   fifthCostCoin: new Decimal('8e6'),
   fifthProduceCoin: 2500,
 
   firstOwnedDiamonds: 0,
-  firstGeneratedDiamonds: new Decimal('0'),
-  firstCostDiamonds: new Decimal('100'),
+  firstGeneratedDiamonds: new Decimal(0),
+  firstCostDiamonds: new Decimal(100),
   firstProduceDiamonds: 0.05,
 
   secondOwnedDiamonds: 0,
-  secondGeneratedDiamonds: new Decimal('0'),
-  secondCostDiamonds: new Decimal('1e5'),
+  secondGeneratedDiamonds: new Decimal(0),
+  secondCostDiamonds: new Decimal(100000),
   secondProduceDiamonds: 0.0005,
 
   thirdOwnedDiamonds: 0,
-  thirdGeneratedDiamonds: new Decimal('0'),
+  thirdGeneratedDiamonds: new Decimal(0),
   thirdCostDiamonds: new Decimal('1e15'),
   thirdProduceDiamonds: 0.00005,
 
   fourthOwnedDiamonds: 0,
-  fourthGeneratedDiamonds: new Decimal('0'),
+  fourthGeneratedDiamonds: new Decimal(0),
   fourthCostDiamonds: new Decimal('1e40'),
   fourthProduceDiamonds: 0.000005,
 
   fifthOwnedDiamonds: 0,
-  fifthGeneratedDiamonds: new Decimal('0'),
+  fifthGeneratedDiamonds: new Decimal(0),
   fifthCostDiamonds: new Decimal('1e100'),
   fifthProduceDiamonds: 0.000005,
 
   firstOwnedMythos: 0,
-  firstGeneratedMythos: new Decimal('0'),
-  firstCostMythos: new Decimal('1'),
+  firstGeneratedMythos: new Decimal(0),
+  firstCostMythos: new Decimal(1),
   firstProduceMythos: 1,
 
   secondOwnedMythos: 0,
-  secondGeneratedMythos: new Decimal('0'),
-  secondCostMythos: new Decimal('100'),
+  secondGeneratedMythos: new Decimal(0),
+  secondCostMythos: new Decimal(100),
   secondProduceMythos: 0.01,
 
   thirdOwnedMythos: 0,
-  thirdGeneratedMythos: new Decimal('0'),
-  thirdCostMythos: new Decimal('1e4'),
+  thirdGeneratedMythos: new Decimal(0),
+  thirdCostMythos: new Decimal(10000),
   thirdProduceMythos: 0.001,
 
   fourthOwnedMythos: 0,
-  fourthGeneratedMythos: new Decimal('0'),
-  fourthCostMythos: new Decimal('1e8'),
+  fourthGeneratedMythos: new Decimal(0),
+  fourthCostMythos: new Decimal(1e8),
   fourthProduceMythos: 0.0002,
 
   fifthOwnedMythos: 0,
-  fifthGeneratedMythos: new Decimal('0'),
-  fifthCostMythos: new Decimal('1e16'),
+  fifthGeneratedMythos: new Decimal(0),
+  fifthCostMythos: new Decimal(1e16),
   fifthProduceMythos: 0.00004,
 
   firstOwnedParticles: 0,
-  firstGeneratedParticles: new Decimal('0'),
-  firstCostParticles: new Decimal('1'),
+  firstGeneratedParticles: new Decimal(0),
+  firstCostParticles: new Decimal(1),
   firstProduceParticles: 0.25,
 
   secondOwnedParticles: 0,
-  secondGeneratedParticles: new Decimal('0'),
-  secondCostParticles: new Decimal('100'),
+  secondGeneratedParticles: new Decimal(0),
+  secondCostParticles: new Decimal(100),
   secondProduceParticles: 0.2,
 
   thirdOwnedParticles: 0,
-  thirdGeneratedParticles: new Decimal('0'),
-  thirdCostParticles: new Decimal('1e4'),
+  thirdGeneratedParticles: new Decimal(0),
+  thirdCostParticles: new Decimal(10000),
   thirdProduceParticles: 0.15,
 
   fourthOwnedParticles: 0,
-  fourthGeneratedParticles: new Decimal('0'),
-  fourthCostParticles: new Decimal('1e8'),
+  fourthGeneratedParticles: new Decimal(0),
+  fourthCostParticles: new Decimal(1e8),
   fourthProduceParticles: 0.1,
 
   fifthOwnedParticles: 0,
-  fifthGeneratedParticles: new Decimal('0'),
-  fifthCostParticles: new Decimal('1e16'),
+  fifthGeneratedParticles: new Decimal(0),
+  fifthCostParticles: new Decimal(1e16),
   fifthProduceParticles: 0.5,
 
   firstOwnedAnts: 0,
-  firstGeneratedAnts: new Decimal('0'),
+  firstGeneratedAnts: new Decimal(0),
   firstCostAnts: new Decimal('1e700'),
   firstProduceAnts: 0.0001,
 
   secondOwnedAnts: 0,
-  secondGeneratedAnts: new Decimal('0'),
-  secondCostAnts: new Decimal('3'),
+  secondGeneratedAnts: new Decimal(0),
+  secondCostAnts: new Decimal(3),
   secondProduceAnts: 0.00005,
 
   thirdOwnedAnts: 0,
-  thirdGeneratedAnts: new Decimal('0'),
-  thirdCostAnts: new Decimal('100'),
+  thirdGeneratedAnts: new Decimal(0),
+  thirdCostAnts: new Decimal(100),
   thirdProduceAnts: 0.00002,
 
   fourthOwnedAnts: 0,
-  fourthGeneratedAnts: new Decimal('0'),
-  fourthCostAnts: new Decimal('1e4'),
+  fourthGeneratedAnts: new Decimal(0),
+  fourthCostAnts: new Decimal(10000),
   fourthProduceAnts: 0.00001,
 
   fifthOwnedAnts: 0,
-  fifthGeneratedAnts: new Decimal('0'),
+  fifthGeneratedAnts: new Decimal(0),
   fifthCostAnts: new Decimal('1e12'),
   fifthProduceAnts: 0.000005,
 
   sixthOwnedAnts: 0,
-  sixthGeneratedAnts: new Decimal('0'),
+  sixthGeneratedAnts: new Decimal(0),
   sixthCostAnts: new Decimal('1e36'),
   sixthProduceAnts: 0.000002,
 
   seventhOwnedAnts: 0,
-  seventhGeneratedAnts: new Decimal('0'),
+  seventhGeneratedAnts: new Decimal(0),
   seventhCostAnts: new Decimal('1e100'),
   seventhProduceAnts: 0.000001,
 
   eighthOwnedAnts: 0,
-  eighthGeneratedAnts: new Decimal('0'),
+  eighthGeneratedAnts: new Decimal(0),
   eighthCostAnts: new Decimal('1e300'),
   eighthProduceAnts: 0.00000001,
 
   ascendBuilding1: {
     cost: 1,
     owned: 0,
-    generated: new Decimal('0'),
+    generated: new Decimal(0),
     multiplier: 0.01
   },
   ascendBuilding2: {
     cost: 10,
     owned: 0,
-    generated: new Decimal('0'),
+    generated: new Decimal(0),
     multiplier: 0.01
   },
   ascendBuilding3: {
     cost: 100,
     owned: 0,
-    generated: new Decimal('0'),
+    generated: new Decimal(0),
     multiplier: 0.01
   },
   ascendBuilding4: {
     cost: 1000,
     owned: 0,
-    generated: new Decimal('0'),
+    generated: new Decimal(0),
     multiplier: 0.01
   },
   ascendBuilding5: {
     cost: 10000,
     owned: 0,
-    generated: new Decimal('0'),
+    generated: new Decimal(0),
     multiplier: 0.01
   },
 
-  multiplierCost: new Decimal('1e4'),
+  multiplierCost: new Decimal(10000),
   multiplierBought: 0,
 
   acceleratorCost: new Decimal('500'),
-  acceleratorBought: 0,
+  acceleratorBought: new Decimal(0),
 
   acceleratorBoostBought: 0,
-  acceleratorBoostCost: new Decimal('1e3'),
+  acceleratorBoostCost: new Decimal(1000),
 
   upgrades: Array(141).fill(0) as number[],
 
@@ -370,13 +369,13 @@ export const player: Player = {
   transcendCount: 0,
   reincarnationCount: 0,
 
-  prestigePoints: new Decimal('0'),
-  transcendPoints: new Decimal('0'),
-  reincarnationPoints: new Decimal('0'),
+  prestigePoints: new Decimal(0),
+  transcendPoints: new Decimal(0),
+  reincarnationPoints: new Decimal(0),
 
-  prestigeShards: new Decimal('0'),
-  transcendShards: new Decimal('0'),
-  reincarnationShards: new Decimal('0'),
+  prestigeShards: new Decimal(0),
+  transcendShards: new Decimal(0),
+  reincarnationShards: new Decimal(0),
 
   toggles: {
     1: false,
@@ -424,10 +423,10 @@ export const player: Player = {
     43: false
   },
 
-  challengecompletions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  highestchallengecompletions: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-  challenge15Exponent: 0,
-  highestChallenge15Exponent: 0,
+  challengecompletions: Array(16).fill(new Decimal(0)),
+  highestchallengecompletions: Array(16).fill(new Decimal(0)),
+  challenge15Exponent: new Decimal(0),
+  highestChallenge15Exponent: new Decimal(0),
 
   retrychallenges: false,
   currentChallenge: {
@@ -635,7 +634,7 @@ export const player: Player = {
   quarkstimer: 90000,
   goldenQuarksTimer: 90000,
 
-  antPoints: new Decimal('1'),
+  antPoints: new Decimal(1),
   antUpgrades: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   antSacrificePoints: 0,
   antSacrificeTimer: 900,
@@ -769,59 +768,59 @@ export const player: Player = {
     0,
     0
   ],
-  wowCubes: new WowCubes(0),
-  wowTesseracts: new WowTesseracts(0),
-  wowHypercubes: new WowHypercubes(0),
-  wowPlatonicCubes: new WowPlatonicCubes(0),
+  wowCubes: new WowCubes(new Decimal(0)),
+  wowTesseracts: new WowTesseracts(new Decimal(0)),
+  wowHypercubes: new WowHypercubes(new Decimal(0)),
+  wowPlatonicCubes: new WowPlatonicCubes(new Decimal(0)),
   saveOfferingToggle: false,
   wowAbyssals: 0,
   wowOcteracts: 0,
   totalWowOcteracts: 0,
   cubeBlessings: {
-    accelerator: 0,
-    multiplier: 0,
-    offering: 0,
-    runeExp: 0,
-    obtainium: 0,
-    antSpeed: 0,
-    antSacrifice: 0,
-    antELO: 0,
-    talismanBonus: 0,
-    globalSpeed: 0
+    accelerator: new Decimal(0),
+    multiplier: new Decimal(0),
+    offering: new Decimal(0),
+    runeExp: new Decimal(0),
+    obtainium: new Decimal(0),
+    antSpeed: new Decimal(0),
+    antSacrifice: new Decimal(0),
+    antELO: new Decimal(0),
+    talismanBonus: new Decimal(0),
+    globalSpeed: new Decimal(0)
   },
   tesseractBlessings: {
-    accelerator: 0,
-    multiplier: 0,
-    offering: 0,
-    runeExp: 0,
-    obtainium: 0,
-    antSpeed: 0,
-    antSacrifice: 0,
-    antELO: 0,
-    talismanBonus: 0,
-    globalSpeed: 0
+    accelerator: new Decimal(0),
+    multiplier: new Decimal(0),
+    offering: new Decimal(0),
+    runeExp: new Decimal(0),
+    obtainium: new Decimal(0),
+    antSpeed: new Decimal(0),
+    antSacrifice: new Decimal(0),
+    antELO: new Decimal(0),
+    talismanBonus: new Decimal(0),
+    globalSpeed: new Decimal(0)
   },
   hypercubeBlessings: {
-    accelerator: 0,
-    multiplier: 0,
-    offering: 0,
-    runeExp: 0,
-    obtainium: 0,
-    antSpeed: 0,
-    antSacrifice: 0,
-    antELO: 0,
-    talismanBonus: 0,
-    globalSpeed: 0
+    accelerator: new Decimal(0),
+    multiplier: new Decimal(0),
+    offering: new Decimal(0),
+    runeExp: new Decimal(0),
+    obtainium: new Decimal(0),
+    antSpeed: new Decimal(0),
+    antSacrifice: new Decimal(0),
+    antELO: new Decimal(0),
+    talismanBonus: new Decimal(0),
+    globalSpeed: new Decimal(0)
   },
   platonicBlessings: {
-    cubes: 0,
-    tesseracts: 0,
-    hypercubes: 0,
-    platonics: 0,
-    hypercubeBonus: 0,
-    taxes: 0,
-    scoreBonus: 0,
-    globalSpeed: 0
+    cubes: new Decimal(0),
+    tesseracts: new Decimal(0),
+    hypercubes: new Decimal(0),
+    platonics: new Decimal(0),
+    hypercubeBonus: new Decimal(0),
+    taxes: new Decimal(0),
+    scoreBonus: new Decimal(0),
+    globalSpeed: new Decimal(0)
   },
 
   hepteractCrafts: {
@@ -835,7 +834,7 @@ export const player: Player = {
     multiplier: MultiplierHepteract
   },
 
-  ascendShards: new Decimal('0'),
+  ascendShards: new Decimal(0),
   autoAscend: false,
   autoAscendMode: 'c10Completions',
   autoAscendThreshold: 1,
@@ -1606,22 +1605,22 @@ const toAdapt = new Map<keyof Player, (data: PlayerSave) => unknown>([
     'worlds',
     (data) =>
       new QuarkHandler({
-        quarks: Number(data.worlds) || 0,
+        quarks: new Decimal(data.worlds) || new Decimal(0),
         bonus: player.worlds.BONUS
       })
   ],
-  ['wowCubes', (data) => new WowCubes(Number(data.wowCubes) || 0)],
+  ['wowCubes', (data) => new WowCubes(new Decimal(data.wowCubes) || new Decimal(0))],
   [
     'wowTesseracts',
-    (data) => new WowTesseracts(Number(data.wowTesseracts) || 0)
+    (data) => new WowTesseracts(new Decimal(data.wowTesseracts) || new Decimal(0))
   ],
   [
     'wowHypercubes',
-    (data) => new WowHypercubes(Number(data.wowHypercubes) || 0)
+    (data) => new WowHypercubes(new Decimal(data.wowHypercubes) || new Decimal(0))
   ],
   [
     'wowPlatonicCubes',
-    (data) => new WowPlatonicCubes(Number(data.wowPlatonicCubes) || 0)
+    (data) => new WowPlatonicCubes(new Decimal(data.wowPlatonicCubes) || new Decimal(0))
   ]
 ])
 
@@ -1827,11 +1826,11 @@ const loadSynergy = async () => {
       player.thirdOwnedParticles = 0
       player.fourthOwnedParticles = 0
       player.fifthOwnedParticles = 0
-      player.firstCostParticles = new Decimal('1')
-      player.secondCostParticles = new Decimal('1e2')
-      player.thirdCostParticles = new Decimal('1e4')
-      player.fourthCostParticles = new Decimal('1e8')
-      player.fifthCostParticles = new Decimal('1e16')
+      player.firstCostParticles = new Decimal(1)
+      player.secondCostParticles = new Decimal(100)
+      player.thirdCostParticles = new Decimal(10000)
+      player.fourthCostParticles = new Decimal(1e8)
+      player.fifthCostParticles = new Decimal(1e16)
       player.autoSacrificeToggle = false
       player.autoResearchToggle = false
       player.autoResearchMode = 'manual'
@@ -1849,11 +1848,11 @@ const loadSynergy = async () => {
       player.thirdOwnedParticles = 0
       player.fourthOwnedParticles = 0
       player.fifthOwnedParticles = 0
-      player.firstCostParticles = new Decimal('1')
-      player.secondCostParticles = new Decimal('1e2')
-      player.thirdCostParticles = new Decimal('1e4')
-      player.fourthCostParticles = new Decimal('1e8')
-      player.fifthCostParticles = new Decimal('1e16')
+      player.firstCostParticles = new Decimal(1)
+      player.secondCostParticles = new Decimal(100)
+      player.thirdCostParticles = new Decimal(10000)
+      player.fourthCostParticles = new Decimal(1e8)
+      player.fifthCostParticles = new Decimal(1e16)
     }
     if (
       data.loaded10091 === undefined
@@ -1899,47 +1898,47 @@ const loadSynergy = async () => {
       player.codes.set(21, false)
 
       player.firstOwnedAnts = 0
-      player.firstGeneratedAnts = new Decimal('0')
+      player.firstGeneratedAnts = new Decimal(0)
       player.firstCostAnts = new Decimal('1e700')
       player.firstProduceAnts = 0.0001
 
       player.secondOwnedAnts = 0
-      player.secondGeneratedAnts = new Decimal('0')
-      player.secondCostAnts = new Decimal('3')
+      player.secondGeneratedAnts = new Decimal(0)
+      player.secondCostAnts = new Decimal(3)
       player.secondProduceAnts = 0.00005
 
       player.thirdOwnedAnts = 0
-      player.thirdGeneratedAnts = new Decimal('0')
-      player.thirdCostAnts = new Decimal('100')
+      player.thirdGeneratedAnts = new Decimal(0)
+      player.thirdCostAnts = new Decimal(100)
       player.thirdProduceAnts = 0.00002
 
       player.fourthOwnedAnts = 0
-      player.fourthGeneratedAnts = new Decimal('0')
-      player.fourthCostAnts = new Decimal('1e4')
+      player.fourthGeneratedAnts = new Decimal(0)
+      player.fourthCostAnts = new Decimal(10000)
       player.fourthProduceAnts = 0.00001
 
       player.fifthOwnedAnts = 0
-      player.fifthGeneratedAnts = new Decimal('0')
+      player.fifthGeneratedAnts = new Decimal(0)
       player.fifthCostAnts = new Decimal('1e12')
       player.fifthProduceAnts = 0.000005
 
       player.sixthOwnedAnts = 0
-      player.sixthGeneratedAnts = new Decimal('0')
+      player.sixthGeneratedAnts = new Decimal(0)
       player.sixthCostAnts = new Decimal('1e36')
       player.sixthProduceAnts = 0.000002
 
       player.seventhOwnedAnts = 0
-      player.seventhGeneratedAnts = new Decimal('0')
+      player.seventhGeneratedAnts = new Decimal(0)
       player.seventhCostAnts = new Decimal('1e100')
       player.seventhProduceAnts = 0.000001
 
       player.eighthOwnedAnts = 0
-      player.eighthGeneratedAnts = new Decimal('0')
+      player.eighthGeneratedAnts = new Decimal(0)
       player.eighthCostAnts = new Decimal('1e300')
       player.eighthProduceAnts = 0.00000001
 
       player.achievements.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-      player.antPoints = new Decimal('1')
+      player.antPoints = new Decimal(1)
 
       player.upgrades[38] = 0
       player.upgrades[39] = 0
@@ -2065,21 +2064,21 @@ const loadSynergy = async () => {
       if (player.singularityCount === 0) {
         player.cubeUpgrades = [...blankSave.cubeUpgrades]
       }
-      player.wowCubes = new WowCubes(0)
-      player.wowTesseracts = new WowTesseracts(0)
-      player.wowHypercubes = new WowHypercubes(0)
-      player.wowPlatonicCubes = new WowPlatonicCubes(0)
+      player.wowCubes = new WowCubes(new Decimal(0))
+      player.wowTesseracts = new WowTesseracts(new Decimal(0))
+      player.wowHypercubes = new WowHypercubes(new Decimal(0))
+      player.wowPlatonicCubes = new WowPlatonicCubes(new Decimal(0))
       player.cubeBlessings = {
-        accelerator: 0,
-        multiplier: 0,
-        offering: 0,
-        runeExp: 0,
-        obtainium: 0,
-        antSpeed: 0,
-        antSacrifice: 0,
-        antELO: 0,
-        talismanBonus: 0,
-        globalSpeed: 0
+        accelerator: new Decimal(0),
+        multiplier: new Decimal(0),
+        offering: new Decimal(0),
+        runeExp: new Decimal(0),
+        obtainium: new Decimal(0),
+        antSpeed: new Decimal(0),
+        antSacrifice: new Decimal(0),
+        antELO: new Decimal(0),
+        talismanBonus: new Decimal(0),
+        globalSpeed: new Decimal(0)
       }
     }
     if (data.autoAntSacTimer == null) {
@@ -2920,437 +2919,388 @@ const loadSynergy = async () => {
   player.dayTimer = 60 * 60 * 24 - (s + 60 * m + 60 * 60 * h)
 }
 
-// dprint-ignore
-const FormatList = [
-  "",
-  "K",
-  "M",
-  "B",
-  "T",
-  "Qa",
-  "Qt",
-  "Sx",
-  "Sp",
-  "Oc",
-  "No",
-  "Dc",
-  "UDc",
-  "DDc",
-  "TDc",
-  "QaDc",
-  "QtDc",
-  "SxDc",
-  "SpDc",
-  "OcDc",
-  "NoDc",
-  "Vg",
-  "UVg",
-  "DVg",
-  "TVg",
-  "QaVg",
-  "QtVg",
-  "SxVg",
-  "SpVg",
-  "OcVg",
-  "NoVg",
-  "Tg",
-  "UTg",
-  "DTg",
-  "TTg",
-  "QaTg",
-  "QtTg",
-  "SxTg",
-  "SpTg",
-  "OTg",
-  "NTg",
-  "Qd",
-  "UQd",
-  "DQd",
-  "TQd",
-  "QaQd",
-  "QtQd",
-  "SxQd",
-  "SpQd",
-  "OcQd",
-  "NoQd",
-  "Qi",
-  "UQi",
-  "DQi",
-  "TQi",
-  "QaQi",
-  "QtQi",
-  "SxQi",
-  "SpQi",
-  "OQi",
-  "NQi",
-  "Se",
-  "USe",
-  "DSe",
-  "TSe",
-  "QaSe",
-  "QtSe",
-  "SxSe",
-  "SpSe",
-  "OcSe",
-  "NoSe",
-  "St",
-  "USt",
-  "DSt",
-  "TSt",
-  "QaSt",
-  "QtSt",
-  "SxSt",
-  "SpSt",
-  "OcSt",
-  "NoSt",
-  "Ocg",
-  "UOcg",
-  "DOcg",
-  "TOcg",
-  "QaOcg",
-  "QtOcg",
-  "SxOcg",
-  "SpOcg",
-  "OcOcg",
-  "NoOcg",
-  "Nono",
-  "UNono",
-  "DNono",
-  "TNono",
-  "QaNono",
-  "QtNono",
-  "SxNono",
-  "SpNono",
-  "OcNono",
-  "NoNono",
-  "Ce",
+const abbSuffixes: Array<string> = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc",
+                    "UDc", "DDc", "TDc", "QaDc", "QiDc", "SxDc", "SpDc", "OcDc", "NoDc", "Vg"];
+
+const timeList = [
+    { name: "pt",  stop: true,  amt: 5.39e-44    },
+    { name: "qs",  stop: true,  amt: 1 / 1e30    },
+    { name: "rs",  stop: true,  amt: 1 / 1e27    },
+    { name: "ys",  stop: true,  amt: 1 / 1e24    },
+    { name: "zs",  stop: true,  amt: 1 / 1e21    },
+    { name: "as",  stop: true,  amt: 1 / 1e18    },
+    { name: "fs",  stop: true,  amt: 1 / 1e15    },
+    { name: "ps",  stop: true,  amt: 1 / 1e12    },
+    { name: "ns",  stop: true,  amt: 1 / 1e9     },
+    { name: "µs",  stop: true,  amt: 1 / 1e6     },
+    { name: "ms",  stop: true,  amt: 1 / 1e3     },
+    { name: "s",   stop: true,  amt: 1           },
+    { name: "m",   stop: false, amt: 60          },
+    { name: "h",   stop: false, amt: 3600        },
+    { name: "d",   stop: false, amt: 86400       },
+    { name: "mo",  stop: false, amt: 2592000     },
+    { name: "y",   stop: false, amt: 3.1536e7    },
+    { name: "mil", stop: false, amt: 3.1536e10   },
+    { name: "uni", stop: false, amt: 4.320432e17 },
 ];
 
-// Bad browsers (like Safari) only recently implemented this.
-const supportsFormatToParts = typeof Intl.NumberFormat.prototype.formatToParts === 'function'
+const abbExp = 1e66;
 
-// In some browsers, this will return an empty-1 length array (?), causing a "TypeError: Cannot read property 'value' of undefined"
-// if we destructure it... To reproduce: ` const [ { value } ] = []; `
-// https://discord.com/channels/677271830838640680/730669616870981674/830218436201283584
-const IntlFormatter = !supportsFormatToParts
-  ? null
-  : Intl.NumberFormat()
-    .formatToParts(1000.1)
-    .filter((part) => part.type === 'decimal' || part.type === 'group')
-
-// gets the system number delimiter and decimal values, defaults to en-US
-const [{ value: group }, { value: dec }] = IntlFormatter?.length !== 2
-  ? [{ value: ',' }, { value: '.' }]
-  : IntlFormatter
-
-// Number.toLocaleString opts for 2 decimal places
-const locOpts = { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-
-const padEvery = (str: string, places = 3) => {
-  let step = 1
-  let newStr = ''
-  const strParts = str.split('.')
-  // don't take any decimal places
-  for (let i = strParts[0].length - 1; i >= 0; i--) {
-    // pad every [places] places if we aren't at the beginning of the string
-    if (step++ === places && i !== 0) {
-      step = 1
-      newStr = group + str[i] + newStr
-    } else {
-      newStr = str[i] + newStr
-    }
-  }
-  // re-add decimal places
-  if (typeof strParts[1] !== 'undefined') {
-    newStr += dec + strParts[1]
-  } // see https://www.npmjs.com/package/flatstr
-
-  ;(newStr as unknown as number) | 0
-  return newStr
+function numberWithCommas(x: string): string {
+    return x.toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
 }
 
-/**
- * This function displays the numbers such as 1,234 or 1.00e1234 or 1.00e1.234M.
- * @param input value to format
- * @param accuracy
- * how many decimal points that are to be displayed (Values <10 if !long, <1000 if long).
- * only works up to 305 (308 - 3), however it only worked up to ~14 due to rounding errors regardless
- * @param long dictates whether or not a given number displays as scientific at 1,000,000. This auto defaults to short if input >= 1e7
- */
-export const format = (
-  input:
-    | Decimal
-    | number
-    | { [Symbol.toPrimitive]: unknown }
-    | null
-    | undefined,
-  accuracy = 0,
-  long = false,
-  truncate = true,
-  fractional = false
-): string => {
-  if (input == null) {
-    return '0 [null]'
+export const format = (number: number | Decimal | { [Symbol.toPrimitive]: unknown } | null | undefined, dec = 0, long = false, expdec = 3): string => {
+  if (number === null) {
+    return "null"
   }
-
-  if (typeof input === 'object' && Symbol.toPrimitive in input) {
-    input = Number(input)
+  if (number === undefined) {
+    return "undefined"
   }
-
-  if (
-    // invalid parameter
-    (!(input instanceof Decimal) && typeof input !== 'number')
-    || isNaN(input as number)
-  ) {
-    return isNaN(input as number) ? '0 [NaN]' : '0 [und.]'
-  } else if (
-    // this case handles numbers less than 1e-6 and greater than 0
-    typeof input === 'number'
-    && player.notation === 'Default'
-    && input < (!fractional ? 1e-3 : 1e-15) // arbitrary number, don't change 1e-3
-    && input > 0 // don't handle negative numbers, probably could be removed
-  ) {
-    return input.toExponential(accuracy)
+  if (typeof number === 'object' && Symbol.toPrimitive in number) {
+    number = Number(number)
   }
-
-  let power!: number
-  let mantissa!: number
-  if (isDecimal(input)) {
-    // Gets power and mantissa if input is of type decimal
-    power = input.e
-    mantissa = input.mantissa
-  } else if (typeof input === 'number') {
-    if (input === 0) {
-      return '0'
-    }
-
-    // Gets power and mantissa if input is of type number and isn't 0
-    power = Math.floor(Math.log10(Math.abs(input)))
-    mantissa = input / Math.pow(10, power)
-  }
-
-  // This prevents numbers from jittering between two different powers by rounding errors
-  if (mantissa > 9.9999999) {
-    mantissa = 1
-    ;++power
-  }
-
-  if (mantissa < 1 && mantissa > 0.9999999) {
-    mantissa = 1
-  }
-
-  // If the power is less than 15 it's effectively 0
-
-  if (power < -15) {
-    return '0'
-  }
-  if (player.notation === 'Pure Engineering') {
-    const powerOver = power % 3 < 0 ? 3 + (power % 3) : power % 3
-    power = power - powerOver
-    mantissa = mantissa * Math.pow(10, powerOver)
-  }
-  if (
-    player.notation === 'Pure Scientific'
-    || player.notation === 'Pure Engineering'
-  ) {
-    if (power >= 1e6) {
-      if (!Number.isFinite(power)) {
-        return 'Infinity'
-      }
-      return `E${format(power, 3)}`
-    }
-    accuracy = power === 2 && accuracy > 2 ? 2 : accuracy
-    if (power >= 6 || power < 0) {
-      accuracy = accuracy < 2 ? 2 : accuracy
-      // Makes the power group 3 with commas
-      const mantissaLook = (
-        Math.floor(mantissa * Math.pow(10, accuracy)) / Math.pow(10, accuracy)
-      ).toLocaleString(undefined, locOpts)
-      const powerLook = padEvery(power.toString())
-      // returns format (1.23e456,789)
-      return `${mantissaLook}e${powerLook}`
-    }
-    mantissa = mantissa * Math.pow(10, power)
-    if (mantissa - Math.floor(mantissa) > 0.9999999) {
-      mantissa = Math.ceil(mantissa)
-    }
-    const mantissaLook = (
-      Math.floor(mantissa * Math.pow(10, accuracy)) / Math.pow(10, accuracy)
-    ).toLocaleString(undefined, {
-      minimumFractionDigits: accuracy,
-      maximumFractionDigits: accuracy
-    })
-    return `${mantissaLook}`
-  }
-  // If the power is negative, then we will want to address that separately.
-  if (power < 0 && !isDecimal(input) && fractional) {
-    if (power <= -15) {
-      return `${format(mantissa, accuracy, long)} / ${
-        Math.pow(
-          10,
-          -power - 15
-        )
-      }Qa`
-    }
-    if (power <= -12) {
-      return `${format(mantissa, accuracy, long)} / ${
-        Math.pow(
-          10,
-          -power - 12
-        )
-      }T`
-    }
-    if (power <= -9) {
-      return `${format(mantissa, accuracy, long)} / ${
-        Math.pow(
-          10,
-          -power - 9
-        )
-      }B`
-    }
-    if (power <= -6) {
-      return `${format(mantissa, accuracy, long)} / ${
-        Math.pow(
-          10,
-          -power - 6
-        )
-      }M`
-    }
-    if (power <= -3) {
-      return `${format(mantissa, accuracy, long)} / ${
-        Math.pow(
-          10,
-          -power - 3
-        )
-      }K`
-    }
-    return `${format(mantissa, accuracy, long)} / ${Math.pow(10, -power)}`
-  } else if (power < 6 || (long && power < 7)) {
-    // If the power is less than 6 or format long and less than 7 use standard formatting (1,234,567)
-    // Gets the standard representation of the number, safe as power is guaranteed to be > -12 and < 7
-    let standard = mantissa * Math.pow(10, power)
-    let standardString: string
-    // Rounds up if the number experiences a rounding error
-    if (standard - Math.floor(standard) > 0.9999999) {
-      standard = Math.ceil(standard)
-    }
-    // If the power is less than 1 or format long and less than 3 apply toFixed(accuracy) to get decimal places
-    if ((power < 2 || (long && power < 3)) && accuracy > 0) {
-      standardString = standard.toFixed(
-        power === 2 && accuracy > 2 ? 2 : accuracy
-      )
-    } else {
-      // If it doesn't fit those criteria drop the decimal places
-      standard = Math.floor(standard)
-      standardString = standard.toString()
-    }
-
-    // Split it on the decimal place
-    return padEvery(standardString)
-  } else if (power < 1e6) {
-    // If the power is less than 1e6 then apply standard scientific notation
-    // Makes mantissa be rounded down to 2 decimal places
-    const mantissaLook = (Math.floor(mantissa * 100) / 100).toLocaleString(
-      undefined,
-      locOpts
-    )
-    // Makes the power group 3 with commas
-    const powerLook = padEvery(power.toString())
-    // returns format (1.23e456,789)
-    return `${mantissaLook}e${powerLook}`
-  } else if (power >= 1e6) {
-    if (!Number.isFinite(power)) {
-      return 'Infinity'
-    }
-
-    // if the power is greater than 1e6 apply notation scientific notation
-    // Makes mantissa be rounded down to 2 decimal places
-    const mantissaLook = testing && truncate
-      ? ''
-      : (Math.floor(mantissa * 100) / 100).toLocaleString(undefined, locOpts)
-
-    // Drops the power down to 4 digits total but never greater than 1000 in increments that equate to notations, (1234000 -> 1.234) ( 12340000 -> 12.34) (123400000 -> 123.4) (1234000000 -> 1.234)
-    const powerDigits = Math.ceil(Math.log10(power))
-    let powerFront = ((powerDigits - 1) % 3) + 1
-    let powerLook = power / Math.pow(10, powerDigits - powerFront)
-    if (powerLook === 1000) {
-      powerLook = 1
-      powerFront = 1
-    }
-
-    const powerLookF = powerLook.toLocaleString(undefined, {
-      minimumFractionDigits: 4 - powerFront,
-      maximumFractionDigits: 4 - powerFront
-    })
-    const powerLodge = Math.floor(Math.log10(power) / 3)
-    // Return relevant notations alongside the "look" power based on what the power actually is
-    if (typeof FormatList[powerLodge] === 'string') {
-      return `${mantissaLook}e${powerLookF}${FormatList[powerLodge]}`
-    }
-
-    // If it doesn't fit a notation then default to mantissa e power
-    return `e${power.toExponential(2)}`
+  let n = new Decimal(number);
+  if (n.lt(0)) return "-" + format(n.negate(), dec, long, expdec);
+  if (n.eq(0)) return (0).toFixed(dec);
+  if (Number.isNaN(n.mag)) return "NaN";
+  if (!Number.isFinite(n.mag)) return "Infinity";
+  if (n.lt(0.001)) {
+      return "1 / " + format(n.recip(), dec, long, expdec);
+  } else if (n.lt(long ? 1e9 : 1e6)) {
+      return numberWithCommas(n.toNumber().toFixed(dec));
+  } else if (n.lt(abbExp)) {
+      let abb = n.log10().mul(0.33333333336666665).floor();
+      return n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec) + " " + abbSuffixes[abb.toNumber()];
+  } else if (n.lt(long ? "e1e9" : "e1e6")) {
+      let exp = n.log10().mul(1.0000000001).floor();
+      return n.div(exp.pow10()).toNumber().toFixed(expdec) + "e" + format(exp, 0, long, expdec);
+  } else if (n.lt("10^^7")) {
+      return "e" + format(n.log10(), dec, long, expdec);
   } else {
-    return '0 [und.]'
+      return "F" + format(n.slog(10), dec, long, expdec);
   }
 }
+
+export const formatPerc = (number: number | Decimal, dec = 3, long = false, expdec = 3): string => {
+    let n = new Decimal(number);
+    if (n.gte(1000)) {
+        return format(n, dec, long, expdec) + "x";
+    } else {
+        return format(Decimal.sub(100, Decimal.div(100, n)), dec, long, expdec) + "%";
+    }
+}
+
+export const formatTime = (number: number | Decimal, dec = 0, long = false, expdec = 3, limit = 2): string => {
+    let n = new Decimal(number);
+    if (n.lt(0)) return "-" + formatTime(n.negate(), dec, long, expdec);
+    if (n.eq(0)) return (0).toFixed(dec);
+    if (Number.isNaN(n.mag)) return "I don't know?";
+    if (!Number.isFinite(n.mag)) return "Forever";
+    let lim = 0;
+    let str = "";
+    let end = false;
+    for (let i = timeList.length - 1; i >= 0; i--) {
+        if (lim >= limit) {
+            break;
+        }
+        if (n.gte(timeList[i].amt)) {
+            end = lim + 1 >= limit || timeList[i].stop;
+            str = str + " " + format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, long, expdec) + " " + timeList[i].name;
+            n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
+            lim++;
+            if (timeList[i].stop) {
+                break;
+            }
+        } else {
+            if (i === 0) {
+                return (str + " " + format(n, dec, long, expdec) + " s").slice(1);
+            }
+        }
+    }
+    return str.slice(1);
+}
+
+
+// /**
+//  * This function displays the numbers such as 1,234 or 1.00e1234 or 1.00e1.234M.
+//  * @param input value to format
+//  * @param accuracy
+//  * how many decimal points that are to be displayed (Values <10 if !long, <1000 if long).
+//  * only works up to 305 (308 - 3), however it only worked up to ~14 due to rounding errors regardless
+//  * @param long dictates whether or not a given number displays as scientific at 1,000,000. This auto defaults to short if input >= 1e7
+//  */
+// export const format = (
+//   input:
+//     | Decimal
+//     | number
+//     | { [Symbol.toPrimitive]: unknown }
+//     | null
+//     | undefined,
+//   accuracy = 0,
+//   long = false,
+//   truncate = true,
+//   fractional = false
+// ): string => {
+//   if (input == null) {
+//     return '0 [null]'
+//   }
+
+//   if (typeof input === 'object' && Symbol.toPrimitive in input) {
+//     input = Number(input)
+//   }
+
+//   if (
+//     // invalid parameter
+//     (!(input instanceof Decimal) && typeof input !== 'number')
+//     || isNaN(input as number)
+//   ) {
+//     return isNaN(input as number) ? '0 [NaN]' : '0 [und.]'
+//   } else if (
+//     // this case handles numbers less than 1e-6 and greater than 0
+//     typeof input === 'number'
+//     && player.notation === 'Default'
+//     && input < (!fractional ? 1e-3 : 1e-15) // arbitrary number, don't change 1e-3
+//     && input > 0 // don't handle negative numbers, probably could be removed
+//   ) {
+//     return input.toExponential(accuracy)
+//   }
+
+//   let power!: number
+//   let mantissa!: number
+//   if (isDecimal(input)) {
+//     // Gets power and mantissa if input is of type decimal
+//     power = input.e
+//     mantissa = input.mantissa
+//   } else if (typeof input === 'number') {
+//     if (input === 0) {
+//       return '0'
+//     }
+
+//     // Gets power and mantissa if input is of type number and isn't 0
+//     power = Math.floor(Math.log10(Math.abs(input)))
+//     mantissa = input / Math.pow(10, power)
+//   }
+
+//   // This prevents numbers from jittering between two different powers by rounding errors
+//   if (mantissa > 9.9999999) {
+//     mantissa = 1
+//     ;++power
+//   }
+
+//   if (mantissa < 1 && mantissa > 0.9999999) {
+//     mantissa = 1
+//   }
+
+//   // If the power is less than 15 it's effectively 0
+
+//   if (power < -15) {
+//     return '0'
+//   }
+//   if (player.notation === 'Pure Engineering') {
+//     const powerOver = power % 3 < 0 ? 3 + (power % 3) : power % 3
+//     power = power - powerOver
+//     mantissa = mantissa * Math.pow(10, powerOver)
+//   }
+//   if (
+//     player.notation === 'Pure Scientific'
+//     || player.notation === 'Pure Engineering'
+//   ) {
+//     if (power >= 1e6) {
+//       if (!Number.isFinite(power)) {
+//         return 'Infinity'
+//       }
+//       return `E${format(power, 3)}`
+//     }
+//     accuracy = power === 2 && accuracy > 2 ? 2 : accuracy
+//     if (power >= 6 || power < 0) {
+//       accuracy = accuracy < 2 ? 2 : accuracy
+//       // Makes the power group 3 with commas
+//       const mantissaLook = (
+//         Math.floor(mantissa * Math.pow(10, accuracy)) / Math.pow(10, accuracy)
+//       ).toLocaleString(undefined, locOpts)
+//       const powerLook = padEvery(power.toString())
+//       // returns format (1.23e456,789)
+//       return `${mantissaLook}e${powerLook}`
+//     }
+//     mantissa = mantissa * Math.pow(10, power)
+//     if (mantissa - Math.floor(mantissa) > 0.9999999) {
+//       mantissa = Math.ceil(mantissa)
+//     }
+//     const mantissaLook = (
+//       Math.floor(mantissa * Math.pow(10, accuracy)) / Math.pow(10, accuracy)
+//     ).toLocaleString(undefined, {
+//       minimumFractionDigits: accuracy,
+//       maximumFractionDigits: accuracy
+//     })
+//     return `${mantissaLook}`
+//   }
+//   // If the power is negative, then we will want to address that separately.
+//   if (power < 0 && !isDecimal(input) && fractional) {
+//     if (power <= -15) {
+//       return `${format(mantissa, accuracy, long)} / ${
+//         Math.pow(
+//           10,
+//           -power - 15
+//         )
+//       }Qa`
+//     }
+//     if (power <= -12) {
+//       return `${format(mantissa, accuracy, long)} / ${
+//         Math.pow(
+//           10,
+//           -power - 12
+//         )
+//       }T`
+//     }
+//     if (power <= -9) {
+//       return `${format(mantissa, accuracy, long)} / ${
+//         Math.pow(
+//           10,
+//           -power - 9
+//         )
+//       }B`
+//     }
+//     if (power <= -6) {
+//       return `${format(mantissa, accuracy, long)} / ${
+//         Math.pow(
+//           10,
+//           -power - 6
+//         )
+//       }M`
+//     }
+//     if (power <= -3) {
+//       return `${format(mantissa, accuracy, long)} / ${
+//         Math.pow(
+//           10,
+//           -power - 3
+//         )
+//       }K`
+//     }
+//     return `${format(mantissa, accuracy, long)} / ${Math.pow(10, -power)}`
+//   } else if (power < 6 || (long && power < 7)) {
+//     // If the power is less than 6 or format long and less than 7 use standard formatting (1,234,567)
+//     // Gets the standard representation of the number, safe as power is guaranteed to be > -12 and < 7
+//     let standard = mantissa * Math.pow(10, power)
+//     let standardString: string
+//     // Rounds up if the number experiences a rounding error
+//     if (standard - Math.floor(standard) > 0.9999999) {
+//       standard = Math.ceil(standard)
+//     }
+//     // If the power is less than 1 or format long and less than 3 apply toFixed(accuracy) to get decimal places
+//     if ((power < 2 || (long && power < 3)) && accuracy > 0) {
+//       standardString = standard.toFixed(
+//         power === 2 && accuracy > 2 ? 2 : accuracy
+//       )
+//     } else {
+//       // If it doesn't fit those criteria drop the decimal places
+//       standard = Math.floor(standard)
+//       standardString = standard.toString()
+//     }
+
+//     // Split it on the decimal place
+//     return padEvery(standardString)
+//   } else if (power < 1e6) {
+//     // If the power is less than 1e6 then apply standard scientific notation
+//     // Makes mantissa be rounded down to 2 decimal places
+//     const mantissaLook = (Math.floor(mantissa * 100) / 100).toLocaleString(
+//       undefined,
+//       locOpts
+//     )
+//     // Makes the power group 3 with commas
+//     const powerLook = padEvery(power.toString())
+//     // returns format (1.23e456,789)
+//     return `${mantissaLook}e${powerLook}`
+//   } else if (power >= 1e6) {
+//     if (!Number.isFinite(power)) {
+//       return 'Infinity'
+//     }
+
+//     // if the power is greater than 1e6 apply notation scientific notation
+//     // Makes mantissa be rounded down to 2 decimal places
+//     const mantissaLook = testing && truncate
+//       ? ''
+//       : (Math.floor(mantissa * 100) / 100).toLocaleString(undefined, locOpts)
+
+//     // Drops the power down to 4 digits total but never greater than 1000 in increments that equate to notations, (1234000 -> 1.234) ( 12340000 -> 12.34) (123400000 -> 123.4) (1234000000 -> 1.234)
+//     const powerDigits = Math.ceil(Math.log10(power))
+//     let powerFront = ((powerDigits - 1) % 3) + 1
+//     let powerLook = power / Math.pow(10, powerDigits - powerFront)
+//     if (powerLook === 1000) {
+//       powerLook = 1
+//       powerFront = 1
+//     }
+
+//     const powerLookF = powerLook.toLocaleString(undefined, {
+//       minimumFractionDigits: 4 - powerFront,
+//       maximumFractionDigits: 4 - powerFront
+//     })
+//     const powerLodge = Math.floor(Math.log10(power) / 3)
+//     // Return relevant notations alongside the "look" power based on what the power actually is
+//     if (typeof FormatList[powerLodge] === 'string') {
+//       return `${mantissaLook}e${powerLookF}${FormatList[powerLodge]}`
+//     }
+
+//     // If it doesn't fit a notation then default to mantissa e power
+//     return `e${power.toExponential(2)}`
+//   } else {
+//     return '0 [und.]'
+//   }
+// }
 
 export const formatTimeShort = (
-  seconds: number,
-  msMaxSeconds?: number
+  seconds: number | Decimal
 ): string => {
-  return (
-    (seconds >= 86400 ? `${format(Math.floor(seconds / 86400))}d` : '')
-    + (seconds >= 3600 ? `${format(Math.floor(seconds / 3600) % 24)}h` : '')
-    + (seconds >= 60 ? `${format(Math.floor(seconds / 60) % 60)}m` : '')
-    + (seconds >= 8640000
-      ? ''
-      : `${
-        format(Math.floor(seconds) % 60)
-        + (msMaxSeconds && seconds < msMaxSeconds // Don't show seconds when you're over 100 days, like honestly
-          ? `.${
-            Math.floor((seconds % 1) * 1000)
-              .toString()
-              .padStart(3, '0')
-          }`
-          : '')
-      }s`)
-  )
+  return formatTime(seconds, 3)
+  // return (
+  //   (seconds >= 86400 ? `${format(Math.floor(seconds / 86400))}d` : '')
+  //   + (seconds >= 3600 ? `${format(Math.floor(seconds / 3600) % 24)}h` : '')
+  //   + (seconds >= 60 ? `${format(Math.floor(seconds / 60) % 60)}m` : '')
+  //   + (seconds >= 8640000
+  //     ? ''
+  //     : `${
+  //       format(Math.floor(seconds) % 60)
+  //       + (msMaxSeconds && seconds < msMaxSeconds // Don't show seconds when you're over 100 days, like honestly
+  //         ? `.${
+  //           Math.floor((seconds % 1) * 1000)
+  //             .toString()
+  //             .padStart(3, '0')
+  //         }`
+  //         : '')
+  //     }s`)
+  // )
 }
 
 export const updateAllTick = (): void => {
-  let a = 0
+  let a = new Decimal(0)
 
   G.totalAccelerator = player.acceleratorBought
   G.costDivisor = 1
 
   if (player.upgrades[8] !== 0) {
-    a += Math.floor(player.multiplierBought / 7)
+    a = a.add(Math.floor(player.multiplierBought / 7))
   }
   if (player.upgrades[21] !== 0) {
-    a += 5
+    a = a.add(5)
   }
   if (player.upgrades[22] !== 0) {
-    a += 4
+    a = a.add(4)
   }
   if (player.upgrades[23] !== 0) {
-    a += 3
+    a = a.add(3)
   }
   if (player.upgrades[24] !== 0) {
-    a += 2
+    a = a.add(2)
   }
   if (player.upgrades[25] !== 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[27] !== 0) {
-    a += Math.min(250, Math.floor(Decimal.log(player.coins.add(1), 1e3)))
-      + Math.min(
-        1750,
-        Math.max(0, Math.floor(Decimal.log(player.coins.add(1), 1e15)) - 50)
-      )
+    a = a.add(Decimal.min(250, Decimal.floor(Decimal.log(player.coins.add(1), 1e3))).add(
+      Decimal.min(1750, Decimal.max(0, Decimal.floor(Decimal.log(player.coins.add(1), 1e15)).sub(50)))))
   }
   if (player.upgrades[29] !== 0) {
-    a += Math.floor(
+    a = a.add(Math.floor(
       Math.min(
         2000,
         (player.firstOwnedCoin
@@ -3360,103 +3310,94 @@ export const updateAllTick = (): void => {
           + player.fifthOwnedCoin)
           / 80
       )
-    )
+    ))
   }
   if (player.upgrades[32] !== 0) {
-    a += Math.min(
+    a = a.add(Decimal.min(
       500,
-      Math.floor(Decimal.log(player.prestigePoints.add(1), 1e25))
-    )
+      Decimal.floor(Decimal.log(player.prestigePoints.add(1), 1e25))
+    ))
   }
   if (player.upgrades[45] !== 0) {
-    a += Math.min(
+    a = a.add(Decimal.min(
       2500,
-      Math.floor(Decimal.log(player.transcendShards.add(1), 10))
-    )
+      Decimal.floor(Decimal.log(player.transcendShards.add(1), 10))
+    ))
   }
   if (player.achievements[5] !== 0) {
-    a += Math.floor(player.firstOwnedCoin / 500)
+    a = a.add(Math.floor(player.firstOwnedCoin / 500))
   }
   if (player.achievements[12] !== 0) {
-    a += Math.floor(player.secondOwnedCoin / 500)
+    a = a.add(Math.floor(player.secondOwnedCoin / 500))
   }
   if (player.achievements[19] !== 0) {
-    a += Math.floor(player.thirdOwnedCoin / 500)
+    a = a.add(Math.floor(player.thirdOwnedCoin / 500))
   }
   if (player.achievements[26] !== 0) {
-    a += Math.floor(player.fourthOwnedCoin / 500)
+    a = a.add(Math.floor(player.fourthOwnedCoin / 500))
   }
   if (player.achievements[33] !== 0) {
-    a += Math.floor(player.fifthOwnedCoin / 500)
+    a = a.add(Math.floor(player.fifthOwnedCoin / 500))
   }
   if (player.achievements[60] !== 0) {
-    a += 2
+    a = a.add(2)
   }
   if (player.achievements[61] !== 0) {
-    a += 2
+    a = a.add(2)
   }
   if (player.achievements[62] !== 0) {
-    a += 2
+    a = a.add(2)
   }
 
-  a += 5 * CalcECC('transcend', player.challengecompletions[2])
+  a = a.add(5 * CalcECC('transcend', player.challengecompletions[2]))
   G.freeUpgradeAccelerator = a
-  a += G.totalAcceleratorBoost
-    * (4
-      + 2 * player.researches[18]
-      + 2 * player.researches[19]
-      + 3 * player.researches[20]
-      + G.cubeBonusMultiplier[1])
+  a = a.add(G.totalAcceleratorBoost.mul(4 + 2 * player.researches[18] + 2 * player.researches[19] + 3 * player.researches[20] + G.cubeBonusMultiplier[1]))
   if (player.unlocks.prestige) {
-    a += Math.floor(Math.pow((G.rune1level * G.effectiveLevelMult) / 4, 1.25))
-    a *= 1 + ((G.rune1level * 1) / 400) * G.effectiveLevelMult
+    a = a.add(Math.floor(Math.pow((G.rune1level * G.effectiveLevelMult) / 4, 1.25)))
+    a = a.mul(1 + ((G.rune1level * 1) / 400) * G.effectiveLevelMult)
   }
 
   calculateAcceleratorMultiplier()
-  a *= G.acceleratorMultiplier
-  a = Math.pow(
+  a = a.mul(G.acceleratorMultiplier)
+  a = Decimal.pow(
     a,
-    Math.min(
+    Decimal.min(
       1,
       (1 + player.platonicUpgrades[6] / 30)
         * G.viscosityPower[player.usedCorruptions[2]]
     )
   )
-  a += 2000 * hepteractEffective('accelerator')
-  a *= G.challenge15Rewards.accelerator
-  a *= 1 + (3 / 10000) * hepteractEffective('accelerator')
-  a = Math.floor(Math.min(1e100, a))
+  a = a.add(2000 * hepteractEffective('accelerator'))
+  a = a.mul(G.challenge15Rewards.accelerator)
+  a = a.mul(1 + (3 / 10000) * hepteractEffective('accelerator'))
+  a = Decimal.floor(Decimal.min(1e100, a)) // why is this cap here?
 
   if (player.usedCorruptions[2] >= 15) {
-    a = Math.pow(a, 0.2)
+    a = Decimal.pow(a, 0.2)
   }
   if (player.usedCorruptions[2] >= 16) {
-    a = 1
+    a = new Decimal(1)
   }
 
   G.freeAccelerator = a
-  G.totalAccelerator += G.freeAccelerator
+  G.totalAccelerator = G.totalAccelerator.add(G.freeAccelerator)
 
-  G.tuSevenMulti = 1
+  G.tuSevenMulti = new Decimal(1)
 
   if (player.upgrades[46] > 0.5) {
-    G.tuSevenMulti = 1.05
+    G.tuSevenMulti = new Decimal(1.05)
   }
 
-  G.acceleratorPower = Math.pow(
-    1.1
-      + G.tuSevenMulti
-        * (G.totalAcceleratorBoost / 100)
-        * (1 + CalcECC('transcend', player.challengecompletions[2]) / 20),
+  G.acceleratorPower = Decimal.pow(
+    Decimal.add(1.1, G.tuSevenMulti
+        .mul(G.totalAcceleratorBoost.div(100))
+        .mul(1 + CalcECC('transcend', player.challengecompletions[2]) / 20)),
     1 + 0.04 * CalcECC('reincarnation', player.challengecompletions[7])
   )
-  G.acceleratorPower += ((1 / 200)
-    * Math.floor(CalcECC('transcend', player.challengecompletions[2]) / 2)
-    * 100)
-    / 100
+  G.acceleratorPower = G.acceleratorPower.add(((1 / 200) * Math.floor(CalcECC('transcend', player.challengecompletions[2]) / 2) * 100) / 100)
   for (let i = 1; i <= 5; i++) {
     if (player.achievements[7 * i - 4] > 0) {
-      G.acceleratorPower += 0.0005 * i
+      G.acceleratorPower = G.acceleratorPower.add(0.0005 * i)
     }
   }
 
@@ -3466,27 +3407,23 @@ export const updateAllTick = (): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     if (player.currentChallenge.transcension === 1) {
-      G.acceleratorPower *= 25 / (50 + player.challengecompletions[1])
-      G.acceleratorPower += 0.55
-      G.acceleratorPower = Math.max(1, G.acceleratorPower)
+      G.acceleratorPower = G.acceleratorPower.mul(25 / (50 + player.challengecompletions[1]))
+      G.acceleratorPower = G.acceleratorPower.add(0.55)
+      G.acceleratorPower = Decimal.max(1, G.acceleratorPower)
     }
     if (player.currentChallenge.transcension === 2) {
-      G.acceleratorPower = 1
+      G.acceleratorPower = new Decimal(1)
     }
     if (player.currentChallenge.transcension === 3) {
-      G.acceleratorPower = 1.05
-        + 2
-          * G.tuSevenMulti
-          * (G.totalAcceleratorBoost / 300)
-          * (1 + CalcECC('transcend', player.challengecompletions[2]) / 20)
+      G.acceleratorPower = (G.totalAcceleratorBoost.div(300)).mul(1 + CalcECC('transcend', player.challengecompletions[2]) / 20).mul(G.tuSevenMulti).mul(2).add(1.05)
     }
   }
-  G.acceleratorPower = Math.min(1e300, G.acceleratorPower)
+  G.acceleratorPower = Decimal.min(1e300, G.acceleratorPower) // why this cap
   if (player.currentChallenge.reincarnation === 7) {
-    G.acceleratorPower = 1
+    G.acceleratorPower = new Decimal(1)
   }
   if (player.currentChallenge.reincarnation === 10) {
-    G.acceleratorPower = 1
+    G.acceleratorPower = new Decimal(1)
   }
 
   if (player.currentChallenge.transcension !== 1) {
@@ -3496,10 +3433,10 @@ export const updateAllTick = (): void => {
   if (player.currentChallenge.transcension === 1) {
     G.acceleratorEffect = Decimal.pow(
       G.acceleratorPower,
-      G.totalAccelerator + G.totalMultiplier
+      G.totalAccelerator.add(G.totalMultiplier)
     )
   }
-  G.acceleratorEffectDisplay = new Decimal(G.acceleratorPower * 100 - 100)
+  G.acceleratorEffectDisplay = G.acceleratorPower.sub(1).mul(100)
   if (player.currentChallenge.reincarnation === 10) {
     G.acceleratorEffect = new Decimal(1)
   }
@@ -3513,34 +3450,34 @@ export const updateAllTick = (): void => {
 }
 
 export const updateAllMultiplier = (): void => {
-  let a = 0
+  let a = new Decimal(0)
 
   if (player.upgrades[7] > 0) {
-    a += Math.min(
+    a = a.add(Decimal.min(
       4,
-      1 + Math.floor(Decimal.log(player.fifthOwnedCoin + 1, 10))
-    )
+      Decimal.floor(Decimal.log(player.fifthOwnedCoin + 1, 10)).add(1)
+    ))
   }
   if (player.upgrades[9] > 0) {
-    a += Math.floor(player.acceleratorBought / 10)
+    a = a.add(Decimal.floor(player.acceleratorBought.div(10)))
   }
   if (player.upgrades[21] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[22] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[23] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[24] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[25] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.upgrades[28] > 0) {
-    a += Math.min(
+    a = a.add(Math.min(
       1000,
       Math.floor(
         (player.firstOwnedCoin
@@ -3550,52 +3487,51 @@ export const updateAllMultiplier = (): void => {
           + player.fifthOwnedCoin)
           / 160
       )
-    )
+    ))
   }
   if (player.upgrades[30] > 0) {
-    a += Math.min(75, Math.floor(Decimal.log(player.coins.add(1), 1e10)))
-      + Math.min(925, Math.floor(Decimal.log(player.coins.add(1), 1e30)))
+    a = a.add(Decimal.min(75, Decimal.floor(Decimal.log(player.coins.add(1), 1e10))).add(Decimal.min(925, Decimal.floor(Decimal.log(player.coins.add(1), 1e30)))))
   }
   if (player.upgrades[33] > 0) {
-    a += G.totalAcceleratorBoost
+    a = a.add(G.totalAcceleratorBoost)
   }
   if (player.upgrades[49] > 0) {
-    a += Math.min(
+    a = a.add(Decimal.min(
       50,
-      Math.floor(Decimal.log(player.transcendPoints.add(1), 1e10))
-    )
+      Decimal.floor(Decimal.log(player.transcendPoints.add(1), 1e10))
+    ))
   }
   if (player.upgrades[68] > 0) {
-    a += Math.min(2500, Math.floor((Decimal.log(G.taxdivisor, 10) * 1) / 1000))
+    a = a.add(Decimal.min(2500, Decimal.floor(Decimal.log(G.taxdivisor, 10).div(1000))))
   }
   if (player.challengecompletions[1] > 0) {
-    a += 1
+    a = a.add(1)
   }
   if (player.achievements[6] > 0.5) {
-    a += Math.floor(player.firstOwnedCoin / 1000)
+    a = a.add(Math.floor(player.firstOwnedCoin / 1000))
   }
   if (player.achievements[13] > 0.5) {
-    a += Math.floor(player.secondOwnedCoin / 1000)
+    a = a.add(Math.floor(player.secondOwnedCoin / 1000))
   }
   if (player.achievements[20] > 0.5) {
-    a += Math.floor(player.thirdOwnedCoin / 1000)
+    a = a.add(Math.floor(player.thirdOwnedCoin / 1000))
   }
   if (player.achievements[27] > 0.5) {
-    a += Math.floor(player.fourthOwnedCoin / 1000)
+    a = a.add(Math.floor(player.fourthOwnedCoin / 1000))
   }
   if (player.achievements[34] > 0.5) {
-    a += Math.floor(player.fifthOwnedCoin / 1000)
+    a = a.add(Math.floor(player.fifthOwnedCoin / 1000))
   }
   if (player.achievements[57] > 0.5) {
-    a += 1
+    a = a.add(1)
   }
   if (player.achievements[58] > 0.5) {
-    a += 1
+    a = a.add(1)
   }
   if (player.achievements[59] > 0.5) {
-    a += 1
+    a = a.add(1)
   }
-  a += 20
+  a = a.add(20
     * player.researches[94]
     * Math.floor(
       (G.rune1level
@@ -3604,104 +3540,104 @@ export const updateAllMultiplier = (): void => {
         + G.rune4level
         + G.rune5level)
         / 8
-    )
+    ))
 
-  G.freeUpgradeMultiplier = Math.min(1e100, a)
+  G.freeUpgradeMultiplier = Decimal.min(1e100, a) // why cap
 
   if (player.achievements[38] > 0.5) {
-    a += (Math.floor(
+    a = a.add((Math.floor(
       (Math.floor((G.rune2level / 10) * G.effectiveLevelMult)
         * Math.floor(1 + (G.rune2level / 10) * G.effectiveLevelMult))
         / 2
     )
       * 100)
-      / 100
+      / 100)
   }
 
-  a *= 1 + player.achievements[57] / 100
-  a *= 1 + player.achievements[58] / 100
-  a *= 1 + player.achievements[59] / 100
-  a *= Math.pow(
+  a = a.mul(1 + player.achievements[57] / 100)
+  a = a.mul(1 + player.achievements[58] / 100)
+  a = a.mul(1 + player.achievements[59] / 100)
+  a = a.mul(Math.pow(
     1.01,
     player.upgrades[21]
       + player.upgrades[22]
       + player.upgrades[23]
       + player.upgrades[24]
       + player.upgrades[25]
-  )
-  a *= 1 + 0.03 * player.upgrades[34] + 0.02 * player.upgrades[35]
-  a *= 1
+  ))
+  a = a.mul(1 + 0.03 * player.upgrades[34] + 0.02 * player.upgrades[35])
+  a = a.mul(1
     + (1 / 5)
       * player.researches[2]
-      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14]))
-  a *= 1
+      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14])))
+  a = a.mul(1
     + (1 / 20) * player.researches[11]
     + (1 / 25) * player.researches[12]
     + (1 / 40) * player.researches[13]
     + (3 / 200) * player.researches[14]
-    + (1 / 200) * player.researches[15]
-  a *= 1 + (G.rune2level / 400) * G.effectiveLevelMult
-  a *= 1 + (1 / 20) * player.researches[87]
-  a *= 1 + (1 / 100) * player.researches[128]
-  a *= 1 + (0.8 / 100) * player.researches[143]
-  a *= 1 + (0.6 / 100) * player.researches[158]
-  a *= 1 + (0.4 / 100) * player.researches[173]
-  a *= 1 + (0.2 / 100) * player.researches[188]
-  a *= 1 + (0.01 / 100) * player.researches[200]
-  a *= 1 + (0.01 / 100) * player.cubeUpgrades[50]
-  a *= calculateSigmoidExponential(
+    + (1 / 200) * player.researches[15])
+  a = a.mul(1 + (G.rune2level / 400) * G.effectiveLevelMult)
+  a = a.mul(1 + (1 / 20) * player.researches[87])
+  a = a.mul(1 + (1 / 100) * player.researches[128])
+  a = a.mul(1 + (0.8 / 100) * player.researches[143])
+  a = a.mul(1 + (0.6 / 100) * player.researches[158])
+  a = a.mul(1 + (0.4 / 100) * player.researches[173])
+  a = a.mul(1 + (0.2 / 100) * player.researches[188])
+  a = a.mul(1 + (0.01 / 100) * player.researches[200])
+  a = a.mul(1 + (0.01 / 100) * player.cubeUpgrades[50])
+  a = a.mul(calculateSigmoidExponential(
     40,
     (((player.antUpgrades[4]! + G.bonusant5) / 1000) * 40) / 39
-  )
-  a *= G.cubeBonusMultiplier[2]
+  ))
+  a = a.mul(G.cubeBonusMultiplier[2])
   if (
     (player.currentChallenge.transcension !== 0
       || player.currentChallenge.reincarnation !== 0)
     && player.upgrades[50] > 0.5
   ) {
-    a *= 1.25
+    a = a.mul(1.25)
   }
-  a = Math.pow(
+  a = Decimal.pow(
     a,
-    Math.min(
+    Decimal.min(
       1,
       (1 + player.platonicUpgrades[6] / 30)
         * G.viscosityPower[player.usedCorruptions[2]]
     )
   )
-  a += 1000 * hepteractEffective('multiplier')
-  a *= G.challenge15Rewards.multiplier
-  a *= 1 + (3 / 10000) * hepteractEffective('multiplier')
-  a = Math.floor(Math.min(1e100, a))
+  a = a.add(1000 * hepteractEffective('multiplier')) 
+  a = a.mul(G.challenge15Rewards.multiplier)
+  a = a.mul(1 + (3 / 10000) * hepteractEffective('multiplier'))
+  a = Decimal.floor(Decimal.min(1e100, a)) // cap :c
 
   if (player.usedCorruptions[2] >= 15) {
-    a = Math.pow(a, 0.2)
+    a = Decimal.pow(a, 0.2)
   }
   if (player.usedCorruptions[2] >= 16) {
-    a = 1
+    a = new Decimal(1)
   }
 
   G.freeMultiplier = a
-  G.totalMultiplier = G.freeMultiplier + player.multiplierBought
+  G.totalMultiplier = G.freeMultiplier.add(player.multiplierBought)
 
   G.challengeOneLog = 3
 
-  let b = 0
-  let c = 0
-  b += Decimal.log(player.transcendShards.add(1), 3)
-  b *= 1 + (11 * player.researches[33]) / 100
-  b *= 1 + (11 * player.researches[34]) / 100
-  b *= 1 + (11 * player.researches[35]) / 100
-  b *= 1 + player.researches[89] / 5
-  b *= 1 + 10 * G.effectiveRuneBlessingPower[2]
+  let b = new Decimal(0)
+  let c = new Decimal(0)
+  b = b.add(Decimal.log(player.transcendShards.add(1), 3))
+  b = b.mul(1 + (11 * player.researches[33]) / 100)
+  b = b.mul(1 + (11 * player.researches[34]) / 100)
+  b = b.mul(1 + (11 * player.researches[35]) / 100)
+  b = b.mul(1 + player.researches[89] / 5)
+  b = b.mul(1 + 10 * G.effectiveRuneBlessingPower[2])
 
-  c += Math.floor(
-    0.1 * b * CalcECC('transcend', player.challengecompletions[1])
-  )
-  c += CalcECC('transcend', player.challengecompletions[1]) * 10
+  c = c.add(Decimal.floor(
+    b.mul(CalcECC('transcend', player.challengecompletions[1])).mul(0.1)
+  ))
+  c = c.add(CalcECC('transcend', player.challengecompletions[1]) * 10)
   G.freeMultiplierBoost = c
-  G.totalMultiplierBoost = Math.pow(
-    Math.floor(b) + c,
+  G.totalMultiplierBoost = Decimal.pow(
+    Decimal.floor(b).add(c),
     1 + CalcECC('reincarnation', player.challengecompletions[7]) * 0.04
   )
 
@@ -3710,7 +3646,7 @@ export const updateAllMultiplier = (): void => {
     c7 = 1.25
   }
 
-  G.multiplierPower = 2 + 0.005 * G.totalMultiplierBoost * c7
+  G.multiplierPower = G.totalMultiplierBoost.mul(c7).mul(0.005).add(2)
 
   // No MA and Sadistic will always override Transcend Challenges starting in v2.0.0
   if (
@@ -3718,19 +3654,19 @@ export const updateAllMultiplier = (): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     if (player.currentChallenge.transcension === 1) {
-      G.multiplierPower = 1
+      G.multiplierPower = new Decimal(1)
     }
     if (player.currentChallenge.transcension === 2) {
-      G.multiplierPower = 1.25 + 0.0012 * (b + c) * c7
+      G.multiplierPower = b.add(c).mul(c7).mul(0.0012).add(1.25)
     }
   }
-  G.multiplierPower = Math.min(1e300, G.multiplierPower)
+  G.multiplierPower = Decimal.min(1e300, G.multiplierPower) // cap again
 
   if (player.currentChallenge.reincarnation === 7) {
-    G.multiplierPower = 1
+    G.multiplierPower = new Decimal(1)
   }
   if (player.currentChallenge.reincarnation === 10) {
-    G.multiplierPower = 1
+    G.multiplierPower = new Decimal(1)
   }
 
   G.multiplierEffect = Decimal.pow(G.multiplierPower, G.totalMultiplier)
@@ -3766,22 +3702,13 @@ export const multipliers = (): void => {
     c7 = 0
   }
 
-  G.buildingPower = 1
-    + (1 - Math.pow(2, -1 / 160))
-      * c7
-      * Decimal.log(player.reincarnationShards.add(1), 10)
-      * (1
-        + (1 / 20) * player.researches[36]
-        + (1 / 40) * player.researches[37]
-        + (1 / 40) * player.researches[38])
-    + (((c7 + 0.2) * 0.25) / 1.2)
-      * CalcECC('reincarnation', player.challengecompletions[8])
+  G.buildingPower = Decimal.log10(player.reincarnationShards.add(1)).mul(c7).mul(0.004322799566715996).mul((1 + (1 / 20) * player.researches[36] + (1 / 40) * player.researches[37] + (1 / 40) * player.researches[38])).add((((c7 + 0.2) * 0.25) / 1.2) * CalcECC('reincarnation', player.challengecompletions[8])).add(1)
 
-  G.buildingPower = Math.pow(
+  G.buildingPower = Decimal.pow(
     G.buildingPower,
     1 + player.cubeUpgrades[12] * 0.09
   )
-  G.buildingPower = Math.pow(
+  G.buildingPower = Decimal.pow(
     G.buildingPower,
     1 + player.cubeUpgrades[36] * 0.05
   )
@@ -3828,7 +3755,7 @@ export const multipliers = (): void => {
   }
   if (player.upgrades[48] > 0.5) {
     s = s.times(
-      Decimal.pow((G.totalMultiplier * G.totalAccelerator) / 1000 + 1, 8)
+      Decimal.pow(G.totalMultiplier.mul(G.totalAccelerator).div(1000).add(1), 8)
     )
   }
   if (player.currentChallenge.reincarnation === 6) {
@@ -3855,14 +3782,7 @@ export const multipliers = (): void => {
     player.currentChallenge.ascension === 15
     && player.platonicUpgrades[14] > 0
   ) {
-    lol = Decimal.pow(
-      lol,
-      1
-        + ((1 / 20)
-            * player.usedCorruptions[9]
-            * Decimal.log(player.coins.add(1), 10))
-          / (1e7 + Decimal.log(player.coins.add(1), 10))
-    )
+    lol = Decimal.pow(lol, Decimal.mul(player.usedCorruptions[9] * 0.05, Decimal.log(player.coins.add(1), 10)).div(Decimal.log(player.coins.add(1), 10).add(1e7)).add(1))
   }
   if (
     player.currentChallenge.ascension === 15
@@ -4114,11 +4034,11 @@ export const multipliers = (): void => {
   }
   if (player.upgrades[55] === 1) {
     G.mythosupgrade15 = G.mythosupgrade15.times(
-      Decimal.pow('1e1000', Math.min(1000, G.buildingPower - 1))
+      Decimal.pow('1e1000', Decimal.min(1000, G.buildingPower.sub(1)))
     )
   }
 
-  G.globalConstantMult = new Decimal('1')
+  G.globalConstantMult = new Decimal(1)
   G.globalConstantMult = G.globalConstantMult.times(
     Decimal.pow(
       1.05
@@ -4128,17 +4048,14 @@ export const multipliers = (): void => {
     )
   )
   G.globalConstantMult = G.globalConstantMult.times(
-    Decimal.pow(
-      1
-        + 0.001
-          * Math.min(
-            100
-              + 10 * player.achievements[270]
-              + 10 * player.shopUpgrades.constantEX
-              + 1000 * (G.challenge15Rewards.exponent - 1)
-              + 3 * player.platonicUpgrades[18],
+    Decimal.pow(Decimal.min(
+            Decimal.add(100
+              , 10 * player.achievements[270])
+              .add(10 * player.shopUpgrades.constantEX)
+              .add((G.challenge15Rewards.exponent.sub(1).mul(1000)))
+              .add(3 * player.platonicUpgrades[18]),
             player.constantUpgrades[2]
-          ),
+          ).mul(0.001).add(1),
       ascendBuildingDR()
     )
   )
@@ -4174,7 +4091,7 @@ export const multipliers = (): void => {
   )
 }
 
-export const resourceGain = (dt: number): void => {
+export const resourceGain = (dt: Decimal): void => {
   calculateTotalCoinOwned()
   calculateTotalAcceleratorBoost()
 
@@ -4185,8 +4102,8 @@ export const resourceGain = (dt: number): void => {
   if (G.produceTotal.gte(0.001)) {
     const addcoin = Decimal.min(
       G.produceTotal.dividedBy(G.taxdivisor),
-      Decimal.pow(10, G.maxexponent - Decimal.log(G.taxdivisorcheck, 10))
-    ).times(dt / 0.025)
+      Decimal.pow(10, G.maxexponent.sub(Decimal.log(G.taxdivisorcheck, 10)))
+    ).times(dt.div(0.025))
     player.coins = player.coins.add(addcoin)
     player.coinsThisPrestige = player.coinsThisPrestige.add(addcoin)
     player.coinsThisTranscension = player.coinsThisTranscension.add(addcoin)
@@ -4197,17 +4114,17 @@ export const resourceGain = (dt: number): void => {
   resetCurrency()
   if (player.upgrades[93] === 1 && player.coinsThisPrestige.gte(1e16)) {
     player.prestigePoints = player.prestigePoints.add(
-      Decimal.floor(G.prestigePointGain.dividedBy(4000).times(dt / 0.025))
+      Decimal.floor(G.prestigePointGain.dividedBy(4000).times(dt.div(0.025)))
     )
   }
   if (player.upgrades[100] === 1 && player.coinsThisTranscension.gte(1e100)) {
     player.transcendPoints = player.transcendPoints.add(
-      Decimal.floor(G.transcendPointGain.dividedBy(4000).times(dt / 0.025))
+      Decimal.floor(G.transcendPointGain.dividedBy(4000).times(dt.div(0.025)))
     )
   }
   if (player.cubeUpgrades[28] > 0 && player.transcendShards.gte(1e300)) {
     player.reincarnationPoints = player.reincarnationPoints.add(
-      Decimal.floor(G.reincarnationPointGain.dividedBy(4000).times(dt / 0.025))
+      Decimal.floor(G.reincarnationPointGain.dividedBy(4000).times(dt.div(0.025)))
     )
   }
   G.produceFirstDiamonds = player.firstGeneratedDiamonds
@@ -4232,16 +4149,16 @@ export const resourceGain = (dt: number): void => {
     .times(G.globalCrystalMultiplier)
 
   player.fourthGeneratedDiamonds = player.fourthGeneratedDiamonds.add(
-    G.produceFifthDiamonds.times(dt / 0.025)
+    G.produceFifthDiamonds.times(dt.div(0.025))
   )
   player.thirdGeneratedDiamonds = player.thirdGeneratedDiamonds.add(
-    G.produceFourthDiamonds.times(dt / 0.025)
+    G.produceFourthDiamonds.times(dt.div(0.025))
   )
   player.secondGeneratedDiamonds = player.secondGeneratedDiamonds.add(
-    G.produceThirdDiamonds.times(dt / 0.025)
+    G.produceThirdDiamonds.times(dt.div(0.025))
   )
   player.firstGeneratedDiamonds = player.firstGeneratedDiamonds.add(
-    G.produceSecondDiamonds.times(dt / 0.025)
+    G.produceSecondDiamonds.times(dt.div(0.025))
   )
   G.produceDiamonds = G.produceFirstDiamonds
 
@@ -4250,7 +4167,7 @@ export const resourceGain = (dt: number): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     player.prestigeShards = player.prestigeShards.add(
-      G.produceDiamonds.times(dt / 0.025)
+      G.produceDiamonds.times(dt.div(0.025))
     )
   }
 
@@ -4279,19 +4196,19 @@ export const resourceGain = (dt: number): void => {
     .times(G.globalMythosMultiplier)
     .times(G.mythosupgrade13)
   player.fourthGeneratedMythos = player.fourthGeneratedMythos.add(
-    G.produceFifthMythos.times(dt / 0.025)
+    G.produceFifthMythos.times(dt.div(0.025))
   )
   player.thirdGeneratedMythos = player.thirdGeneratedMythos.add(
-    G.produceFourthMythos.times(dt / 0.025)
+    G.produceFourthMythos.times(dt.div(0.025))
   )
   player.secondGeneratedMythos = player.secondGeneratedMythos.add(
-    G.produceThirdMythos.times(dt / 0.025)
+    G.produceThirdMythos.times(dt.div(0.025))
   )
   player.firstGeneratedMythos = player.firstGeneratedMythos.add(
-    G.produceSecondMythos.times(dt / 0.025)
+    G.produceSecondMythos.times(dt.div(0.025))
   )
 
-  G.produceMythos = new Decimal('0')
+  G.produceMythos = new Decimal(0)
   G.produceMythos = player.firstGeneratedMythos
     .add(player.firstOwnedMythos)
     .times(player.firstProduceMythos)
@@ -4299,7 +4216,7 @@ export const resourceGain = (dt: number): void => {
     .times(G.mythosupgrade13)
   G.producePerSecondMythos = G.produceMythos.times(40)
 
-  let pm = new Decimal('1')
+  let pm = new Decimal(1)
   if (player.upgrades[67] > 0.5) {
     pm = pm.times(
       Decimal.pow(
@@ -4329,19 +4246,19 @@ export const resourceGain = (dt: number): void => {
     .times(player.firstProduceParticles)
     .times(pm)
   player.fourthGeneratedParticles = player.fourthGeneratedParticles.add(
-    G.produceFifthParticles.times(dt / 0.025)
+    G.produceFifthParticles.times(dt.div(0.025))
   )
   player.thirdGeneratedParticles = player.thirdGeneratedParticles.add(
-    G.produceFourthParticles.times(dt / 0.025)
+    G.produceFourthParticles.times(dt.div(0.025))
   )
   player.secondGeneratedParticles = player.secondGeneratedParticles.add(
-    G.produceThirdParticles.times(dt / 0.025)
+    G.produceThirdParticles.times(dt.div(0.025))
   )
   player.firstGeneratedParticles = player.firstGeneratedParticles.add(
-    G.produceSecondParticles.times(dt / 0.025)
+    G.produceSecondParticles.times(dt.div(0.025))
   )
 
-  G.produceParticles = new Decimal('0')
+  G.produceParticles = new Decimal(0)
   G.produceParticles = player.firstGeneratedParticles
     .add(player.firstOwnedParticles)
     .times(player.firstProduceParticles)
@@ -4353,12 +4270,12 @@ export const resourceGain = (dt: number): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     player.transcendShards = player.transcendShards.add(
-      G.produceMythos.times(dt / 0.025)
+      G.produceMythos.times(dt.div(0.025))
     )
   }
   if (player.currentChallenge.reincarnation !== 10) {
     player.reincarnationShards = player.reincarnationShards.add(
-      G.produceParticles.times(dt / 0.025)
+      G.produceParticles.times(dt.div(0.025))
     )
   }
 
@@ -4646,7 +4563,7 @@ export const updateAntMultipliers = (): void => {
   }
   G.globalAntMult = G.globalAntMult.times(
     Decimal.pow(
-      1 + 0.1 * Decimal.log(player.ascendShards.add(1), 10),
+      Decimal.log10(player.ascendShards.add(1)).mul(0.1).add(1),
       player.constantUpgrades[5]
     )
   )
@@ -4680,7 +4597,7 @@ export const updateAntMultipliers = (): void => {
   if (player.currentChallenge.ascension !== 15) {
     G.globalAntMult = Decimal.pow(
       G.globalAntMult,
-      1 - (0.9 / 90) * Math.min(99, sumContents(player.usedCorruptions))
+      Decimal.sub(1, Decimal.min(99, sumContents(player.usedCorruptions)).mul(0.01))
     )
   } else {
     // C15 used to have 9 corruptions set to 11, which above would provide a power of 0.01. Now it's hardcoded this way.
@@ -4742,7 +4659,7 @@ export const updateAntMultipliers = (): void => {
   }
 }
 
-export const createAnts = (dt: number): void => {
+export const createAnts = (dt: Decimal): void => {
   updateAntMultipliers()
   G.antEightProduce = player.eighthGeneratedAnts
     .add(player.eighthOwnedAnts)
@@ -4777,28 +4694,28 @@ export const createAnts = (dt: number): void => {
     .times(player.firstProduceAnts)
     .times(G.globalAntMult)
   player.seventhGeneratedAnts = player.seventhGeneratedAnts.add(
-    G.antEightProduce.times(dt / 1)
+    G.antEightProduce.times(dt)
   )
   player.sixthGeneratedAnts = player.sixthGeneratedAnts.add(
-    G.antSevenProduce.times(dt / 1)
+    G.antSevenProduce.times(dt)
   )
   player.fifthGeneratedAnts = player.fifthGeneratedAnts.add(
-    G.antSixProduce.times(dt / 1)
+    G.antSixProduce.times(dt)
   )
   player.fourthGeneratedAnts = player.fourthGeneratedAnts.add(
-    G.antFiveProduce.times(dt / 1)
+    G.antFiveProduce.times(dt)
   )
   player.thirdGeneratedAnts = player.thirdGeneratedAnts.add(
-    G.antFourProduce.times(dt / 1)
+    G.antFourProduce.times(dt)
   )
   player.secondGeneratedAnts = player.secondGeneratedAnts.add(
-    G.antThreeProduce.times(dt / 1)
+    G.antThreeProduce.times(dt)
   )
   player.firstGeneratedAnts = player.firstGeneratedAnts.add(
-    G.antTwoProduce.times(dt / 1)
+    G.antTwoProduce.times(dt)
   )
 
-  player.antPoints = player.antPoints.add(G.antOneProduce.times(dt / 1))
+  player.antPoints = player.antPoints.add(G.antOneProduce.times(dt))
 }
 
 export const resetCurrency = (): void => {
@@ -4863,7 +4780,7 @@ export const resetCurrency = (): void => {
     G.reincarnationPointGain = G.reincarnationPointGain.times(5)
   }
   if (player.currentChallenge.ascension === 12) {
-    G.reincarnationPointGain = new Decimal('0')
+    G.reincarnationPointGain = new Decimal(0)
   }
 }
 
@@ -5107,18 +5024,16 @@ export const resetCheck = async (
         && player.usedCorruptions.slice(2, 10).every((a) => a === 11)
       ) {
         if (
-          player.coins.gte(Decimal.pow(10, player.challenge15Exponent / c15SM))
+          player.coins.gte(Decimal.pow(10, player.challenge15Exponent.div(c15SM)))
         ) {
-          player.challenge15Exponent = Decimal.log(player.coins.add(1), 10) * c15SM
+          player.challenge15Exponent = Decimal.log10(player.coins.add(1)).mul(c15SM)
           c15RewardUpdate()
         }
       }
     }
 
-    if (
-      player.challengecompletions[a] > player.highestchallengecompletions[a]
-    ) {
-      player.highestchallengecompletions[a] += 1
+    if (Decimal.gt(player.challengecompletions[a], player.highestchallengecompletions[a])) {
+      player.highestchallengecompletions[a] = Decimal.max(player.highestchallengecompletions[a], player.challengecompletions[a])
       player.wowHypercubes.add(1)
       if (player.highestchallengecompletions[a] >= maxCompletions) {
         leaving = true
@@ -5259,21 +5174,21 @@ export const resetConfirmation = async (i: string): Promise<void> => {
 }
 
 export const updateEffectiveLevelMult = (): void => {
-  G.effectiveLevelMult = 1
-  G.effectiveLevelMult *= 1
+  G.effectiveLevelMult = new Decimal(1)
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1
     + (player.researches[4] / 10)
-      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14])) // Research 1x4
-  G.effectiveLevelMult *= 1 + player.researches[21] / 100 // Research 2x6
-  G.effectiveLevelMult *= 1 + player.researches[90] / 100 // Research 4x15
-  G.effectiveLevelMult *= 1 + player.researches[131] / 200 // Research 6x6
-  G.effectiveLevelMult *= 1 + ((player.researches[161] / 200) * 3) / 5 // Research 7x11
-  G.effectiveLevelMult *= 1 + ((player.researches[176] / 200) * 2) / 5 // Research 8x1
-  G.effectiveLevelMult *= 1 + ((player.researches[191] / 200) * 1) / 5 // Research 8x16
-  G.effectiveLevelMult *= 1 + ((player.researches[146] / 200) * 4) / 5 // Research 6x21
-  G.effectiveLevelMult *= 1
+      * (1 + (1 / 2) * CalcECC('ascension', player.challengecompletions[14]))) // Research 1x4
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[21] / 100) // Research 2x6
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[90] / 100) // Research 4x15
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[131] / 200) // Research 6x6
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[161] / 200) * 3) / 5) // Research 7x11
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[176] / 200) * 2) / 5) // Research 8x1
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[191] / 200) * 1) / 5) // Research 8x16
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[146] / 200) * 4) / 5) // Research 6x21
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(1
     + ((0.01 * Math.log(player.talismanShards + 1)) / Math.log(4))
-      * Math.min(1, player.constantUpgrades[9])
-  G.effectiveLevelMult *= G.challenge15Rewards.runeBonus
+      * Math.min(1, player.constantUpgrades[9]))
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(G.challenge15Rewards.runeBonus)
 }
 
 export const updateAll = (): void => {
@@ -5892,7 +5807,7 @@ export const updateAll = (): void => {
   }
 
   const reductionValue = getReductionValue()
-  if (reductionValue !== G.prevReductionValue) {
+  if (reductionValue.neq(G.prevReductionValue)) {
     G.prevReductionValue = reductionValue
     const resources = ['Coin', 'Diamonds', 'Mythos'] as const
 
@@ -5903,7 +5818,7 @@ export const updateAll = (): void => {
         player[`${num}Cost${resource}` as const] = getCost(
           (ord + 1) as OneToFive,
           resource,
-          player[`${num}Owned${resource}` as const] + 1,
+          player[`${num}Owned${resource}` as const].add(1),
           reductionValue
         )
       }
@@ -5931,8 +5846,8 @@ export const updateAll = (): void => {
     && player.usedCorruptions.slice(2, 10).every((a) => a === 11)
   ) {
     const c15SM = challenge15ScoreMultiplier()
-    if (player.coins.gte(Decimal.pow(10, player.challenge15Exponent / c15SM))) {
-      player.challenge15Exponent = Decimal.log(player.coins.add(1), 10) * c15SM
+    if (player.coins.gte(Decimal.pow(10, player.challenge15Exponent.div(c15SM)))) {
+      player.challenge15Exponent = Decimal.log(player.coins.add(1), 10).mul(c15SM)
       c15RewardUpdate()
     }
   }
@@ -6004,7 +5919,7 @@ const tack = (dt: number) => {
   if (!G.timeWarp) {
     // Adds Resources (coins, ants, etc)
     const timeMult = calculateTimeAcceleration().mult
-    resourceGain(dt * timeMult)
+    resourceGain(Decimal.mul(dt, timeMult))
     // Adds time (in milliseconds) to all reset functions, and quarks timer.
     addTimers('prestige', dt)
     addTimers('transcension', dt)

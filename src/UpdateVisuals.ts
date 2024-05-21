@@ -1,4 +1,4 @@
-import Decimal from 'break_infinity.js'
+import Decimal from "break_eternity.js";
 import i18next from 'i18next'
 import { showSacrifice } from './Ants'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -114,7 +114,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('buildtext12').textContent = i18next.t(
       'buildings.acceleratorPower',
       {
-        power: format((G.acceleratorPower - 1) * 100, 2),
+        power: format(G.acceleratorPower.sub(1).mul(100), 2),
         mult: format(G.acceleratorEffect, 2)
       }
     )
@@ -148,8 +148,8 @@ export const visualUpdateBuildings = () => {
       {
         amount: format(
           G.tuSevenMulti
-            * (1 + player.researches[16] / 50)
-            * (1 + CalcECC('transcend', player.challengecompletions[2]) / 100),
+            .mul(1 + player.researches[16] / 50)
+            .mul(1 + CalcECC('transcend', player.challengecompletions[2]) / 100),
           2
         )
       }
@@ -179,7 +179,7 @@ export const visualUpdateBuildings = () => {
     if (player.reincarnationCount > 0.5) {
       warning = i18next.t('buildings.taxWarning', {
         gain: format(
-          Decimal.pow(10, G.maxexponent - Decimal.log(G.taxdivisorcheck, 10))
+          Decimal.pow(10, G.maxexponent.sub(Decimal.log(G.taxdivisorcheck, 10)))
         )
       })
     }
@@ -244,11 +244,7 @@ export const visualUpdateBuildings = () => {
     }
 
     if (player.resettoggle1 === 1 || player.resettoggle1 === 0) {
-      const p = Decimal.pow(
-        10,
-        Decimal.log(G.prestigePointGain.add(1), 10)
-          - Decimal.log(player.prestigePoints.sub(1), 10)
-      )
+      const p = Decimal.log10(G.prestigePointGain.add(1)).sub(Decimal.log10(player.prestigePoints.sub(1))).pow10()
       DOMCacheGetOrSet('autoprestige').textContent = i18next.t(
         'buildings.autoPrestige',
         {
@@ -334,14 +330,7 @@ export const visualUpdateBuildings = () => {
           name: 'Mythos',
           action: 'Prestige',
           factor: format(Decimal.pow(10, player.transcendamount)),
-          mult: format(
-            Decimal.pow(
-              10,
-              Decimal.log(G.transcendPointGain.add(1), 10)
-                - Decimal.log(player.transcendPoints.add(1), 10)
-            ),
-            2
-          )
+          mult: format(Decimal.log10(G.transcendPointGain.add(1)).sub(Decimal.log10(player.transcendPoints.add(1))).pow10(), 2)
         }
       )
     }
@@ -430,14 +419,7 @@ export const visualUpdateBuildings = () => {
           name: 'Particles',
           action: 'Reincarnate',
           factor: format(Decimal.pow(10, player.reincarnationamount)),
-          mult: format(
-            Decimal.pow(
-              10,
-              Decimal.log(G.reincarnationPointGain.add(1), 10)
-                - Decimal.log(player.reincarnationPoints.add(1), 10)
-            ),
-            2
-          )
+          mult: format(Decimal.log10(G.reincarnationPointGain.add(1)).sub(Decimal.log10(player.reincarnationPoints.add(1))).pow10(), 2)
         }
       )
     } else if (player.resettoggle3 === 2) {
@@ -497,8 +479,8 @@ export const visualUpdateBuildings = () => {
       {
         const: format(player.ascendShards, 2),
         amount: format(
-          Math.pow(
-            Decimal.log(player.ascendShards.add(1), 10) + 1,
+          Decimal.pow(
+            Decimal.log10(player.ascendShards.add(1)).add(1),
             1
               + (0.2 / 60)
                 * player.challengecompletions[10]
@@ -572,10 +554,10 @@ export const visualUpdateRunes = () => {
         }
       )
 
-      if (runeLevel < maxLevel) {
+      if (Decimal.gt(runeLevel, maxLevel)) {
         DOMCacheGetOrSet(`rune${i}exp`).textContent = i18next.t('runes.TNL', {
           EXP: format(
-            calculateRuneExpToLevel(i - 1) - player.runeexp[i - 1],
+            calculateRuneExpToLevel(i - 1).sub(player.runeexp[i - 1]),
             2
           )
         })
@@ -602,7 +584,7 @@ export const visualUpdateRunes = () => {
     const calculateRecycle = calculateRecycleMultiplier()
     const allRuneExpAdditiveMultiplier = sumContents([
       // Base amount multiplied per offering
-      1 * calculateRecycle,
+      calculateRecycle,
       // +1 if C1 completion
       Math.min(1, player.highestchallengecompletions[1]),
       // +0.10 per C1 completion
@@ -625,7 +607,7 @@ export const visualUpdateRunes = () => {
     DOMCacheGetOrSet('offeringRecycleInfo').textContent = i18next.t(
       'runes.recycleChance',
       {
-        percent: format((1 - 1 / calculateRecycle) * 100, 2, true),
+        percent: format(Decimal.sub(100, Decimal.div(100, calculateRecycle)), 2, true),
         mult: format(calculateRecycle, 2, true)
       }
     )
@@ -792,7 +774,7 @@ export const visualUpdateResearch = () => {
       'researches.thanksToResearches',
       {
         x: format(
-          calculateAutomaticObtainium() * calculateTimeAcceleration().mult,
+          Decimal.mul(calculateAutomaticObtainium(), calculateTimeAcceleration().mult),
           3,
           true
         )
@@ -813,11 +795,10 @@ export const visualUpdateAnts = () => {
       z: format(
         Decimal.pow(
           Decimal.max(1, player.antPoints),
-          100000
-            + calculateSigmoidExponential(
+          calculateSigmoidExponential(
               49900000,
               (((player.antUpgrades[1]! + G.bonusant2) / 5000) * 500) / 499
-            )
+            ).add(100000)
         )
       )
     }
@@ -1181,7 +1162,7 @@ export const visualUpdateCubes = () => {
       )
       DOMCacheGetOrSet('heptGridOrbEffect').textContent = `${
         format(
-          100 * (-1 + calculateCubeQuarkMultiplier()),
+          calculateCubeQuarkMultiplier().sub(1).mul(100),
           2,
           true
         )
@@ -1300,9 +1281,7 @@ export const visualUpdateCorruptions = () => {
     'corruptions.antExponent',
     {
       exponent: format(
-        (1 - (0.9 / 90) * sumContents(player.usedCorruptions))
-          * G.extinctionMultiplier[player.usedCorruptions[7]],
-        3
+        Decimal.sub(1, sumContents(player.usedCorruptions).mul(0.01)).mul(G.extinctionMultiplier[player.usedCorruptions[7]]), 3
       )
     }
   )
@@ -1312,9 +1291,9 @@ export const visualUpdateCorruptions = () => {
       multiplier: format(calculateCorruptionPoints() / 400, 2, true)
     }
   )
-  DOMCacheGetOrSet('corruptionAscensionCount').style.display = ascCount > 1 ? 'block' : 'none'
+  DOMCacheGetOrSet('corruptionAscensionCount').style.display = ascCount.gt(1) ? 'block' : 'none'
 
-  if (ascCount > 1) {
+  if (ascCount.gt(1)) {
     DOMCacheGetOrSet('corruptionAscensionCount').innerHTML = i18next.t(
       'corruptions.ascensionCount',
       {
@@ -1341,18 +1320,17 @@ export const visualUpdateSettings = () => {
     const onExportQuarks = quarkData.gain
     const maxExportQuarks = quarkData.capacity
 
-    let goldenQuarkMultiplier = 1
-    goldenQuarkMultiplier *= 1 + player.worlds.BONUS / 100
-    goldenQuarkMultiplier *= player.highestSingularityCount >= 100
-      ? 1 + player.highestSingularityCount / 50
-      : 1
+    let goldenQuarkMultiplier = new Decimal(1)
+    goldenQuarkMultiplier = goldenQuarkMultiplier.mul(player.worlds.BONUS.div(100).add(1))
+    goldenQuarkMultiplier = goldenQuarkMultiplier.mul(player.highestSingularityCount.gte(100)
+      ? player.highestSingularityCount.div(50).add(1)
+      : 1)
 
     DOMCacheGetOrSet('quarktimerdisplay').textContent = i18next.t(
       'settings.exportQuark',
       {
         x: format(
-          3600 / quarkData.perHour
-            - (player.quarkstimer % (3600.00001 / quarkData.perHour)),
+          Decimal.div(3600, Decimal.sub(quarkData.perHour, Decimal.mod(player.quarkstimer, Decimal.div(3600.00001, quarkData.perHour)))),
           2
         ),
         y: player.worlds.toString(1)
@@ -1390,19 +1368,11 @@ export const visualUpdateSettings = () => {
       'settings.goldenQuarksOnExport',
       {
         x: format(
-          Math.floor(
-            (player.goldenQuarksTimer
-              * +player.singularityUpgrades.goldenQuarks3.getEffect().bonus)
-              / 3600
-          ) * goldenQuarkMultiplier,
+          Decimal.floor(player.goldenQuarksTimer.mul(player.singularityUpgrades.goldenQuarks3.getEffect().bonus).div(3600)).mul(goldenQuarkMultiplier),
           2
         ),
         y: format(
-          Math.floor(
-            168
-              * +player.singularityUpgrades.goldenQuarks3.getEffect().bonus
-              * goldenQuarkMultiplier
-          )
+          Decimal.floor(goldenQuarkMultiplier.mul(player.singularityUpgrades.goldenQuarks3.getEffect().bonus).mul(168))
         )
       }
     )
@@ -1436,7 +1406,7 @@ export const visualUpdateSingularity = () => {
       const singItem = player.singularityUpgrades[key]
       const el = DOMCacheGetOrSet(`${String(key)}`)
       if (
-        singItem.maxLevel !== -1
+        singItem.maxLevel.neq(-1)
         && singItem.level >= singItem.computeMaxLevel()
       ) {
         el.style.filter = val ? 'brightness(.9)' : 'none'
@@ -1446,7 +1416,7 @@ export const visualUpdateSingularity = () => {
       ) {
         el.style.filter = val ? 'grayscale(.9) brightness(.8)' : 'none'
       } else if (
-        singItem.maxLevel === -1
+        singItem.maxLevel.eq(-1)
         || singItem.level < singItem.computeMaxLevel()
       ) {
         if (singItem.freeLevels > singItem.level) {
@@ -1466,11 +1436,11 @@ export const visualUpdateSingularity = () => {
     for (const key of keys) {
       const octItem = player.octeractUpgrades[key]
       const el = DOMCacheGetOrSet(`${String(key)}`)
-      if (octItem.maxLevel !== -1 && octItem.level >= octItem.maxLevel) {
+      if (octItem.maxLevel.neq(-1) && octItem.level >= octItem.maxLevel) {
         el.style.filter = val ? 'brightness(.9)' : 'none'
-      } else if (octItem.getCostTNL() > player.wowOcteracts) {
+      } else if (octItem.getCostTNL().gt(player.wowOcteracts)) {
         el.style.filter = val ? 'grayscale(.9) brightness(.8)' : 'none'
-      } else if (octItem.maxLevel === -1 || octItem.level < octItem.maxLevel) {
+      } else if (octItem.maxLevel.eq(-1) || octItem.level < octItem.maxLevel) {
         if (octItem.freeLevels > octItem.level) {
           el.style.filter = val ? 'blur(2px) invert(.9) saturate(200)' : 'none'
         } else {
@@ -1490,19 +1460,19 @@ export const visualUpdateOcteracts = () => {
     return
   }
   DOMCacheGetOrSet('octeractAmount').innerHTML = i18next.t('octeract.amount', {
-    octeracts: format(player.wowOcteracts, 2, true, true, true)
+    octeracts: format(player.wowOcteracts, 2, true)
   })
 
   const perSecond = octeractGainPerSecond()
 
-  DOMCacheGetOrSet('secondsPerOcteract').style.display = perSecond < 1 ? 'block' : 'none'
+  DOMCacheGetOrSet('secondsPerOcteract').style.display = perSecond.lt(1) ? 'block' : 'none'
   DOMCacheGetOrSet('secondsPerOcteract').innerHTML = i18next.t(
     'octeract.secondsPerOcteract',
     {
-      seconds: format(1 / perSecond, 2, true)
+      seconds: format(perSecond.recip(), 2, true)
     }
   )
-  DOMCacheGetOrSet('octeractPerSeconds').style.display = perSecond >= 1 ? 'block' : 'none'
+  DOMCacheGetOrSet('octeractPerSeconds').style.display = perSecond.gte(1) ? 'block' : 'none'
   DOMCacheGetOrSet('octeractPerSeconds').innerHTML = i18next.t(
     'octeract.octeractsPerSecond',
     {
@@ -1517,7 +1487,7 @@ export const visualUpdateOcteracts = () => {
   DOMCacheGetOrSet('totalOcteractAmount').innerHTML = i18next.t(
     'octeract.totalGenerated',
     {
-      octeracts: format(player.totalWowOcteracts, 2, true, true, true)
+      octeracts: format(player.totalWowOcteracts, 2, true)
     }
   )
   DOMCacheGetOrSet('totalOcteractCubeBonus').style.display = cTOCB >= 0.001 ? 'block' : 'none'

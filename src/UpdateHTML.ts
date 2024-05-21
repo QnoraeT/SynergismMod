@@ -1,4 +1,4 @@
-import Decimal from 'break_infinity.js'
+import Decimal from "break_eternity.js";
 import i18next from 'i18next'
 import { achievementaward, totalachievementpoints } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -214,7 +214,7 @@ export const revealStuff = () => {
 
   const example32 = document.getElementsByClassName('hepteracts') as HTMLCollectionOf<HTMLElement>
   for (const ex of Array.from(example32)) { // Ability to use and gain hepteracts //
-    ex.style.display = player.challenge15Exponent >= 1e15 ? 'block' : 'none'
+    ex.style.display = player.challenge15Exponent.gte(1e15) ? 'block' : 'none'
   }
 
   const singularityHTMLs = document.getElementsByClassName('singularity') as HTMLCollectionOf<HTMLElement>
@@ -472,7 +472,7 @@ export const revealStuff = () => {
     : (DOMCacheGetOrSet('settingpic6').style.display = 'none')
 
   // Hepteract Confirmations toggle
-  player.highestSingularityCount > 0 && player.challenge15Exponent >= 1e15
+  player.highestSingularityCount > 0 && player.challenge15Exponent.gte(1e15)
     ? (DOMCacheGetOrSet('heptnotificationpic').style.display = 'block')
     : (DOMCacheGetOrSet('heptnotificationpic').style.display = 'none')
 
@@ -552,7 +552,7 @@ export const revealStuff = () => {
     toggle32: player.achievements[173] > 0, // Settings - Confirmations - Ant Sacrifice
     toggle33: player.highestSingularityCount > 0 && player.ascensionCount > 0, // Settings - Confirmations - Singularity
     toggle34: player.unlocks.coinfour, // Achievements - Notifications
-    toggle35: player.challenge15Exponent >= 1e15 && player.highestSingularityCount > 0, // Hepteracts - Notifications
+    toggle35: player.challenge15Exponent.gte(1e15) && player.highestSingularityCount > 0, // Hepteracts - Notifications
     toggle36: player.highestSingularityCount >= 15, // Auto Blessings
     toggle37: player.highestSingularityCount >= 15, // Auto Spirits
     toggle38: player.highestSingularityCount > 0, // Researchs Hover to Buy
@@ -638,7 +638,7 @@ export const hideStuff = () => {
     DOMCacheGetOrSet('runestab').style.backgroundColor = 'blue'
     DOMCacheGetOrSet('runeshowlevelup').textContent = i18next.t('runes.hover')
     DOMCacheGetOrSet('researchrunebonus').textContent = i18next.t('runes.thanksResearches', {
-      percent: format(100 * G.effectiveLevelMult - 100, 4, true)
+      percent: format(G.effectiveLevelMult.sub(1).mul(100), 4, true)
     })
     displayRuneInformation(1, false)
     displayRuneInformation(2, false)
@@ -855,10 +855,10 @@ export const buttoncolorchange = () => {
     ;((!player.toggles[14] || player.achievements[106] === 0) && player.prestigePoints.gte(player.fifthCostDiamonds))
       ? e.classList.add('buildingPurchaseBtnAvailable')
       : e.classList.remove('buildingPurchaseBtnAvailable')
-    let k = 0
-    k += Math.floor(G.rune3level / 16 * G.effectiveLevelMult) * 100 / 100
+    let k = new Decimal(0)
+    k = k.add(Decimal.floor(Decimal.mul(G.effectiveLevelMult, G.rune3level).div(16)))
     if (player.upgrades[73] === 1 && player.currentChallenge.reincarnation !== 0) {
-      k += 10
+      k = k.add(10)
     }
 
     player.achievements[79] < 1
@@ -866,7 +866,7 @@ export const buttoncolorchange = () => {
           Decimal.pow(
             10,
             G.crystalUpgradesCost[0]
-              + G.crystalUpgradeCostIncrement[0] * Math.floor(Math.pow(player.crystalUpgrades[0] + 0.5 - k, 2) / 2)
+              .add(Decimal.mul(G.crystalUpgradeCostIncrement[0], Decimal.floor(Decimal.pow(Decimal.sub(player.crystalUpgrades[0] + 0.5, k), 2).div(2))))
           )
         )
         ? f.style.backgroundColor = 'purple'
@@ -877,7 +877,7 @@ export const buttoncolorchange = () => {
           Decimal.pow(
             10,
             G.crystalUpgradesCost[1]
-              + G.crystalUpgradeCostIncrement[1] * Math.floor(Math.pow(player.crystalUpgrades[1] + 0.5 - k, 2) / 2)
+              .add(Decimal.mul(G.crystalUpgradeCostIncrement[1], Decimal.floor(Decimal.pow(Decimal.sub(player.crystalUpgrades[1] + 0.5, k), 2).div(2))))
           )
         )
         ? g.style.backgroundColor = 'purple'
@@ -888,7 +888,7 @@ export const buttoncolorchange = () => {
           Decimal.pow(
             10,
             G.crystalUpgradesCost[2]
-              + G.crystalUpgradeCostIncrement[2] * Math.floor(Math.pow(player.crystalUpgrades[2] + 0.5 - k, 2) / 2)
+              .add(Decimal.mul(G.crystalUpgradeCostIncrement[2], Decimal.floor(Decimal.pow(Decimal.sub(player.crystalUpgrades[2] + 0.5, k), 2).div(2))))
           )
         )
         ? h.style.backgroundColor = 'purple'
@@ -899,7 +899,7 @@ export const buttoncolorchange = () => {
           Decimal.pow(
             10,
             G.crystalUpgradesCost[3]
-              + G.crystalUpgradeCostIncrement[3] * Math.floor(Math.pow(player.crystalUpgrades[3] + 0.5 - k, 2) / 2)
+              .add(Decimal.mul(G.crystalUpgradeCostIncrement[3], Decimal.floor(Decimal.pow(Decimal.sub(player.crystalUpgrades[3] + 0.5, k), 2).div(2))))
           )
         )
         ? i.style.backgroundColor = 'purple'
@@ -910,7 +910,7 @@ export const buttoncolorchange = () => {
           Decimal.pow(
             10,
             G.crystalUpgradesCost[4]
-              + G.crystalUpgradeCostIncrement[4] * Math.floor(Math.pow(player.crystalUpgrades[4] + 0.5 - k, 2) / 2)
+              .add(Decimal.mul(G.crystalUpgradeCostIncrement[4], Decimal.floor(Decimal.pow(Decimal.sub(player.crystalUpgrades[4] + 0.5, k), 2).div(2))))
           )
         )
         ? j.style.backgroundColor = 'purple'
@@ -1098,12 +1098,12 @@ const updateAscensionStats = () => {
   const [cubes, tess, hyper, platonic, hepteract] = CalcCorruptionStuff().slice(4)
   const addedAsterisk = player.singularityUpgrades.oneMind.getEffect().bonus
   const fillers: Record<string, string> = {
-    ascLen: formatTimeShort(player.ascStatToggles[6] ? player.ascensionCounter : player.ascensionCounterReal, 0),
-    ascCubes: format(cubes * (player.ascStatToggles[1] ? 1 : 1 / t), 2),
-    ascTess: format(tess * (player.ascStatToggles[2] ? 1 : 1 / t), 3),
-    ascHyper: format(hyper * (player.ascStatToggles[3] ? 1 : 1 / t), 4),
-    ascPlatonic: format(platonic * (player.ascStatToggles[4] ? 1 : 1 / t), 5),
-    ascHepteract: format(hepteract * (player.ascStatToggles[5] ? 1 : 1 / t), 3),
+    ascLen: formatTimeShort(player.ascStatToggles[6] ? player.ascensionCounter : player.ascensionCounterReal),
+    ascCubes: format(Decimal.mul(cubes, (player.ascStatToggles[1] ? 1 : 1 / t)), 2),
+    ascTess: format(Decimal.mul(tess, (player.ascStatToggles[2] ? 1 : 1 / t)), 3),
+    ascHyper: format(Decimal.mul(hyper, (player.ascStatToggles[3] ? 1 : 1 / t)), 4),
+    ascPlatonic: format(Decimal.mul(platonic, (player.ascStatToggles[4] ? 1 : 1 / t)), 5),
+    ascHepteract: format(Decimal.mul(hepteract, (player.ascStatToggles[5] ? 1 : 1 / t)), 3),
     ascC10: `${format(player.challengecompletions[10])}`,
     ascTimeAccel: `${format(calculateTimeAcceleration().mult, 3)}x`,
     ascAscensionTimeAccel: `${format(calculateAscensionAcceleration(), 3)}x${addedAsterisk ? '*' : ''}`,

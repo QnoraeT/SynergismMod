@@ -18,6 +18,7 @@ import { Tabs } from './Tabs'
 import { buyAllTalismanResources } from './Talismans'
 import { visualUpdateAmbrosia, visualUpdateOcteracts, visualUpdateResearch } from './UpdateVisuals'
 import { Globals as G } from './Variables'
+import Decimal from "break_eternity.js";
 
 type TimerInput =
   | 'prestige'
@@ -36,7 +37,7 @@ type TimerInput =
  * @param input
  * @param time
  */
-export const addTimers = (input: TimerInput, time = 0) => {
+export const addTimers = (input: TimerInput, time = new Decimal(0)) => {
   const timeMultiplier = input === 'ascension'
       || input === 'quarks'
       || input === 'goldenQuarks'
@@ -49,15 +50,15 @@ export const addTimers = (input: TimerInput, time = 0) => {
 
   switch (input) {
     case 'prestige': {
-      player.prestigecounter += time * timeMultiplier
+      player.prestigecounter += Decimal.mul(time, timeMultiplier)
       break
     }
     case 'transcension': {
-      player.transcendcounter += time * timeMultiplier
+      player.transcendcounter += Decimal.mul(time, timeMultiplier)
       break
     }
     case 'reincarnation': {
-      player.reincarnationcounter += time * timeMultiplier
+      player.reincarnationcounter += Decimal.mul(time, timeMultiplier)
       break
     }
     case 'ascension': {
@@ -66,19 +67,19 @@ export const addTimers = (input: TimerInput, time = 0) => {
           .bonus
         ? 10
         : calculateAscensionAcceleration()
-      player.ascensionCounter += time * timeMultiplier * ascensionSpeedMulti
-      player.ascensionCounterReal += time * timeMultiplier
+      player.ascensionCounter += Decimal.mul(time, timeMultiplier) * ascensionSpeedMulti
+      player.ascensionCounterReal += Decimal.mul(time, timeMultiplier)
       break
     }
     case 'singularity': {
       player.ascensionCounterRealReal += time
-      player.singularityCounter += time * timeMultiplier
+      player.singularityCounter += Decimal.mul(time, timeMultiplier)
       break
     }
     case 'quarks': {
       // First get maximum Quark Clock (25h, up to +25 from Research 8x20)
       const maxQuarkTimer = quarkHandler().maxTime
-      player.quarkstimer += time * timeMultiplier
+      player.quarkstimer += Decimal.mul(time, timeMultiplier)
       // Checks if this new time is greater than maximum, in which it will default to that time.
       // Otherwise returns itself.
       player.quarkstimer = player.quarkstimer > maxQuarkTimer ? maxQuarkTimer : player.quarkstimer
@@ -88,7 +89,7 @@ export const addTimers = (input: TimerInput, time = 0) => {
       if (+player.singularityUpgrades.goldenQuarks3.getEffect().bonus === 0) {
         return
       } else {
-        player.goldenQuarksTimer += time * timeMultiplier
+        player.goldenQuarksTimer += Decimal.mul(time, timeMultiplier)
         player.goldenQuarksTimer = player.goldenQuarksTimer > 3600 * 168
           ? 3600 * 168
           : player.goldenQuarksTimer
@@ -99,7 +100,7 @@ export const addTimers = (input: TimerInput, time = 0) => {
       if (!player.singularityUpgrades.octeractUnlock.getEffect().bonus) {
         return
       } else {
-        player.octeractTimer += time * timeMultiplier
+        player.octeractTimer += Decimal.mul(time, timeMultiplier)
       }
       if (player.octeractTimer >= 1) {
         const amountOfGiveaways = player.octeractTimer - (player.octeractTimer % 1)
@@ -139,8 +140,8 @@ export const addTimers = (input: TimerInput, time = 0) => {
         // player.toggles[43] enables FAST Obtainium Potion Expenditure, but actually spends the potion.
         const toggleObtainiumOn = player.toggles[43] && player.shopUpgrades.obtainiumPotion > 0
 
-        player.autoPotionTimer += time * timeMultiplier
-        player.autoPotionTimerObtainium += time * timeMultiplier
+        player.autoPotionTimer += Decimal.mul(time, timeMultiplier)
+        player.autoPotionTimerObtainium += Decimal.mul(time, timeMultiplier)
 
         const timerThreshold = (180 * Math.pow(1.03, -player.highestSingularityCount))
           / +player.octeractUpgrades.octeractAutoPotionSpeed.getEffect().bonus
@@ -186,9 +187,9 @@ export const addTimers = (input: TimerInput, time = 0) => {
         break
       }
 
-      G.ambrosiaTimer += time * timeMultiplier
+      G.ambrosiaTimer = Decimal.add(G.ambrosiaTimer, Decimal.mul(time, timeMultiplier))
 
-      if (G.ambrosiaTimer < 0.125) {
+      if (G.ambrosiaTimer.lt(0.125)) {
         break
       }
 
@@ -196,7 +197,7 @@ export const addTimers = (input: TimerInput, time = 0) => {
       const baseBlueberryTime = player.caches.ambrosiaGeneration.totalVal
       player.blueberryTime += Math.floor(8 * G.ambrosiaTimer) / 8 * baseBlueberryTime
       player.ultimateProgress += Math.floor(8 * G.ambrosiaTimer) / 8 * Math.min(baseBlueberryTime, Math.pow(1000 * baseBlueberryTime, 1/2)) * 0.02
-      G.ambrosiaTimer %= 0.125
+      G.ambrosiaTimer = G.ambrosiaTimer.mod(0.125)
 
       let timeToAmbrosia = calculateRequiredBlueberryTime()
 
@@ -251,10 +252,9 @@ export const automaticTools = (input: AutoToolInput, time: number) => {
       calculateObtainium()
       const obtainiumGain = calculateAutomaticObtainium()
       // Add Obtainium
-      player.researchPoints = Math.min(
-        1e300,
-        player.researchPoints + obtainiumGain * time * timeMultiplier
-      )
+      player.researchPoints = Decimal.min(
+        1e300, Decimal.mul(time, timeMultiplier).mul(obtainiumGain).add(player.researchPoints)
+      ) // lol cap
       // Update visual displays if appropriate
       if (G.currentTab === Tabs.Research) {
         visualUpdateResearch()
@@ -314,7 +314,7 @@ export const automaticTools = (input: AutoToolInput, time: number) => {
               if (
                 !(
                   !unlockedRune(i + 1)
-                  || player.runelevels[i] >= calculateMaxRunes(i + 1)
+                  || Decimal.gte(player.runelevels[i], calculateMaxRunes(i + 1))
                 )
               ) {
                 redeemShards(i + 1, true, baseAmount)
@@ -332,7 +332,7 @@ export const automaticTools = (input: AutoToolInput, time: number) => {
       break
     case 'antSacrifice': {
       // Increments real and 'fake' timers. the Real timer is on real life seconds.
-      player.antSacrificeTimer += time * timeMultiplier
+      player.antSacrificeTimer += Decimal.mul(time, timeMultiplier)
       player.antSacrificeTimerReal += time
 
       // Equal to real time iff "Real Time" option selected in ants tab.

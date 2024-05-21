@@ -1,5 +1,4 @@
-import type { DecimalSource } from 'break_infinity.js'
-import Decimal from 'break_infinity.js'
+import Decimal, { DecimalSource } from "break_eternity.js";
 import i18next from 'i18next'
 import { antSacrificePointsToMultiplier } from './Ants'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -394,7 +393,7 @@ const resetHistoryRenderRow = (
   const localDate = new Date(data.date).toLocaleString()
   rowContentHtml += `<td class="history-seconds" title="${localDate}"><img alt="${data.kind}" src="Pictures/${
     IconSets[player.iconSet][0]
-  }/${kindMeta.img}">${formatTimeShort(data.seconds, 60)}</td>`
+  }/${kindMeta.img}">${formatTimeShort(data.seconds)}</td>`
 
   // Carefully loop through everything we need to print in the right order, and add it to the gains array if present.
   const gains: string[] = []
