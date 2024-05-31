@@ -61,7 +61,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: 'ascendHistorySubTab',
         get unlocked () {
-          return player.ascensionCount.gt(0)
+          return player.ascensionCount > 0
         }
       },
       {
@@ -195,7 +195,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: '7',
         get unlocked () {
-          return player.challenge15Exponent.gte(1e15)
+          return player.challenge15Exponent >= 1e15
         },
         buttonID: 'switchCubeSubTab7'
       }
@@ -525,7 +525,7 @@ tabRow.appendButton(
     .makeDraggable()
     .makeRemoveable(),
   new $Tab({ class: 'chal11', id: 'traitstab', i18n: 'tabs.main.corruption' })
-    .setUnlockedState(() => player.challengecompletions[11].gt(0))
+    .setUnlockedState(() => player.challengecompletions[11] > 0)
     .setType(Tabs.Corruption)
     .makeDraggable()
     .makeRemoveable(),

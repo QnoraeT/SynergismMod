@@ -10,16 +10,16 @@ import { Globals as G } from './Variables'
 export const maxCorruptionLevel = () => {
   let max = 0
 
-  if (player.challengecompletions[11].gt(0)) {
+  if (player.challengecompletions[11] > 0) {
     max += 5
   }
-  if (player.challengecompletions[12].gt(0)) {
+  if (player.challengecompletions[12] > 0) {
     max += 2
   }
-  if (player.challengecompletions[13].gt(0)) {
+  if (player.challengecompletions[13] > 0) {
     max += 2
   }
-  if (player.challengecompletions[14].gt(0)) {
+  if (player.challengecompletions[14] > 0) {
     max += 2
   }
   if (player.platonicUpgrades[5] > 0) {
@@ -393,22 +393,22 @@ export const revealCorruptions = () => {
   const c13Unlocks = document.getElementsByClassName('chal13Corruption') as HTMLCollectionOf<HTMLElement>
   const c14Unlocks = document.getElementsByClassName('chal14Corruption') as HTMLCollectionOf<HTMLElement>
 
-  if (player.challengecompletions[11].gt(0) || player.singularityUpgrades.platonicTau.getEffect().bonus) {
+  if (player.challengecompletions[11] > 0 || player.singularityUpgrades.platonicTau.getEffect().bonus) {
     for (let i = 0; i < c11Unlocks.length; i++) {
       c11Unlocks[i].style.display = 'flex'
     }
   }
-  if (player.challengecompletions[12].gt(0) || player.singularityUpgrades.platonicTau.getEffect().bonus) {
+  if (player.challengecompletions[12] > 0 || player.singularityUpgrades.platonicTau.getEffect().bonus) {
     for (let i = 0; i < c12Unlocks.length; i++) {
       c12Unlocks[i].style.display = 'flex'
     }
   }
-  if (player.challengecompletions[13].gt(0) || player.singularityUpgrades.platonicTau.getEffect().bonus) {
+  if (player.challengecompletions[13] > 0 || player.singularityUpgrades.platonicTau.getEffect().bonus) {
     for (let i = 0; i < c13Unlocks.length; i++) {
       c13Unlocks[i].style.display = 'flex'
     }
   }
-  if (player.challengecompletions[14].gt(0) || player.singularityUpgrades.platonicTau.getEffect().bonus) {
+  if (player.challengecompletions[14] > 0 || player.singularityUpgrades.platonicTau.getEffect().bonus) {
     for (let i = 0; i < c14Unlocks.length; i++) {
       c14Unlocks[i].style.display = 'flex'
     }

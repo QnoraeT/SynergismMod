@@ -1,17 +1,16 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateAnts, calculateRuneLevels, calculateSummationNonLinearDecimal } from './Calculate'
+import { calculateAnts, calculateRuneLevels, calculateSummationNonLinear } from './Calculate'
 import type { IMultiBuy } from './Cubes'
 import { calculateSingularityDebuff } from './singularity'
 import { format, player } from './Synergism'
 import { revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { updateClassList } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 const getResearchCost = (index: number, buyAmount = 1, linGrowth = 0): IMultiBuy => {
   buyAmount = Math.min(G.researchMaxLevels[index] - player.researches[index], buyAmount)
-  const metaData = calculateSummationNonLinearDecimal(
+  const metaData = calculateSummationNonLinear(
     player.researches[index],
     G.researchBaseCosts[index] * calculateSingularityDebuff('Researches'),
     player.researchPoints,
@@ -83,7 +82,7 @@ export const updateAutoResearch = (index: number, auto: boolean) => {
  * @returns boolean
  */
 export const autoResearchEnabled = (): boolean => {
-  return (player.cubeUpgrades[9].eq(1) || player.highestSingularityCount > 10)
+  return (player.cubeUpgrades[9] === 1 || player.highestSingularityCount > 10)
 }
 /**
  * Attempts to buy the research of the index selected. This is hopefully an improvement over buyResearch. Fuck
@@ -96,11 +95,11 @@ export const buyResearch = (index: number, auto = false, linGrowth = 0, hover = 
   // Get our costs, and determine if anything is purchasable.
   const buyAmount = (player.researchBuyMaxToggle || auto || hover) ? 1e5 : 1
   const metaData = getResearchCost(index, buyAmount, linGrowth) /* Destructuring FTW! */
-  const canBuy = player.researchPoints.gte(metaData.cost)
+  const canBuy = player.researchPoints >= metaData.cost
 
   if (canBuy && isResearchUnlocked(index) && !isResearchMaxed(index)) {
-    player.researches[index] = metaData.levelCanBuy.toNumber()
-    player.researchPoints = player.researchPoints.sub(metaData.cost)
+    player.researches[index] = metaData.levelCanBuy
+    player.researchPoints -= metaData.cost
     // Quick check after upgrading for max. This is to update any automation regardless of auto state
     if (isResearchMaxed(index)) {
       DOMCacheGetOrSet(`res${player.autoResearch || 1}`).classList.remove('researchRoomba')
@@ -142,11 +141,11 @@ export const buyResearch = (index: number, auto = false, linGrowth = 0, hover = 
  * Calculates the max research index for the research roomba
  */
 export const maxRoombaResearchIndex = (p = player) => {
-  const base = p.ascensionCount.gt(0) ? 140 : 125 // 125 researches pre-A + 15 from A
-  const c11 = Decimal.gt(p.challengecompletions[11], 0) ? 15 : 0
-  const c12 = Decimal.gt(p.challengecompletions[12], 0) ? 15 : 0
-  const c13 = Decimal.gt(p.challengecompletions[13], 0) ? 15 : 0
-  const c14 = Decimal.gt(p.challengecompletions[14], 0) ? 15 : 0
+  const base = p.ascensionCount > 0 ? 140 : 125 // 125 researches pre-A + 15 from A
+  const c11 = p.challengecompletions[11] > 0 ? 15 : 0
+  const c12 = p.challengecompletions[12] > 0 ? 15 : 0
+  const c13 = p.challengecompletions[13] > 0 ? 15 : 0
+  const c14 = p.challengecompletions[14] > 0 ? 15 : 0
   return base + c11 + c12 + c13 + c14
 }
 
@@ -180,7 +179,7 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
   const metaData = getResearchCost(i, buyAmount, linGrowth)
   let z = i18next.t('researches.cost', {
     x: format(metaData.cost, 0, false),
-    y: format(Decimal.sub(metaData.levelCanBuy, player.researches[i]), 0, true)
+    y: format(metaData.levelCanBuy - player.researches[i], 0, true)
   })
 
   if (player.researches[i] === (G.researchMaxLevels[i])) {
@@ -217,7 +216,7 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
 
 export const updateResearchBG = (j: number) => {
   if (player.researches[j] > G.researchMaxLevels[j]) {
-    player.researchPoints = player.researchPoints.add((player.researches[j] - G.researchMaxLevels[j]) * G.researchBaseCosts[j])
+    player.researchPoints += (player.researches[j] - G.researchMaxLevels[j]) * G.researchBaseCosts[j]
     player.researches[j] = G.researchMaxLevels[j]
   }
 

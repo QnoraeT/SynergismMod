@@ -15,7 +15,7 @@ import {
 } from './Calculate'
 import { BuffType } from './Event'
 import { player } from './Synergism'
-import { productContentsNumber } from './Utility'
+import { productContents } from './Utility'
 import { Globals } from './Variables'
 
 interface StatCache<T> {
@@ -110,7 +110,7 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
         const arr = this.flatten()
         // remove last elm
         arr.pop()
-        this.totalVal = productContentsNumber(arr)
+        this.totalVal = productContents(arr)
       }
     }
   }
@@ -294,7 +294,8 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
         break
       }
       case 'ShopOcteractAmbrosiaLuck': {
-        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck).toNumber()
+        this.vals[key] = player.shopUpgrades.shopOcteractAmbrosiaLuck
+          * (1 + Math.floor(Math.log10(player.totalWowOcteracts + 1)))
         break
       }
       case 'Exalt5': {

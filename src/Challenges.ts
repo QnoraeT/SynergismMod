@@ -1,60 +1,60 @@
-import Decimal from 'break_eternity.js'
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateRuneLevels } from './Calculate'
 import { hepteractEffective } from './Hepteracts'
 import { autoResearchEnabled } from './Research'
-import { format, formatPerc, player, resetCheck } from './Synergism'
+import { format, player, resetCheck } from './Synergism'
 import { toggleAutoChallengeModeText, toggleChallenges } from './Toggles'
-import { productContentsNumber } from './Utility'
+import { productContents } from './Utility'
 import { Globals as G } from './Variables'
 
 export const getMaxChallenges = (i: number) => {
-  let maxChallenge = new Decimal(0)
+  let maxChallenge = 0
   // Transcension Challenges
   if (i <= 5) {
     if (player.singularityChallenges.oneChallengeCap.enabled) {
-      return new Decimal(1)
+      return 1
     }
     // Start with base 25 max completions
-    maxChallenge = new Decimal(25)
+    maxChallenge = 25
     // Check Research 5x5 ('Infinite' T. Challenges)
     if (player.researches[105] > 0) {
-      return new Decimal(9001)
+      return 9001
     }
     // Max T. Challenge depends on researches 3x16 to 3x20
-    maxChallenge = maxChallenge.add(Decimal.mul(5, player.researches[65 + i]))
+    maxChallenge += 5 * player.researches[65 + i]
     return maxChallenge
   }
   // Reincarnation Challenges
   if (i <= 10 && i > 5) {
     if (player.singularityChallenges.oneChallengeCap.enabled) {
-      return new Decimal(1)
+      return 1
     }
     // Start with base of 40 max completions
-    maxChallenge = new Decimal(40)
+    maxChallenge = 40
     // Cube Upgrade 2x9: +4/level
-    maxChallenge = maxChallenge.add(player.cubeUpgrades[29].mul(4))
+    maxChallenge += 4 * player.cubeUpgrades[29]
     // Shop Upgrade "Challenge Extension": +2/level
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.shopUpgrades.challengeExtension))
+    maxChallenge += 2 * player.shopUpgrades.challengeExtension
     // Platonic Upgrade 5 (ALPHA): +10
     if (player.platonicUpgrades[5] > 0) {
-      maxChallenge = maxChallenge.add(10)
+      maxChallenge += 10
     }
     // Platonic Upgrade 10 (BETA): +10
     if (player.platonicUpgrades[10] > 0) {
-      maxChallenge = maxChallenge.add(10)
+      maxChallenge += 10
     }
     // Platonic Upgrade 15 (OMEGA): +30
     if (player.platonicUpgrades[15] > 0) {
-      maxChallenge = maxChallenge.add(30)
+      maxChallenge += 30
     }
 
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension.getEffect().bonus))
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension2.getEffect().bonus))
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension3.getEffect().bonus))
+    maxChallenge += 2 * +player.singularityUpgrades.singChallengeExtension.getEffect().bonus
+    maxChallenge += 2 * +player.singularityUpgrades.singChallengeExtension2.getEffect().bonus
+    maxChallenge += 2 * +player.singularityUpgrades.singChallengeExtension3.getEffect().bonus
 
-    maxChallenge = maxChallenge.add(player.singularityChallenges.oneChallengeCap.rewards.capIncrease)
+    maxChallenge += +player.singularityChallenges.oneChallengeCap.rewards.capIncrease
     return maxChallenge
   }
   // Ascension Challenge
@@ -67,23 +67,23 @@ export const getMaxChallenges = (i: number) => {
       return 1
     }
     // Start with base of 30 max completions
-    maxChallenge = new Decimal(30)
+    maxChallenge = 30
     // Platonic Upgrade 5 (ALPHA): +5
     if (player.platonicUpgrades[5] > 0) {
-      maxChallenge = maxChallenge.add(5)
+      maxChallenge += 5
     }
     // Platonic Upgrade 10 (BETA): +5
     if (player.platonicUpgrades[10] > 0) {
-      maxChallenge = maxChallenge.add(5)
+      maxChallenge += 5
     }
     // Platonic Upgrade 15 (OMEGA): +20
     if (player.platonicUpgrades[15] > 0) {
-      maxChallenge = maxChallenge.add(20)
+      maxChallenge += 20
     }
 
-    maxChallenge = maxChallenge.add(player.singularityUpgrades.singChallengeExtension.getEffect().bonus)
-    maxChallenge = maxChallenge.add(player.singularityUpgrades.singChallengeExtension2.getEffect().bonus)
-    maxChallenge = maxChallenge.add(player.singularityUpgrades.singChallengeExtension3.getEffect().bonus)
+    maxChallenge += +player.singularityUpgrades.singChallengeExtension.getEffect().bonus
+    maxChallenge += +player.singularityUpgrades.singChallengeExtension2.getEffect().bonus
+    maxChallenge += +player.singularityUpgrades.singChallengeExtension3.getEffect().bonus
     return maxChallenge
   }
 
@@ -103,7 +103,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
 
   const maxChallenges = getMaxChallenges(i)
   if (i <= 5 && changefocus) {
-    if (player.challengecompletions[i].gte(100)) {
+    if (player.challengecompletions[i] >= 100) {
       DOMCacheGetOrSet('completionSoftcap').innerHTML = i18next.t('challenges.perCompletionBonus', {
         x: 100,
         y: format(CalcECC('transcend', player.challengecompletions[i]), 2, true)
@@ -115,7 +115,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
 
   if (i > 5 && i <= 10) {
     quarksMultiplier = 10
-    if (player.challengecompletions[i].gte(25) && changefocus) {
+    if (player.challengecompletions[i] >= 25 && changefocus) {
       DOMCacheGetOrSet('completionSoftcap').innerHTML = i18next.t('challenges.perCompletionBonus', {
         x: 25,
         y: format(CalcECC('reincarnation', player.challengecompletions[i]), 2, true)
@@ -125,7 +125,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
     }
   }
   if (i > 10) {
-    if (player.challengecompletions[i].gte(10)) {
+    if (player.challengecompletions[i] >= 10) {
       DOMCacheGetOrSet('completionSoftcap').innerHTML = i18next.t('challenges.perCompletionBonus', {
         x: 10,
         y: format(CalcECC('ascension', player.challengecompletions[i]), 2, true)
@@ -160,82 +160,82 @@ export const challengeDisplay = (i: number, changefocus = true) => {
 
     switch (i) {
       case 1: {
-        current1 = current2 = format(CalcECC('transcend', player.challengecompletions[1]).mul(10))
-        current3 = format(CalcECC('transcend', player.challengecompletions[1]).mul(0.04), 2, true)
+        current1 = current2 = format(10 * CalcECC('transcend', player.challengecompletions[1]))
+        current3 = format(0.04 * CalcECC('transcend', player.challengecompletions[1]), 2, true)
         break
       }
       case 2: {
-        current1 = current2 = format(CalcECC('transcend', player.challengecompletions[2]).mul(5))
+        current1 = current2 = format(5 * CalcECC('transcend', player.challengecompletions[2]))
         break
       }
       case 3: {
-        current1 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.04), 2, true)
-        current2 = format(CalcECC('transcend', player.challengecompletions[3]), 2, true)
-        current3 = format(CalcECC('transcend', player.challengecompletions[3]), 2, true)
+        current1 = format(0.04 * player.challengecompletions[3], 2, true)
+        current2 = format(0.5 * CalcECC('transcend', player.challengecompletions[3]), 2, true)
+        current3 = format(0.01 * CalcECC('transcend', player.challengecompletions[3]), 2, true)
         break
       }
       case 4: {
-        current1 = format(CalcECC('transcend', player.challengecompletions[4]).mul(5))
-        current2 = format(CalcECC('transcend', player.challengecompletions[4]).mul(2))
-        current3 = format(CalcECC('transcend', player.challengecompletions[4]).mul(0.5), 2, true)
+        current1 = format(5 * CalcECC('transcend', player.challengecompletions[4]))
+        current2 = format(2 * CalcECC('transcend', player.challengecompletions[4]))
+        current3 = format(0.5 * CalcECC('transcend', player.challengecompletions[4]), 2, true)
         break
       }
       case 5: {
-        current1 = format(CalcECC('transcend', player.challengecompletions[5]).div(100).add(0.5), 2, true)
-        current2 = format(Decimal.pow(10, CalcECC('transcend', player.challengecompletions[5])))
+        current1 = format(0.5 + CalcECC('transcend', player.challengecompletions[5]) / 100, 2, true)
+        current2 = format(Math.pow(10, CalcECC('transcend', player.challengecompletions[5])))
         break
       }
       case 6: {
-        current1 = format(Decimal.pow(0.965, CalcECC('reincarnation', player.challengecompletions[6])), 3, true)
-        current2 = format(CalcECC('reincarnation', player.challengecompletions[6]).mul(10))
-        current3 = format(CalcECC('reincarnation', player.challengecompletions[6]).mul(2))
+        current1 = format(Math.pow(0.965, CalcECC('reincarnation', player.challengecompletions[6])), 3, true)
+        current2 = format(10 * CalcECC('reincarnation', player.challengecompletions[6]))
+        current3 = format(2 * CalcECC('reincarnation', player.challengecompletions[6]))
         break
       }
       case 7: {
-        current1 = format(CalcECC('reincarnation', player.challengecompletions[7]).mul(0.04).add(1), 2, true)
-        current2 = current3 = format(CalcECC('reincarnation', player.challengecompletions[7]).mul(10))
+        current1 = format(1 + 0.04 * CalcECC('reincarnation', player.challengecompletions[7]), 2, true)
+        current2 = current3 = format(10 * CalcECC('reincarnation', player.challengecompletions[7]))
         break
       }
       case 8: {
-        current1 = format(CalcECC('reincarnation', player.challengecompletions[8]).div(4), 2, true)
-        current2 = format(CalcECC('reincarnation', player.challengecompletions[8]).mul(20), 2, true)
-        current3 = format(CalcECC('reincarnation', player.challengecompletions[8]).mul(4), 2, true)
+        current1 = format(0.25 * CalcECC('reincarnation', player.challengecompletions[8]), 2, true)
+        current2 = format(20 * CalcECC('reincarnation', player.challengecompletions[8]), 2, true)
+        current3 = format(4 * CalcECC('reincarnation', player.challengecompletions[8]), 2, true)
         break
       }
       case 9: {
         current1 = format(CalcECC('reincarnation', player.challengecompletions[9]))
-        current2 = format(Decimal.pow(1.1, CalcECC('reincarnation', player.challengecompletions[9])), 2, true)
-        current3 = format(CalcECC('reincarnation', player.challengecompletions[9]).mul(20), 2, true)
+        current2 = format(Math.pow(1.1, CalcECC('reincarnation', player.challengecompletions[9])), 2, true)
+        current3 = format(20 * CalcECC('reincarnation', player.challengecompletions[9]), 2, true)
         break
       }
       case 10: {
-        current1 = format(CalcECC('reincarnation', player.challengecompletions[10]).mul(100))
-        current2 = format(CalcECC('reincarnation', player.challengecompletions[10]).mul(2))
-        current3 = format(CalcECC('reincarnation', player.challengecompletions[10]).mul(10), 2, true)
+        current1 = format(100 * CalcECC('reincarnation', player.challengecompletions[10]))
+        current2 = format(2 * CalcECC('reincarnation', player.challengecompletions[10]))
+        current3 = format(10 * CalcECC('reincarnation', player.challengecompletions[10]), 2, true)
         break
       }
       case 11: {
-        current1 = format(CalcECC('ascension', player.challengecompletions[11]).mul(12))
+        current1 = format(12 * CalcECC('ascension', player.challengecompletions[11]))
         current2 = format(Decimal.pow(1e5, CalcECC('ascension', player.challengecompletions[11])))
-        current3 = format(CalcECC('ascension', player.challengecompletions[11]).mul(80))
+        current3 = format(80 * CalcECC('ascension', player.challengecompletions[11]))
         break
       }
       case 12: {
-        current1 = format(CalcECC('ascension', player.challengecompletions[12]).mul(50))
-        current2 = format(CalcECC('ascension', player.challengecompletions[12]).mul(12))
+        current1 = format(50 * CalcECC('ascension', player.challengecompletions[12]))
+        current2 = format(12 * CalcECC('ascension', player.challengecompletions[12]))
         current3 = format(CalcECC('ascension', player.challengecompletions[12]))
         break
       }
       case 13: {
-        current1 = formatPerc(Decimal.pow(0.966, CalcECC('ascension', player.challengecompletions[13])), 3, true)
-        current2 = format(CalcECC('ascension', player.challengecompletions[13]).mul(6))
-        current3 = format(CalcECC('ascension', player.challengecompletions[13]).mul(3))
+        current1 = format(100 - 100 * Math.pow(0.966, CalcECC('ascension', player.challengecompletions[13])), 3, true)
+        current2 = format(6 * CalcECC('ascension', player.challengecompletions[13]))
+        current3 = format(3 * CalcECC('ascension', player.challengecompletions[13]))
         break
       }
       case 14: {
-        current1 = format(CalcECC('ascension', player.challengecompletions[14]).mul(50))
-        current2 = format(player.challengecompletions[14])
-        current3 = format(CalcECC('ascension', player.challengecompletions[14]).mul(200))
+        current1 = format(50 * CalcECC('ascension', player.challengecompletions[14]))
+        current2 = format(1 * player.challengecompletions[14])
+        current3 = format(200 * CalcECC('ascension', player.challengecompletions[14]))
         break
       }
     }
@@ -268,20 +268,20 @@ export const challengeDisplay = (i: number, changefocus = true) => {
   const scoreArray4 = [0, 10000, 10000, 10000, 10000, 10000, 2000, 3000, 4000, 5000, 7500]
   let scoreDisplay = 0
   if (i <= 5) {
-    if (player.highestchallengecompletions[i].gte(9000)) {
+    if (player.highestchallengecompletions[i] >= 9000) {
       scoreDisplay = scoreArray4[i]
-    } else if (player.highestchallengecompletions[i].gte(750)) {
+    } else if (player.highestchallengecompletions[i] >= 750) {
       scoreDisplay = scoreArray3[i]
-    } else if (player.highestchallengecompletions[i].gte(75)) {
+    } else if (player.highestchallengecompletions[i] >= 75) {
       scoreDisplay = scoreArray2[i]
     } else {
       scoreDisplay = scoreArray1[i]
     }
   }
   if (i > 5 && i <= 10) {
-    if (player.highestchallengecompletions[i].gte(60)) {
+    if (player.highestchallengecompletions[i] >= 60) {
       scoreDisplay = scoreArray3[i]
-    } else if (player.highestchallengecompletions[i].mul(25)) {
+    } else if (player.highestchallengecompletions[i] >= 25) {
       scoreDisplay = scoreArray2[i]
     } else {
       scoreDisplay = scoreArray1[i]
@@ -290,29 +290,24 @@ export const challengeDisplay = (i: number, changefocus = true) => {
   if (changefocus) {
     j.textContent = ''
   }
-  if (player.ascensionCount.eq(0)) {
+  if (player.ascensionCount === 0) {
     descriptor = 'Quarks'
     j.style.color = 'cyan'
   }
   if (
     player.challengecompletions[i] >= player.highestchallengecompletions[i]
-    && Decimal.lt(player.highestchallengecompletions[i], maxChallenges) && changefocus && player.ascensionCount.lt(1)
+    && player.highestchallengecompletions[i] < maxChallenges && changefocus && player.ascensionCount < 1
   ) {
     j.textContent = i18next.t(descriptor ? 'challenges.firstTimeBonusQuarks' : 'challenges.firstTimeBonus', {
-      x: Decimal.floor( 
-        Decimal.mul(quarksMultiplier, player.highestchallengecompletions[i]).div(10) 
-        .add(1)
-        .add(player.cubeUpgrades[1]) 
-        .add(player.cubeUpgrades[11]) 
-        .add(player.cubeUpgrades[21]) 
-        .add(player.cubeUpgrades[31]) 
-        .add(player.cubeUpgrades[41])
+      x: Math.floor(
+        quarksMultiplier * player.highestchallengecompletions[i] / 10 + 1 + player.cubeUpgrades[1]
+          + player.cubeUpgrades[11] + player.cubeUpgrades[21] + player.cubeUpgrades[31] + player.cubeUpgrades[41]
       )
     })
   }
   if (
     player.challengecompletions[i] >= player.highestchallengecompletions[i]
-    && Decimal.lt(player.highestchallengecompletions[i], maxChallenges) && changefocus && player.ascensionCount.gte(1)
+    && player.highestchallengecompletions[i] < maxChallenges && changefocus && player.ascensionCount >= 1
   ) {
     j.textContent = i18next.t('challenges.ascensionBankAdd', {
       x: i > 5 ? 2 : 1,
@@ -321,7 +316,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
   }
   if (
     player.challengecompletions[i] >= player.highestchallengecompletions[i]
-    && player.highestchallengecompletions[i].lt(10) && i > 10
+    && player.highestchallengecompletions[i] < 10 && i > 10
   ) {
     j.textContent = i18next.t('challenges.hypercubeOneTimeBonus')
   }
@@ -360,20 +355,20 @@ export const challengeDisplay = (i: number, changefocus = true) => {
 
 export const getChallengeConditions = (i?: number) => {
   if (player.currentChallenge.reincarnation === 9) {
-    G.rune1level = new Decimal(1)
-    G.rune2level = new Decimal(1)
-    G.rune3level = new Decimal(1)
-    G.rune4level = new Decimal(1)
-    G.rune5level = new Decimal(1)
-    player.crystalUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+    G.rune1level = 1
+    G.rune2level = 1
+    G.rune3level = 1
+    G.rune4level = 1
+    G.rune5level = 1
+    player.crystalUpgrades = [0, 0, 0, 0, 0, 0, 0, 0]
   }
-  G.prestigePointGain = new Decimal(0)
+  G.prestigePointGain = new Decimal('0')
   if (typeof i === 'number') {
     if (i >= 6) {
-      G.transcendPointGain = new Decimal(0)
+      G.transcendPointGain = new Decimal('0')
     }
     if (i >= 11) {
-      G.reincarnationPointGain = new Decimal(0)
+      G.reincarnationPointGain = new Decimal('0')
     }
   }
   calculateRuneLevels()
@@ -387,16 +382,16 @@ export const toggleRetryChallenges = () => {
   player.retrychallenges = !player.retrychallenges
 }
 
-export const highestChallengeRewards = (chalNum: number, highestValue: Decimal) => {
+export const highestChallengeRewards = (chalNum: number, highestValue: number) => {
   let multiplier = 1 / 10
   if (chalNum >= 6) {
     multiplier = 1
   }
-  if (player.ascensionCount.eq(0)) {
-    player.worlds.add(Decimal.floor(Decimal.mul(highestValue, multiplier)).add(1).toNumber()) // not yet
+  if (player.ascensionCount === 0) {
+    player.worlds.add(1 + Math.floor(highestValue * multiplier) * 100 / 100)
   }
   // Addresses a bug where auto research does not work even if you unlock research
-  if (autoResearchEnabled() && player.ascensionCount.eq(0) && chalNum >= 6 && chalNum <= 10) {
+  if (autoResearchEnabled() && player.ascensionCount === 0 && chalNum >= 6 && chalNum <= 10) {
     player.roombaResearchIndex = 0
     player.autoResearch = G.researchOrderByCost[player.roombaResearchIndex]
   }
@@ -405,94 +400,96 @@ export const highestChallengeRewards = (chalNum: number, highestValue: Decimal) 
 // Works to mitigate the difficulty of calculating challenge multipliers when considering softcapping
 export const calculateChallengeRequirementMultiplier = (
   type: 'transcend' | 'reincarnation' | 'ascension',
-  completions: number | Decimal,
+  completions: number,
   special = 0
 ) => {
-  completions = new Decimal(completions)
-  let requirementMultiplier = Decimal.max(
+  let requirementMultiplier = Math.max(
     1,
     G.hyperchallengedMultiplier[player.usedCorruptions[4]] / (1 + player.platonicUpgrades[8] / 2.5)
   )
   if (type === 'ascension') {
     // Normalize back to 1 if looking at ascension challenges in particular.
-    requirementMultiplier = new Decimal(1)
+    requirementMultiplier = 1
   }
   switch (type) {
     case 'transcend':
-      requirementMultiplier = requirementMultiplier.mul(G.challenge15Rewards.transcendChallengeReduction)
-      ;(completions.gte(75))
-        ? requirementMultiplier = requirementMultiplier.mul(completions.add(1).div(75).pow(12).mul(75))
-        : requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(2))
+      requirementMultiplier *= G.challenge15Rewards.transcendChallengeReduction
+      ;(completions >= 75)
+        ? requirementMultiplier *= Math.pow(1 + completions, 12) / Math.pow(75, 8)
+        : requirementMultiplier *= Math.pow(1 + completions, 2)
 
-      if (completions.gte(1000)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.div(1000).pow(3).mul(10))
+      if (completions >= 1000) {
+        requirementMultiplier *= 10 * Math.pow(completions / 1000, 3)
       }
-      if (completions.gte(9000)) {
-        requirementMultiplier = requirementMultiplier.mul(1337)
+      if (completions >= 9000) {
+        requirementMultiplier *= 1337
       }
-      if (completions.gte(9001)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.sub(8999))
+      if (completions >= 9001) {
+        requirementMultiplier *= completions - 8999
       }
       return requirementMultiplier
     case 'reincarnation':
-      if (completions.gte(100) && (special === 9 || special === 10)) {
-        requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.05, Decimal.mul(completions.sub(100), completions.sub(100).mul(0.05).add(1))))
+      if (completions >= 100 && (special === 9 || special === 10)) {
+        requirementMultiplier *= Math.pow(1.05, (completions - 100) * (1 + (completions - 100) / 20))
       }
-      if (completions.gte(90)) {
+      if (completions >= 90) {
         if (special === 6) {
-          requirementMultiplier = requirementMultiplier.mul(100)
+          requirementMultiplier *= 100
         } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(50)
+          requirementMultiplier *= 50
         } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(10)
+          requirementMultiplier *= 10
         } else {
-          requirementMultiplier = requirementMultiplier.mul(4)
+          requirementMultiplier *= 4
         }
       }
-      if (completions.gte(80)) {
+      if (completions >= 80) {
         if (special === 6) {
-          requirementMultiplier = requirementMultiplier.mul(50)
+          requirementMultiplier *= 50
         } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(20)
+          requirementMultiplier *= 20
         } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(4)
+          requirementMultiplier *= 4
         } else {
-          requirementMultiplier = requirementMultiplier.mul(2)
+          requirementMultiplier *= 2
         }
       }
-      if (completions.gte(70)) {
+      if (completions >= 70) {
         if (special === 6) {
           // Multiplier is reduced significantly for challenges requiring mythos shards
-          requirementMultiplier = requirementMultiplier.mul(20)
+          requirementMultiplier *= 20
         } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(10)
+          requirementMultiplier *= 10
         } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(2)
+          requirementMultiplier *= 2
         } else {
-          requirementMultiplier = requirementMultiplier.mul(1)
+          requirementMultiplier *= 1
         }
       }
-      if (completions.gte(60)) {
+      if (completions >= 60) {
         if (special === 9 || special === 10) {
-          requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1000, Decimal.mul(completions.sub(60), 1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).div(10)
-          ))
+          requirementMultiplier *= Math.pow(
+            1000,
+            (completions - 60)
+              * (1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2) / 10
+          )
         }
       }
-      if (completions.gte(25)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(5).div(625))
+      if (completions >= 25) {
+        requirementMultiplier *= Math.pow(1 + completions, 5) / 625
       }
-      if (completions.lt(25)) {
-        requirementMultiplier = requirementMultiplier.mul(Decimal.min(completions.add(1).pow(2), Decimal.pow(1.3797, completions)))
+      if (completions < 25) {
+        requirementMultiplier *= Math.min(Math.pow(1 + completions, 2), Math.pow(1.3797, completions))
       }
-      requirementMultiplier = requirementMultiplier.mul(G.challenge15Rewards.reincarnationChallengeReduction)
+      requirementMultiplier *= G.challenge15Rewards.reincarnationChallengeReduction
       return requirementMultiplier
     case 'ascension':
       if (special !== 15) {
-        ;(completions.gte(10))
-          ? requirementMultiplier = requirementMultiplier.mul(completions.add(1).mul(2).sub(10))
-          : requirementMultiplier = requirementMultiplier.mul(completions.add(1))
+        ;(completions >= 10)
+          ? requirementMultiplier *= 2 * (1 + completions) - 10
+          : requirementMultiplier *= 1 + completions
       } else {
-        requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1000, completions))
+        requirementMultiplier *= Math.pow(1000, completions)
       }
       return requirementMultiplier
   }
@@ -501,30 +498,30 @@ export const calculateChallengeRequirementMultiplier = (
 /**
  * Works to mitigate the difficulty of calculating challenge reward multipliers when considering softcapping
  */
-export const CalcECC = (type: 'transcend' | 'reincarnation' | 'ascension', completions: Decimal) => { // ECC stands for "Effective Challenge Completions"
-  let effective = new Decimal(0)
+export const CalcECC = (type: 'transcend' | 'reincarnation' | 'ascension', completions: number) => { // ECC stands for "Effective Challenge Completions"
+  let effective = 0
   switch (type) {
     case 'transcend':
-      effective = effective.add(Decimal.min(100, completions))
-      effective = effective.add(Decimal.min(1000, Decimal.max(100, completions)).sub(100).div(20))
-      effective = effective.add(Decimal.max(1000, completions).sub(1000).div(100))
+      effective += Math.min(100, completions)
+      effective += 1 / 20 * (Math.min(1000, Math.max(100, completions)) - 100)
+      effective += 1 / 100 * (Math.max(1000, completions) - 1000)
       return effective
     case 'reincarnation':
-      effective = effective.add(Decimal.min(25, completions))
-      effective = effective.add(Decimal.min(75, Decimal.max(25, completions)).sub(25).div(2))
-      effective = effective.add(Decimal.max(75, completions).sub(75).div(10))
+      effective += Math.min(25, completions)
+      effective += 1 / 2 * (Math.min(75, Math.max(25, completions)) - 25)
+      effective += 1 / 10 * (Math.max(75, completions) - 75)
       return effective
     case 'ascension':
-      effective = effective.add(Decimal.min(10, completions))
-      effective = effective.add(Decimal.max(10, completions).sub(10).div(2))
+      effective += Math.min(10, completions)
+      effective += 1 / 2 * (Math.max(10, completions) - 10)
       return effective
   }
 }
 
-export const challengeRequirement = (challenge: number, completion: number | Decimal, special = 0) => {
+export const challengeRequirement = (challenge: number, completion: number, special = 0) => {
   const base = G.challengeBaseRequirements[challenge - 1]
   if (challenge <= 5) {
-    return Decimal.pow(10, calculateChallengeRequirementMultiplier('transcend', completion, special).mul(base))
+    return Decimal.pow(10, base * calculateChallengeRequirementMultiplier('transcend', completion, special))
   } else if (challenge <= 10) {
     let c10Reduction = 0
     if (challenge === 10) {
@@ -534,14 +531,14 @@ export const challengeRequirement = (challenge: number, completion: number | Dec
     }
     return Decimal.pow(
       10,
-      calculateChallengeRequirementMultiplier('reincarnation', completion, special).mul(Decimal.sub(base, c10Reduction))
+      (base - c10Reduction) * calculateChallengeRequirementMultiplier('reincarnation', completion, special)
     )
   } else if (challenge <= 14) {
     return calculateChallengeRequirementMultiplier('ascension', completion, special)
   } else if (challenge === 15) {
     return Decimal.pow(
       10,
-      calculateChallengeRequirementMultiplier('ascension', completion, special).mul(1e30)
+      1 * Math.pow(10, 30) * calculateChallengeRequirementMultiplier('ascension', completion, special)
     )
   } else {
     return 0
@@ -588,10 +585,10 @@ export const runChallengeSweep = (dt: number) => {
   if (
     autoAscensionChallengeSweepUnlock() && player.currentChallenge.ascension === 15
     && player.shopUpgrades.challenge15Auto === 0
-    && (action === 'start' || action === 'enter') && player.autoAscend && player.challengecompletions[11].gt(0)
-    && player.cubeUpgrades[10].gt(0)
+    && (action === 'start' || action === 'enter') && player.autoAscend && player.challengecompletions[11] > 0
+    && player.cubeUpgrades[10] > 0
     && player.autoAscendMode === 'realAscensionTime'
-    && player.ascensionCounterRealReal.gte(Math.max(0.1, player.autoAscendThreshold - 5))
+    && player.ascensionCounterRealReal >= Math.max(0.1, player.autoAscendThreshold - 5)
   ) {
     action = 'wait'
     toggleAutoChallengeModeText('WAIT')
@@ -670,7 +667,7 @@ export const getNextChallenge = (startChallenge: number, maxSkip = false, min = 
   for (let index = nextChallenge; index <= max; index++) {
     if (
       !player.autoChallengeToggles[index]
-      || (!maxSkip && index !== 15 && Decimal.gte(player.highestchallengecompletions[index], getMaxChallenges(index)))
+      || (!maxSkip && index !== 15 && player.highestchallengecompletions[index] >= getMaxChallenges(index))
     ) {
       nextChallenge += 1
     } else {
@@ -687,7 +684,7 @@ export const getNextChallenge = (startChallenge: number, maxSkip = false, min = 
     for (let index = nextChallenge; index <= max; index++) {
       if (
         !player.autoChallengeToggles[index]
-        || (!maxSkip && index !== 15 && Decimal.gte(player.highestchallengecompletions[index], getMaxChallenges(index)))
+        || (!maxSkip && index !== 15 && player.highestchallengecompletions[index] >= getMaxChallenges(index))
       ) {
         nextChallenge += 1
       } else {
@@ -707,5 +704,5 @@ export const challenge15ScoreMultiplier = () => {
     1 + 5 / 10000 * hepteractEffective('challenge'), // Challenge Hepteract
     1 + 0.25 * player.platonicUpgrades[15] // Omega Upgrade
   ]
-  return productContentsNumber(arr)
+  return productContents(arr)
 }

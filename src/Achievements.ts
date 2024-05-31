@@ -1,11 +1,11 @@
-import Decimal from 'break_eternity.js'
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { CalcCorruptionStuff, calculateTimeAcceleration } from './Calculate'
 import { Synergism } from './Events'
 import { format, player } from './Synergism'
 import { Alert, Notification, revealStuff } from './UpdateHTML'
-import { sumContentsNumber } from './Utility'
+import { sumContents } from './Utility'
 import { Globals as G } from './Variables'
 
 // dprint-ignore
@@ -64,41 +64,41 @@ export const areward = (i: number): string => {
 
   const extra: Record<number, string | Record<string, string>> = {
     118: format(
-      Decimal.pow(
+      Math.pow(
         0.9925,
-        Decimal.add(player.challengecompletions[6], player.challengecompletions[7]).add(player.challengecompletions[8])
-        .add(player.challengecompletions[9]).add(player.challengecompletions[10])
+        player.challengecompletions[6] + player.challengecompletions[7] + player.challengecompletions[8]
+          + player.challengecompletions[9] + player.challengecompletions[10]
       ),
       4
     ),
-    169: format(player.antPoints.add(10).log10(), 2),
-    174: format(player.antPoints.add(1).log10().mul(0.4), 2),
+    169: format(Decimal.log(player.antPoints.add(10), 10), 2),
+    174: format(0.4 * Decimal.log(player.antPoints.add(1), 10), 2),
     187: {
-      x: format(Decimal.add(corr[3], 1).log10().sub(7).max(1), 2),
-      y: format(Decimal.min(100, player.ascensionCount.div(10000)), 2)
+      x: format(Math.max(1, Math.log10(corr[3] + 1) - 7), 2),
+      y: format(Math.min(100, player.ascensionCount / 10000), 2)
     },
-    188: format(Decimal.min(100, player.ascensionCount.div(50000)), 2),
-    189: format(Decimal.min(200, player.ascensionCount.div(25e5)), 2),
-    193: format(player.ascendShards.add(1).log10().div(4), 2),
-    195: format(Decimal.min(25000, player.ascendShards.add(1).log10().div(4)), 2),
-    196: format(Decimal.min(2000, player.ascendShards.add(1).log10().div(50)), 2),
-    202: format(Decimal.min(200, player.ascensionCount.div(5e6)), 2),
-    216: format(Decimal.min(200, player.ascensionCount.div(1e7)), 2),
-    223: format(Decimal.min(200, player.ascensionCount.div(13370000)), 2),
-    240: format(calculateTimeAcceleration().mult.log10().max(2).div(20).add(1).min(1.5), 2),
-    254: format(Decimal.add(corr[3], 1).log10().mul(0.6).min(15), 2, true),
-    255: format(Decimal.add(corr[3], 1).log10().mul(0.6).min(15), 2, true),
-    256: format(Decimal.add(corr[3], 1).log10().mul(0.6).min(15), 2, true),
-    257: format(Decimal.add(corr[3], 1).log10().mul(0.6).min(15), 2, true),
-    258: format(Decimal.add(corr[3], 1).log10().mul(0.6).min(15), 2, true),
-    262: format(Decimal.min(10, player.ascensionCount.add(1).log10()), 2),
-    263: format(Decimal.min(10, player.ascensionCount.add(1).log10()), 2),
-    264: format(Decimal.min(40, player.ascensionCount.div(2e11)), 2),
-    265: format(Decimal.min(20, player.ascensionCount.div(8e12)), 2),
-    266: format(Decimal.min(10, player.ascensionCount.div(1e14)), 2),
-    267: format(Decimal.min(100, player.ascendShards.add(1).log10().div(1e3)), 2),
-    270: format(Decimal.min(100, player.ascendShards.add(1).log10().div(1e4)), 2),
-    271: format(Decimal.max(0, Decimal.min(1, player.ascendShards.add(1).log10().sub(1e5).div(9e5))), 2, true)
+    188: format(Math.min(100, player.ascensionCount / 50000), 2),
+    189: format(Math.min(200, player.ascensionCount / 2.5e6), 2),
+    193: format(Decimal.log(player.ascendShards.add(1), 10) / 4, 2),
+    195: format(Math.min(25000, Decimal.log(player.ascendShards.add(1), 10) / 4), 2),
+    196: format(Math.min(2000, Decimal.log(player.ascendShards.add(1), 10) / 50), 2),
+    202: format(Math.min(200, player.ascensionCount / 5e6), 2),
+    216: format(Math.min(200, player.ascensionCount / 1e7), 2),
+    223: format(Math.min(200, player.ascensionCount / 13370000), 2),
+    240: format(Math.min(1.5, 1 + Math.max(2, Math.log10(calculateTimeAcceleration().mult)) / 20), 2),
+    254: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    255: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    256: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    257: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    258: format(Math.min(15, Math.log10(corr[3] + 1) * 0.6), 2, true),
+    262: format(Math.min(10, Math.log10(player.ascensionCount + 1)), 2),
+    263: format(Math.min(10, Math.log10(player.ascensionCount + 1)), 2),
+    264: format(Math.min(40, player.ascensionCount / 2e11), 2),
+    265: format(Math.min(20, player.ascensionCount / 8e12), 2),
+    266: format(Math.min(10, player.ascensionCount / 1e14), 2),
+    267: format(Math.min(100, Decimal.log(player.ascendShards.add(1), 10) / 1000), 2),
+    270: format(Math.min(100, Decimal.log(player.ascendShards.add(1), 10) / 10000), 2),
+    271: format(Math.max(0, Math.min(1, (Decimal.log(player.ascendShards.add(1), 10) - 1e5) / 9e5)), 2, true)
   }
 
   // dprint-ignore
@@ -274,10 +274,10 @@ const challengeCompletionsNotAuto: Record<number, [string, number]> = {
 }
 
 export const challengeachievementcheck = (i: number, auto?: boolean) => {
-  const generatorcheck = sumContentsNumber(player.upgrades.slice(101, 106))
+  const generatorcheck = sumContents(player.upgrades.slice(101, 106))
 
   for (const [, bar, ach] of challengeCompletionsBar.filter(([o]) => o === i)) {
-    if (Decimal.gt(player.challengecompletions[i], bar) && player.achievements[ach] < 1) {
+    if (player.challengecompletions[i] > bar && player.achievements[ach] < 1) {
       achievementaward(ach)
     }
   }
@@ -288,7 +288,7 @@ export const challengeachievementcheck = (i: number, auto?: boolean) => {
     const [gte, ach] = challengeCompletionsNotAuto[i]
     if (i === 5) {
       if (
-        player.coinsThisTranscension.gte(gte) && player.acceleratorBought.eq(0) && player.acceleratorBoostBought.eq(0)
+        player.coinsThisTranscension.gte(gte) && player.acceleratorBought === 0 && player.acceleratorBoostBought === 0
       ) {
         achievementaward(ach)
       }
@@ -300,14 +300,14 @@ export const challengeachievementcheck = (i: number, auto?: boolean) => {
   if (i >= 11 && i <= 14) {
     const challengeArray = [0, 1, 2, 3, 5, 10, 20, 30]
     for (let j = 1; j <= 7; j++) {
-      if (Decimal.gte(player.challengecompletions[i], challengeArray[j]) && player.achievements[119 + 7 * i + j] < 1) {
+      if (player.challengecompletions[i] >= challengeArray[j] && player.achievements[119 + 7 * i + j] < 1) {
         achievementaward(119 + 7 * i + j)
       }
     }
   }
 
   if (
-    player.challengecompletions[10].gte(50) && i === 11 && player.usedCorruptions[7] >= 5 && player.achievements[247] < 1
+    player.challengecompletions[10] >= 50 && i === 11 && player.usedCorruptions[7] >= 5 && player.achievements[247] < 1
   ) {
     achievementaward(247)
   }
@@ -320,41 +320,41 @@ export const challengeachievementcheck = (i: number, auto?: boolean) => {
  * @type {(() => boolean)[]}
  */
 const buildAchievementReq: (() => boolean)[] = [
-  () => (Decimal.gte(player.firstOwnedCoin, 1) && player.achievements[1] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 10) && player.achievements[2] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 100) && player.achievements[3] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 1000) && player.achievements[4] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 5000) && player.achievements[5] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 10000) && player.achievements[6] < 0.5),
-  () => (Decimal.gte(player.firstOwnedCoin, 20000) && player.achievements[7] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 1) && player.achievements[8] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 10) && player.achievements[9] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 100) && player.achievements[10] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 1000) && player.achievements[11] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 5000) && player.achievements[12] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 10000) && player.achievements[13] < 0.5),
-  () => (Decimal.gte(player.secondOwnedCoin, 20000) && player.achievements[14] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 1) && player.achievements[15] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 10) && player.achievements[16] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 100) && player.achievements[17] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 1000) && player.achievements[18] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 5000) && player.achievements[19] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 10000) && player.achievements[20] < 0.5),
-  () => (Decimal.gte(player.thirdOwnedCoin, 20000) && player.achievements[21] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 1) && player.achievements[22] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 10) && player.achievements[23] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 100) && player.achievements[24] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 1000) && player.achievements[25] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 5000) && player.achievements[26] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 10000) && player.achievements[27] < 0.5),
-  () => (Decimal.gte(player.fourthOwnedCoin, 20000) && player.achievements[28] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 1) && player.achievements[29] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 10) && player.achievements[30] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 66) && player.achievements[31] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 666) && player.achievements[32] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 6666) && player.achievements[33] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 17777) && player.achievements[34] < 0.5),
-  () => (Decimal.gte(player.fifthOwnedCoin, 42777) && player.achievements[35] < 0.5)
+  () => (player.firstOwnedCoin >= 1 && player.achievements[1] < 0.5),
+  () => (player.firstOwnedCoin >= 10 && player.achievements[2] < 0.5),
+  () => (player.firstOwnedCoin >= 100 && player.achievements[3] < 0.5),
+  () => (player.firstOwnedCoin >= 1000 && player.achievements[4] < 0.5),
+  () => (player.firstOwnedCoin >= 5000 && player.achievements[5] < 0.5),
+  () => (player.firstOwnedCoin >= 10000 && player.achievements[6] < 0.5),
+  () => (player.firstOwnedCoin >= 20000 && player.achievements[7] < 0.5),
+  () => (player.secondOwnedCoin >= 1 && player.achievements[8] < 0.5),
+  () => (player.secondOwnedCoin >= 10 && player.achievements[9] < 0.5),
+  () => (player.secondOwnedCoin >= 100 && player.achievements[10] < 0.5),
+  () => (player.secondOwnedCoin >= 1000 && player.achievements[11] < 0.5),
+  () => (player.secondOwnedCoin >= 5000 && player.achievements[12] < 0.5),
+  () => (player.secondOwnedCoin >= 10000 && player.achievements[13] < 0.5),
+  () => (player.secondOwnedCoin >= 20000 && player.achievements[14] < 0.5),
+  () => (player.thirdOwnedCoin >= 1 && player.achievements[15] < 0.5),
+  () => (player.thirdOwnedCoin >= 10 && player.achievements[16] < 0.5),
+  () => (player.thirdOwnedCoin >= 100 && player.achievements[17] < 0.5),
+  () => (player.thirdOwnedCoin >= 1000 && player.achievements[18] < 0.5),
+  () => (player.thirdOwnedCoin >= 5000 && player.achievements[19] < 0.5),
+  () => (player.thirdOwnedCoin >= 10000 && player.achievements[20] < 0.5),
+  () => (player.thirdOwnedCoin >= 20000 && player.achievements[21] < 0.5),
+  () => (player.fourthOwnedCoin >= 1 && player.achievements[22] < 0.5),
+  () => (player.fourthOwnedCoin >= 10 && player.achievements[23] < 0.5),
+  () => (player.fourthOwnedCoin >= 100 && player.achievements[24] < 0.5),
+  () => (player.fourthOwnedCoin >= 1000 && player.achievements[25] < 0.5),
+  () => (player.fourthOwnedCoin >= 5000 && player.achievements[26] < 0.5),
+  () => (player.fourthOwnedCoin >= 10000 && player.achievements[27] < 0.5),
+  () => (player.fourthOwnedCoin >= 20000 && player.achievements[28] < 0.5),
+  () => (player.fifthOwnedCoin >= 1 && player.achievements[29] < 0.5),
+  () => (player.fifthOwnedCoin >= 10 && player.achievements[30] < 0.5),
+  () => (player.fifthOwnedCoin >= 66 && player.achievements[31] < 0.5),
+  () => (player.fifthOwnedCoin >= 666 && player.achievements[32] < 0.5),
+  () => (player.fifthOwnedCoin >= 6666 && player.achievements[33] < 0.5),
+  () => (player.fifthOwnedCoin >= 17777 && player.achievements[34] < 0.5),
+  () => (player.fifthOwnedCoin >= 42777 && player.achievements[35] < 0.5)
 ]
 
 export const buildingAchievementCheck = () => {
@@ -366,7 +366,7 @@ export const buildingAchievementCheck = () => {
   }
 }
 
-export const ascensionAchievementCheck = (i: number, score: number | Decimal) => {
+export const ascensionAchievementCheck = (i: number, score = 0) => {
   if (i === 1) {
     // dprint-ignore
     const ascendCountArray = [
@@ -375,14 +375,14 @@ export const ascensionAchievementCheck = (i: number, score: number | Decimal) =>
     ]
 
     for (let j = 1; j <= 7; j++) {
-      if (Decimal.gte(player.ascensionCount, ascendCountArray[j]) && player.achievements[182 + j] < 1) {
+      if (player.ascensionCount >= ascendCountArray[j] && player.achievements[182 + j] < 1) {
         achievementaward(182 + j)
       }
-      if (Decimal.gte(player.ascensionCount, ascendCountArray[j + 8]) && player.achievements[259 + j] < 1) {
+      if (player.ascensionCount >= ascendCountArray[j + 8] && player.achievements[259 + j] < 1) {
         achievementaward(259 + j)
       }
     }
-    if (Decimal.gte(player.ascensionCount, ascendCountArray[8]) && player.achievements[240] < 1) {
+    if (player.ascensionCount >= ascendCountArray[8] && player.achievements[240] < 1) {
       achievementaward(240)
     }
   }
@@ -409,11 +409,11 @@ export const ascensionAchievementCheck = (i: number, score: number | Decimal) =>
       1e12, 1e14, 1e17, 2e18, 4e19, 1e21, 1e23 // Column 2
     ]
     for (let j = 1; j <= 7; j++) {
-      if (Decimal.gte(score, scoreArray[j]) && player.achievements[224 + j] < 1) {
+      if (score >= scoreArray[j] && player.achievements[224 + j] < 1) {
         achievementaward(224 + j)
       }
 
-      if (Decimal.gte(score, scoreArray[7 + j]) && player.achievements[252 + j] < 1) {
+      if (score >= scoreArray[7 + j] && player.achievements[252 + j] < 1) {
         achievementaward(252 + j)
       }
     }

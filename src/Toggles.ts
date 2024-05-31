@@ -50,20 +50,20 @@ export const toggleSettings = (toggle: HTMLElement) => {
 
 export const toggleChallenges = (i: number, auto = false) => {
   if ((i <= 5)) {
-    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter.gt(2)) {
+    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter >= 2) {
       player.currentChallenge.transcension = i
       reset('transcensionChallenge', false, 'enterChallenge')
-      player.transcendCount = player.transcendCount.sub(1)
+      player.transcendCount -= 1
     }
     if (!player.currentChallenge.reincarnation && !document.querySelector('.resetbtn.hover')) {
       resetrepeat('transcensionChallenge')
     }
   }
   if ((i >= 6 && i < 11)) {
-    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter.gt(2)) {
+    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter >= 2) {
       player.currentChallenge.reincarnation = i
       reset('reincarnationChallenge', false, 'enterChallenge')
-      player.reincarnationCount = player.reincarnationCount.sub(1)
+      player.reincarnationCount -= 1
     }
     if (!document.querySelector('.resetbtn.hover')) {
       resetrepeat('reincarnationChallenge')
@@ -71,7 +71,7 @@ export const toggleChallenges = (i: number, auto = false) => {
   }
   if (
     i >= 11
-    && ((!auto && !player.toggles[31]) || player.challengecompletions[10].gt(0)
+    && ((!auto && !player.toggles[31]) || player.challengecompletions[10] > 0
       || (player.currentChallenge.transcension === 0 && player.currentChallenge.reincarnation === 0
         && player.currentChallenge.ascension === 0))
   ) {

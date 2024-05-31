@@ -9,7 +9,8 @@ import {
 import { format, player } from './Synergism'
 import { Globals as G } from './Variables'
 
-import Decimal, { type DecimalSource } from 'break_eternity.js'
+import type { DecimalSource } from 'break_infinity.js'
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -41,28 +42,29 @@ const antspecies: Record<`antspecies${number}`, string> = {
 
 export const calculateCrumbToCoinExp = () => {
   const exponent = player.currentChallenge.ascension !== 15
-    ? calculateSigmoidExponential(49900000, Decimal.add(player.antUpgrades[2 - 1]!, G.bonusant2).div(4990)).add(1e5)
-    : calculateSigmoidExponential(49900000, Decimal.add(player.antUpgrades[2 - 1]!, G.bonusant2).div(4990)).add(1e5).div(1e4)
+    ? 100000 + calculateSigmoidExponential(49900000, (player.antUpgrades[2 - 1]! + G.bonusant2) / 5000 * 500 / 499)
+    : 1 / 10000
+      * (100000 + calculateSigmoidExponential(49900000, (player.antUpgrades[2 - 1]! + G.bonusant2) / 5000 * 500 / 499))
 
   return exponent
 }
 
 const antUpgradeTexts = [
-  () => format(Decimal.pow(1.12 + 1 / 1000 * player.researches[101], Decimal.add(player.antUpgrades[1 - 1]!, G.bonusant1)), 2),
+  () => format(Decimal.pow(1.12 + 1 / 1000 * player.researches[101], player.antUpgrades[1 - 1]! + G.bonusant1), 2),
   () => format(calculateCrumbToCoinExp()),
-  () => format(Decimal.add(player.antUpgrades[3 - 1]!, G.bonusant3).pow_base(0.99).mul(0.995).add(0.005), 4),
+  () => format(0.005 + 0.995 * Math.pow(0.99, player.antUpgrades[3 - 1]! + G.bonusant3), 4),
   () =>
-    format(calculateSigmoidExponential(20, Decimal.add(player.antUpgrades[4 - 1]!, G.bonusant4).div(1000).mul(20).div(19)).sub(1).mul(100), 3),
+    format(100 * (calculateSigmoidExponential(20, (player.antUpgrades[4 - 1]! + G.bonusant4) / 1000 * 20 / 19) - 1), 3),
   () =>
-    format(calculateSigmoidExponential(40, Decimal.add(player.antUpgrades[5 - 1]!, G.bonusant5).div(1000).mul(40).div(39)).sub(1).mul(100), 3),
-  () => format(Decimal.add(player.antUpgrades[6 - 1]!, G.bonusant6).pow(2/3).add(1), 4),
-  () => format(Decimal.min(9999999, Decimal.add(player.antUpgrades[7 - 1]!, G.bonusant7).mul(3)), 0, true),
+    format(100 * (calculateSigmoidExponential(40, (player.antUpgrades[5 - 1]! + G.bonusant5) / 1000 * 40 / 39) - 1), 3),
+  () => format(1 + Math.pow(player.antUpgrades[6 - 1]! + G.bonusant6, 0.66), 4),
+  () => format(Math.min(9999999, 3 * player.antUpgrades[7 - 1]! + 3 * G.bonusant7), 0, true),
   () =>
-    format(calculateSigmoidExponential(999, Decimal.add(player.antUpgrades[8 - 1]!, G.bonusant8).pow(1.1).div(10000)), 3),
-  () => format(Decimal.min(1e7, Decimal.add(player.antUpgrades[9 - 1]!, G.bonusant9)), 0, true),
-  () => format(Decimal.add(player.antUpgrades[10 - 1]!, G.bonusant10).div(50).pow(0.75).mul(2).add(1)),
-  () => format(Decimal.sub(1, Decimal.add(player.antUpgrades[11 - 1]!, G.bonusant11).div(-125).pow_base(2)).mul(2).add(1), 4),
-  () => format(calculateSigmoid(2, Decimal.add(player.antUpgrades[12 - 1]!, G.bonusant12), 69), 4)
+    format(calculateSigmoidExponential(999, 1 / 10000 * Math.pow(player.antUpgrades[8 - 1]! + G.bonusant8, 1.1)), 3),
+  () => format(1 * Math.min(1e7, player.antUpgrades[9 - 1]! + G.bonusant9), 0, true),
+  () => format(1 + 2 * Math.pow((player.antUpgrades[10 - 1]! + G.bonusant10) / 50, 0.75), 4),
+  () => format(1 + 2 * (1 - Math.pow(2, -(player.antUpgrades[11 - 1]! + G.bonusant11) / 125)), 4),
+  () => format(calculateSigmoid(2, player.antUpgrades[12 - 1]! + G.bonusant12, 69), 4)
 ]
 
 let repeatAnt: ReturnType<typeof setTimeout>
@@ -203,7 +205,7 @@ export const buyAntProducers = (pos: FirstToEighth, originalCost: DecimalSource,
   const achRequirements = [2, 6, 20, 100, 500, 6666, 77777]
   for (let j = 0; j < achRequirements.length; j++) {
     if (
-      player.achievements[176 + j] === 0 && Decimal.gt(sacrificeMult, achRequirements[j])
+      player.achievements[176 + j] === 0 && sacrificeMult > achRequirements[j]
       && player[`${G.ordinals[j + 1 as ZeroToSeven]}OwnedAnts` as const] > 0
     ) {
       achievementaward(176 + j)
@@ -274,7 +276,7 @@ export const antUpgradeDescription = (i: number) => {
   const c11 = player.currentChallenge.ascension === 11 ? 999 : 0
 
   el.childNodes[0].textContent = `${content1} Level ${format(player.antUpgrades[i - 1])}`
-  al.textContent = ` [+${format(Decimal.min(player.antUpgrades[i - 1]! + c11, bonuslevel))}]`
+  al.textContent = ` [+${format(Math.min(player.antUpgrades[i - 1]! + c11, bonuslevel))}]`
   la.textContent = content2
   ti.textContent = i18next.t('ants.costGalacticCrumbs', {
     x: format(
@@ -289,13 +291,13 @@ export const antUpgradeDescription = (i: number) => {
   })
 }
 
-export const antSacrificePointsToMultiplier = (points: Decimal) => {
-  let multiplier = points.div(5000).add(1).pow(2)
-  multiplier = multiplier.mul(points.add(1).log10().mul(0.2).add(1))
+export const antSacrificePointsToMultiplier = (points: number) => {
+  let multiplier = Math.pow(1 + points / 5000, 2)
+  multiplier *= 1 + 0.2 * Math.log(1 + points) / Math.log(10)
   if (player.achievements[174] > 0) {
-    multiplier = multiplier.mul(points.add(1).log10().mul(0.4).add(1))
+    multiplier *= 1 + 0.4 * Math.log(1 + points) / Math.log(10)
   }
-  return Decimal.min(1e300, multiplier) // cappp
+  return Math.min(1e300, multiplier)
 }
 
 export const showSacrifice = () => {
@@ -309,7 +311,7 @@ export const showSacrifice = () => {
 
   DOMCacheGetOrSet('SacrificeMultiplier').innerHTML = i18next.t('ants.antSacMultiplier', {
     y: format(antSacrificePointsToMultiplier(player.antSacrificePoints), 3, false),
-    x: format(antSacrificePointsToMultiplier(Decimal.add(player.antSacrificePoints, sacRewards.antSacrificePoints)), 3, false)
+    x: format(antSacrificePointsToMultiplier(player.antSacrificePoints + sacRewards.antSacrificePoints), 3, false)
   })
 
   DOMCacheGetOrSet('SacrificeUpgradeMultiplier').innerHTML = i18next.t('ants.upgradeMultiplier', {
@@ -322,7 +324,7 @@ export const showSacrifice = () => {
 
   DOMCacheGetOrSet('antSacrificeOffering').textContent = `+${format(sacRewards.offerings)}`
   DOMCacheGetOrSet('antSacrificeObtainium').textContent = `+${format(sacRewards.obtainium)}`
-  if (player.challengecompletions[9].gt(0)) {
+  if (player.challengecompletions[9] > 0) {
     DOMCacheGetOrSet('antSacrificeTalismanShard').textContent = i18next.t('ants.elo', {
       x: format(sacRewards.talismanShards),
       y: 500
@@ -365,11 +367,11 @@ export const sacrificeAnts = async (auto = false) => {
       const antSacrificePointsBefore = player.antSacrificePoints
 
       const sacRewards = calculateAntSacrificeRewards()
-      player.antSacrificePoints = player.antSacrificePoints.mul(sacRewards.antSacrificePoints)
-      player.runeshards = player.runeshards.add(sacRewards.offerings)
+      player.antSacrificePoints += sacRewards.antSacrificePoints
+      player.runeshards += sacRewards.offerings
 
       if (player.currentChallenge.ascension !== 14) {
-        player.researchPoints = player.researchPoints.add(sacRewards.obtainium)
+        player.researchPoints += sacRewards.obtainium
       }
 
       const historyEntry: ResetHistoryEntryAntSacrifice = {
@@ -386,21 +388,20 @@ export const sacrificeAnts = async (auto = false) => {
         crumbsPerSecond: G.antOneProduce.toString()
       }
 
-      if (player.challengecompletions[9].gt(0)) {
-        // CAPPPP
-        player.talismanShards = Decimal.min(1e300, Decimal.add(player.talismanShards, sacRewards.talismanShards))
-        player.commonFragments = Decimal.min(1e300, Decimal.add(player.commonFragments, sacRewards.commonFragments))
-        player.uncommonFragments = Decimal.min(1e300, Decimal.add(player.uncommonFragments, sacRewards.uncommonFragments))
-        player.rareFragments = Decimal.min(1e300, Decimal.add(player.rareFragments, sacRewards.rareFragments))
-        player.epicFragments = Decimal.min(1e300, Decimal.add(player.epicFragments, sacRewards.epicFragments))
-        player.legendaryFragments = Decimal.min(1e300, Decimal.add(player.legendaryFragments, sacRewards.legendaryFragments))
-        player.mythicalFragments = Decimal.min(1e300, Decimal.add(player.mythicalFragments, sacRewards.mythicalFragments))
+      if (player.challengecompletions[9] > 0) {
+        player.talismanShards = Math.min(1e300, player.talismanShards + sacRewards.talismanShards)
+        player.commonFragments = Math.min(1e300, player.commonFragments + sacRewards.commonFragments)
+        player.uncommonFragments = Math.min(1e300, player.uncommonFragments + sacRewards.uncommonFragments)
+        player.rareFragments = Math.min(1e300, player.rareFragments + sacRewards.rareFragments)
+        player.epicFragments = Math.min(1e300, player.epicFragments + sacRewards.epicFragments)
+        player.legendaryFragments = Math.min(1e300, player.legendaryFragments + sacRewards.legendaryFragments)
+        player.mythicalFragments = Math.min(1e300, player.mythicalFragments + sacRewards.mythicalFragments)
       }
 
       // Now we're safe to reset the ants.
       resetAnts()
-      player.antSacrificeTimer = new Decimal(0)
-      player.antSacrificeTimerReal = new Decimal(0)
+      player.antSacrificeTimer = 0
+      player.antSacrificeTimerReal = 0
       updateTalismanInventory()
       if (player.autoResearch > 0 && player.autoResearchToggle) {
         const linGrowth = (player.autoResearch === 200) ? 0.01 : 0
@@ -412,7 +413,7 @@ export const sacrificeAnts = async (auto = false) => {
     }
   }
 
-  if (player.mythicalFragments.gte(1e11) && player.currentChallenge.ascension === 14 && player.achievements[248] < 1) {
+  if (player.mythicalFragments >= 1e11 && player.currentChallenge.ascension === 14 && player.achievements[248] < 1) {
     achievementaward(248)
   }
 }

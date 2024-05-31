@@ -1,4 +1,4 @@
-import Decimal from 'break_eternity.js'
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { showSacrifice } from './Ants'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -15,8 +15,8 @@ import {
   calculateRequiredBlueberryTime,
   calculateRuneExpToLevel,
   calculateSigmoidExponential,
-  calculateSummationLinearDecimal,
-  calculateSummationNonLinearDecimal,
+  calculateSummationLinear,
+  calculateSummationNonLinear,
   calculateTimeAcceleration,
   calculateTotalOcteractCubeBonus,
   calculateTotalOcteractObtainiumBonus,
@@ -38,7 +38,7 @@ import { format, formatTimeShort, player } from './Synergism'
 import { Tabs } from './Tabs'
 import { calculateMaxTalismanLevel } from './Talismans'
 import type { Player, ZeroToFour } from './types/Synergism'
-import { sumContentsNumber, sumContentsDecimal } from './Utility'
+import { sumContents } from './Utility'
 import { Globals as G } from './Variables'
 
 export const visualUpdateBuildings = () => {
@@ -114,7 +114,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('buildtext12').textContent = i18next.t(
       'buildings.acceleratorPower',
       {
-        power: format(G.acceleratorPower.sub(1).mul(100), 2),
+        power: format((G.acceleratorPower - 1) * 100, 2),
         mult: format(G.acceleratorEffect, 2)
       }
     )
@@ -147,7 +147,9 @@ export const visualUpdateBuildings = () => {
       'buildings.acceleratorBoost',
       {
         amount: format(
-          Decimal.mul(G.tuSevenMulti, 1 + player.researches[16] / 50).mul(CalcECC('transcend', player.challengecompletions[2]).div(100).add(1)),
+          G.tuSevenMulti
+            * (1 + player.researches[16] / 50)
+            * (1 + CalcECC('transcend', player.challengecompletions[2]) / 100),
           2
         )
       }
@@ -174,10 +176,10 @@ export const visualUpdateBuildings = () => {
 
     // update the tax text
     let warning = ''
-    if (player.reincarnationCount.gt(0.5)) {
+    if (player.reincarnationCount > 0.5) {
       warning = i18next.t('buildings.taxWarning', {
         gain: format(
-          Decimal.pow(10, Decimal.sub(G.maxexponent, G.taxdivisorcheck.log10()))
+          Decimal.pow(10, G.maxexponent - Decimal.log(G.taxdivisorcheck, 10))
         )
       })
     }
@@ -244,7 +246,8 @@ export const visualUpdateBuildings = () => {
     if (player.resettoggle1 === 1 || player.resettoggle1 === 0) {
       const p = Decimal.pow(
         10,
-        Decimal.sub(G.prestigePointGain.add(1).log10(), player.prestigePoints.sub(1).log10())
+        Decimal.log(G.prestigePointGain.add(1), 10)
+          - Decimal.log(player.prestigePoints.sub(1), 10)
       )
       DOMCacheGetOrSet('autoprestige').textContent = i18next.t(
         'buildings.autoPrestige',
@@ -334,7 +337,8 @@ export const visualUpdateBuildings = () => {
           mult: format(
             Decimal.pow(
               10,
-              Decimal.sub(G.transcendPointGain.add(1).log10(), player.transcendPoints.add(1).log10())
+              Decimal.log(G.transcendPointGain.add(1), 10)
+                - Decimal.log(player.transcendPoints.add(1), 10)
             ),
             2
           )
@@ -429,7 +433,8 @@ export const visualUpdateBuildings = () => {
           mult: format(
             Decimal.pow(
               10,
-              Decimal.sub(G.reincarnationPointGain.add(1).log10(),  player.reincarnationPoints.add(1).log10())
+              Decimal.log(G.reincarnationPointGain.add(1), 10)
+                - Decimal.log(player.reincarnationPoints.add(1), 10)
             ),
             2
           )
@@ -492,9 +497,15 @@ export const visualUpdateBuildings = () => {
       {
         const: format(player.ascendShards, 2),
         amount: format(
-          Decimal.pow(
-            player.ascendShards.add(1).log10().add(1),
-            Decimal.sub(G.platonicBonusMultiplier[5], 1).add(0.2 * player.platonicUpgrades[10]).add(0.1 * player.platonicUpgrades[5]).add(Decimal.mul(player.challengecompletions[10], player.upgrades[125]).div(300)).add(1)
+          Math.pow(
+            Decimal.log(player.ascendShards.add(1), 10) + 1,
+            1
+              + (0.2 / 60)
+                * player.challengecompletions[10]
+                * player.upgrades[125]
+              + 0.1 * player.platonicUpgrades[5]
+              + 0.2 * player.platonicUpgrades[10]
+              + (G.platonicBonusMultiplier[5] - 1)
           ),
           4,
           true
@@ -549,7 +560,7 @@ export const visualUpdateRunes = () => {
       // First one updates level, second one updates TNL, third updates orange bonus levels
       let place = G[talismans[i - 1]]
       if (i > 5) {
-        place = new Decimal(0)
+        place = 0
       }
       const runeLevel = player.runelevels[i - 1]
       const maxLevel = calculateMaxRunes(i)
@@ -561,10 +572,10 @@ export const visualUpdateRunes = () => {
         }
       )
 
-      if (Decimal.lt(runeLevel, maxLevel)) {
+      if (runeLevel < maxLevel) {
         DOMCacheGetOrSet(`rune${i}exp`).textContent = i18next.t('runes.TNL', {
           EXP: format(
-            Decimal.sub(calculateRuneExpToLevel(i - 1), player.runeexp[i - 1]),
+            calculateRuneExpToLevel(i - 1) - player.runeexp[i - 1],
             2
           )
         })
@@ -576,9 +587,9 @@ export const visualUpdateRunes = () => {
           'runes.bonusAmount',
           {
             x: format(
-              Decimal.mul(7, player.constantUpgrades[7])
-                .add(Decimal.min(1e7, Decimal.add(player.antUpgrades[8]!, G.bonusant9)))
-                .add(place)
+              7 * player.constantUpgrades[7]
+                + Math.min(1e7, player.antUpgrades[8]! + G.bonusant9)
+                + place
             )
           }
         )
@@ -589,13 +600,13 @@ export const visualUpdateRunes = () => {
     }
 
     const calculateRecycle = calculateRecycleMultiplier()
-    const allRuneExpAdditiveMultiplier = sumContentsDecimal([
+    const allRuneExpAdditiveMultiplier = sumContents([
       // Base amount multiplied per offering
       1 * calculateRecycle,
       // +1 if C1 completion
-      Decimal.min(1, player.highestchallengecompletions[1]),
+      Math.min(1, player.highestchallengecompletions[1]),
       // +0.10 per C1 completion
-      player.highestchallengecompletions[1].mul(0.04),
+      (0.4 / 10) * player.highestchallengecompletions[1],
       // Research 5x2
       0.6 * player.researches[22],
       // Research 5x3
@@ -624,7 +635,7 @@ export const visualUpdateRunes = () => {
     for (let i = 0; i < 7; i++) {
       const maxTalismanLevel = calculateMaxTalismanLevel(i)
       // TODO(@KhafraDev): i18n
-      DOMCacheGetOrSet(`talisman${i + 1}level`).textContent = `${player.ascensionCount.gt(0) ? '' : 'Level '} ${
+      DOMCacheGetOrSet(`talisman${i + 1}level`).textContent = `${player.ascensionCount > 0 ? '' : 'Level '} ${
         format(player.talismanLevels[i])
       }/${format(maxTalismanLevel)}`
     }
@@ -647,20 +658,22 @@ export const visualUpdateRunes = () => {
           reward: i18next.t(`runes.blessings.rewards.${i - 1}`),
           value: format(G.runeBlessings[i]),
           speed: format(
-            Decimal.sub(1, t).add(Decimal.mul(blessingMultiplierArray[i], G.effectiveRuneBlessingPower[i])),
+            1
+              - t
+              + blessingMultiplierArray[i] * G.effectiveRuneBlessingPower[i],
             4,
             true
           )
         }
       )
 
-      const levelsPurchasable = calculateSummationLinearDecimal(
+      const levelsPurchasable = calculateSummationLinear(
         player.runeBlessingLevels[i],
         G.blessingBaseCost,
         player.runeshards,
         player.runeBlessingBuyAmount
-      )[0].sub(player.runeBlessingLevels[i])
-      levelsPurchasable.gt(0)
+      )[0] - player.runeBlessingLevels[i]
+      levelsPurchasable > 0
         ? DOMCacheGetOrSet(`runeBlessingPurchase${i}`).classList.add(
           'runeButtonsAvailable'
         )
@@ -671,11 +684,11 @@ export const visualUpdateRunes = () => {
       DOMCacheGetOrSet(`runeBlessingPurchase${i}`).innerHTML = i18next.t(
         'runes.blessings.increaseLevel',
         {
-          amount: format(Decimal.max(1, levelsPurchasable)),
+          amount: format(Math.max(1, levelsPurchasable)),
           offerings: format(
-            Decimal.max(
-              Decimal.mul(G.blessingBaseCost, Decimal.add(1, player.runeBlessingLevels[i])),
-              calculateSummationLinearDecimal(
+            Math.max(
+              G.blessingBaseCost * (1 + player.runeBlessingLevels[i]),
+              calculateSummationLinear(
                 player.runeBlessingLevels[i],
                 G.blessingBaseCost,
                 player.runeshards,
@@ -711,20 +724,22 @@ export const visualUpdateRunes = () => {
           reward: i18next.t(`runes.spirits.rewards.${i - 1}`),
           value: format(G.runeSpirits[i]),
           speed: format(
-            Decimal.sub(1, subtract[i]).add(Decimal.mul(spiritMultiplierArray[i], G.effectiveRuneSpiritPower[i])),
+            1
+              - subtract[i]
+              + spiritMultiplierArray[i] * G.effectiveRuneSpiritPower[i],
             4,
             true
           )
         }
       )
 
-      const levelsPurchasable = calculateSummationLinearDecimal(
+      const levelsPurchasable = calculateSummationLinear(
         player.runeSpiritLevels[i],
         G.spiritBaseCost,
         player.runeshards,
         player.runeSpiritBuyAmount
-      )[0].sub(player.runeSpiritLevels[i])
-      levelsPurchasable.gt(0)
+      )[0] - player.runeSpiritLevels[i]
+      levelsPurchasable > 0
         ? DOMCacheGetOrSet(`runeSpiritPurchase${i}`).classList.add(
           'runeButtonsAvailable'
         )
@@ -735,11 +750,11 @@ export const visualUpdateRunes = () => {
       DOMCacheGetOrSet(`runeSpiritPurchase${i}`).innerHTML = i18next.t(
         'runes.blessings.increaseLevel',
         {
-          amount: format(Decimal.max(1, levelsPurchasable)),
+          amount: format(Math.max(1, levelsPurchasable)),
           offerings: format(
-            Decimal.max(
-              Decimal.mul(G.spiritBaseCost, Decimal.add(1, player.runeSpiritLevels[i])),
-              calculateSummationLinearDecimal(
+            Math.max(
+              G.spiritBaseCost * (1 + player.runeSpiritLevels[i]),
+              calculateSummationLinear(
                 player.runeSpiritLevels[i],
                 G.spiritBaseCost,
                 player.runeshards,
@@ -777,7 +792,7 @@ export const visualUpdateResearch = () => {
       'researches.thanksToResearches',
       {
         x: format(
-          Decimal.mul(calculateAutomaticObtainium(), calculateTimeAcceleration().mult),
+          calculateAutomaticObtainium() * calculateTimeAcceleration().mult,
           3,
           true
         )
@@ -798,8 +813,11 @@ export const visualUpdateAnts = () => {
       z: format(
         Decimal.pow(
           Decimal.max(1, player.antPoints),
-          new Decimal(100000)
-            .add(calculateSigmoidExponential(49900000, ((Decimal.add(player.antUpgrades[1]!, G.bonusant2).div(5000)).mul(500)).div(499)))
+          100000
+            + calculateSigmoidExponential(
+              49900000,
+              (((player.antUpgrades[1]! + G.bonusant2) / 5000) * 500) / 499
+            )
         )
       )
     }
@@ -960,7 +978,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('cubeBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.cubes.total',
         {
-          amount: format(sumContentsNumber(cubeArray.slice(1) as number[]), 0, true)
+          amount: format(sumContents(cubeArray.slice(1) as number[]), 0, true)
         }
       )
       break
@@ -1015,7 +1033,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.tesseracts.total',
         {
           amount: format(
-            sumContentsNumber(tesseractArray.slice(1) as number[]),
+            sumContents(tesseractArray.slice(1) as number[]),
             0,
             true
           )
@@ -1073,7 +1091,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.hypercubes.total',
         {
           amount: format(
-            sumContentsNumber(hypercubeArray.slice(1) as number[]),
+            sumContents(hypercubeArray.slice(1) as number[]),
             0,
             true
           )
@@ -1128,7 +1146,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('platonicBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.platonics.total',
         {
-          amount: format(sumContentsNumber(platonicArray), 0, true)
+          amount: format(sumContents(platonicArray), 0, true)
         }
       )
       break
@@ -1163,7 +1181,7 @@ export const visualUpdateCubes = () => {
       )
       DOMCacheGetOrSet('heptGridOrbEffect').textContent = `${
         format(
-          calculateCubeQuarkMultiplier().sub(1).mul(100),
+          100 * (-1 + calculateCubeQuarkMultiplier()),
           2,
           true
         )
@@ -1282,7 +1300,7 @@ export const visualUpdateCorruptions = () => {
     'corruptions.antExponent',
     {
       exponent: format(
-        (1 - (0.9 / 90) * sumContentsNumber(player.usedCorruptions))
+        (1 - (0.9 / 90) * sumContents(player.usedCorruptions))
           * G.extinctionMultiplier[player.usedCorruptions[7]],
         3
       )
@@ -1294,9 +1312,9 @@ export const visualUpdateCorruptions = () => {
       multiplier: format(calculateCorruptionPoints() / 400, 2, true)
     }
   )
-  DOMCacheGetOrSet('corruptionAscensionCount').style.display = ascCount.gt(1) ? 'block' : 'none'
+  DOMCacheGetOrSet('corruptionAscensionCount').style.display = ascCount > 1 ? 'block' : 'none'
 
-  if (ascCount.gt(1)) {
+  if (ascCount > 1) {
     DOMCacheGetOrSet('corruptionAscensionCount').innerHTML = i18next.t(
       'corruptions.ascensionCount',
       {
@@ -1333,8 +1351,9 @@ export const visualUpdateSettings = () => {
       'settings.exportQuark',
       {
         x: format(
-          Decimal.div(3600, quarkData.perHour).sub(player.quarkstimer.mod(3600.00001 / quarkData.perHour))
-            , 2
+          3600 / quarkData.perHour
+            - (player.quarkstimer % (3600.00001 / quarkData.perHour)),
+          2
         ),
         y: player.worlds.toString(1)
       }
@@ -1351,20 +1370,31 @@ export const visualUpdateSettings = () => {
       'settings.exportGoldenQuark',
       {
         x: format(
-          Decimal.div(3600, Decimal.max(
-            1,
-            player.singularityUpgrades.goldenQuarks3.getEffect().bonus
-          )).sub(Decimal.mod(player.goldenQuarksTimer, (3600.00001 / Math.max(1, player.singularityUpgrades.goldenQuarks3.getEffect().bonus))))
+          3600
+              / Math.max(
+                1,
+                +player.singularityUpgrades.goldenQuarks3.getEffect().bonus
+              )
+            - (player.goldenQuarksTimer
+              % (3600.00001
+                / Math.max(
+                  1,
+                  +player.singularityUpgrades.goldenQuarks3.getEffect().bonus
+                )))
         ),
         y: format(goldenQuarkMultiplier, 2, true)
       }
     )
+
     DOMCacheGetOrSet('goldenQuarkTimerAmount').textContent = i18next.t(
       'settings.goldenQuarksOnExport',
       {
         x: format(
-          Decimal.mul(player.goldenQuarksTimer, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).div(3600).floor().mul(goldenQuarkMultiplier)
-          ,
+          Math.floor(
+            (player.goldenQuarksTimer
+              * +player.singularityUpgrades.goldenQuarks3.getEffect().bonus)
+              / 3600
+          ) * goldenQuarkMultiplier,
           2
         ),
         y: format(
@@ -1411,7 +1441,7 @@ export const visualUpdateSingularity = () => {
       ) {
         el.style.filter = val ? 'brightness(.9)' : 'none'
       } else if (
-        Decimal.gt(singItem.getCostTNL(), player.goldenQuarks)
+        singItem.getCostTNL() > player.goldenQuarks
         || player.singularityCount < singItem.minimumSingularity
       ) {
         el.style.filter = val ? 'grayscale(.9) brightness(.8)' : 'none'
@@ -1438,7 +1468,7 @@ export const visualUpdateSingularity = () => {
       const el = DOMCacheGetOrSet(`${String(key)}`)
       if (octItem.maxLevel !== -1 && octItem.level >= octItem.maxLevel) {
         el.style.filter = val ? 'brightness(.9)' : 'none'
-      } else if (Decimal.gt(octItem.getCostTNL(), player.wowOcteracts)) {
+      } else if (octItem.getCostTNL() > player.wowOcteracts) {
         el.style.filter = val ? 'grayscale(.9) brightness(.8)' : 'none'
       } else if (octItem.maxLevel === -1 || octItem.level < octItem.maxLevel) {
         if (octItem.freeLevels > octItem.level) {
@@ -1460,19 +1490,19 @@ export const visualUpdateOcteracts = () => {
     return
   }
   DOMCacheGetOrSet('octeractAmount').innerHTML = i18next.t('octeract.amount', {
-    octeracts: format(player.wowOcteracts, 2, true)
+    octeracts: format(player.wowOcteracts, 2, true, true, true)
   })
 
   const perSecond = octeractGainPerSecond()
 
-  DOMCacheGetOrSet('secondsPerOcteract').style.display = perSecond.lt(1) ? 'block' : 'none'
+  DOMCacheGetOrSet('secondsPerOcteract').style.display = perSecond < 1 ? 'block' : 'none'
   DOMCacheGetOrSet('secondsPerOcteract').innerHTML = i18next.t(
     'octeract.secondsPerOcteract',
     {
-      seconds: format(perSecond.recip(), 2, true)
+      seconds: format(1 / perSecond, 2, true)
     }
   )
-  DOMCacheGetOrSet('octeractPerSeconds').style.display = perSecond.gte(1) ? 'block' : 'none'
+  DOMCacheGetOrSet('octeractPerSeconds').style.display = perSecond >= 1 ? 'block' : 'none'
   DOMCacheGetOrSet('octeractPerSeconds').innerHTML = i18next.t(
     'octeract.octeractsPerSecond',
     {
@@ -1487,7 +1517,7 @@ export const visualUpdateOcteracts = () => {
   DOMCacheGetOrSet('totalOcteractAmount').innerHTML = i18next.t(
     'octeract.totalGenerated',
     {
-      octeracts: format(player.totalWowOcteracts, 2, true)
+      octeracts: format(player.totalWowOcteracts, 2, true, true, true)
     }
   )
   DOMCacheGetOrSet('totalOcteractCubeBonus').style.display = cTOCB >= 0.001 ? 'block' : 'none'
@@ -1536,10 +1566,8 @@ export const visualUpdateAmbrosia = () => {
   const availableBlueberries = player.caches.blueberryInventory.totalVal - player.spentBlueberries
   const totalTimePerSecond = player.caches.ambrosiaGeneration.totalVal
   const progressTimePerSecond = Math.min(totalTimePerSecond, Math.pow(1000 * totalTimePerSecond, 1/2))
-  const barWidth = Decimal.div(player.blueberryTime, requiredTime).min(1).mul(100).toNumber()
-  const pixelBarWidth = Decimal.div(player.ultimateProgress, 1e6).min(1).mul(100).toNumber()
-
-
+  const barWidth = 100 * Math.min(1, player.blueberryTime / requiredTime)
+  const pixelBarWidth = 100 * Math.min(1, player.ultimateProgress / 1e6)
   DOMCacheGetOrSet('ambrosiaProgress').style.width = `${barWidth}%`
   DOMCacheGetOrSet('ambrosiaProgressText').textContent = `${format(player.blueberryTime, 0, true)} / ${format(requiredTime, 0, true)} [+${format(totalTimePerSecond, 0, true)}/s]`
 
@@ -1676,7 +1704,7 @@ export const visualUpdateShop = () => {
         // Case: max level greater than 1, treat it as a fraction out of max level
         // TODO(@KhafraDev): i18n
         DOMCacheGetOrSet(`${key}Level`).textContent = `${
-          player.highestSingularityCount > 0 || player.ascensionCount.gt(0)
+          player.highestSingularityCount > 0 || player.ascensionCount > 0
             ? ''
             : 'Level '
         }${format(player.shopUpgrades[key])}/${format(shopItem.maxLevel)}`
@@ -1693,7 +1721,7 @@ export const visualUpdateShop = () => {
             : i18next.t('shop.upgradeFor', { x: format(getShopCosts(key)) })
           break
         case 'TEN':
-          buyData = calculateSummationNonLinearDecimal(
+          buyData = calculateSummationNonLinear(
             player.shopUpgrades[key],
             shopItem.price,
             +player.worlds,
@@ -1704,7 +1732,7 @@ export const visualUpdateShop = () => {
             ? i18next.t('shop.maxed')
             : i18next.t('shop.plusForQuarks', {
               x: format(
-                Decimal.sub(buyData.levelCanBuy, player.shopUpgrades[key]),
+                buyData.levelCanBuy - player.shopUpgrades[key],
                 0,
                 true
               ),
@@ -1712,7 +1740,7 @@ export const visualUpdateShop = () => {
             })
           break
         default:
-          buyData = calculateSummationNonLinearDecimal(
+          buyData = calculateSummationNonLinear(
             player.shopUpgrades[key],
             shopItem.price,
             +player.worlds,
@@ -1723,7 +1751,7 @@ export const visualUpdateShop = () => {
             ? i18next.t('shop.maxed')
             : i18next.t('shop.plusForQuarks', {
               x: format(
-                Decimal.sub(buyData.levelCanBuy, player.shopUpgrades[key]),
+                buyData.levelCanBuy - player.shopUpgrades[key],
                 0,
                 true
               ),
@@ -1733,7 +1761,7 @@ export const visualUpdateShop = () => {
     }
   }
 
-  DOMCacheGetOrSet('buySingularityQuarksAmount').textContent = `${player.goldenQuarks.lt(1000) ? 'Owned: ' : ''}${
+  DOMCacheGetOrSet('buySingularityQuarksAmount').textContent = `${player.goldenQuarks < 1000 ? 'Owned: ' : ''}${
     format(player.goldenQuarks)
   }`
   DOMCacheGetOrSet('buySingularityQuarksButton').textContent = `Buy! ${

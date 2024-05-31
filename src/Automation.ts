@@ -1,4 +1,4 @@
-import Decimal from 'break_eternity.js'
+import Decimal from 'break_infinity.js'
 import { achievementaward } from './Achievements'
 import { buyUpgrades } from './Buy'
 import { player } from './Synergism'
@@ -85,7 +85,7 @@ export const autoUpgrades = () => {
     for (let i = 121; i <= 125; i++) {
       if (
         player.upgrades[i] === 0 && player.coins.gte(Decimal.pow(10, G.upgradeCosts[i])) && player.shoptoggles.coin
-        && player.cubeUpgrades[19].gt(0)
+        && player.cubeUpgrades[19] > 0
       ) {
         buyUpgrades(Upgrade.coin, i, true)
       }
@@ -130,7 +130,7 @@ export const autoUpgrades = () => {
     }
   }
 
-  if (player.cubeUpgrades[8].gt(0)) {
+  if (player.cubeUpgrades[8] > 0) {
     for (let i = 61; i <= 80; i++) {
       if (
         player.upgrades[i] === 0 && player.reincarnationPoints.gte(Decimal.pow(10, G.upgradeCosts[i]))

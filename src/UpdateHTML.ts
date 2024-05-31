@@ -1,4 +1,4 @@
-import Decimal from 'break_eternity.js'
+import Decimal from 'break_infinity.js'
 import i18next from 'i18next'
 import { achievementaward, totalachievementpoints } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -142,7 +142,7 @@ export const revealStuff = () => {
 
   const example19 = document.getElementsByClassName('chal9x1') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example19.length; i++) {
-    player.highestchallengecompletions[9].gt(0)
+    player.highestchallengecompletions[9] > 0
       ? example19[i].style.display = 'block'
       : example19[i].style.display = 'none'
   }
@@ -156,35 +156,35 @@ export const revealStuff = () => {
   for (let i = 0; i < example21.length; i++) {
     const parent = example21[i].parentElement!
     if (parent.classList.contains('offlineStats')) {
-      example21[i].style.display = player.ascensionCount.gt(0) ? 'flex' : 'none'
+      example21[i].style.display = player.ascensionCount > 0 ? 'flex' : 'none'
     } else {
-      example21[i].style.display = player.ascensionCount.gt(0) ? 'block' : 'none'
+      example21[i].style.display = player.ascensionCount > 0 ? 'block' : 'none'
     }
   }
 
   const example22 = document.getElementsByClassName('chal11') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example22.length; i++) {
-    player.challengecompletions[11].gt(0) ? example22[i].style.display = 'block' : example22[i].style.display = 'none'
+    player.challengecompletions[11] > 0 ? example22[i].style.display = 'block' : example22[i].style.display = 'none'
   }
 
   const example23 = document.getElementsByClassName('chal12') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example23.length; i++) {
-    player.challengecompletions[12].gt(0) ? example23[i].style.display = 'block' : example23[i].style.display = 'none'
+    player.challengecompletions[12] > 0 ? example23[i].style.display = 'block' : example23[i].style.display = 'none'
   }
 
   const example24 = document.getElementsByClassName('chal13') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example24.length; i++) {
-    player.challengecompletions[13].gt(0) ? example24[i].style.display = 'block' : example24[i].style.display = 'none'
+    player.challengecompletions[13] > 0 ? example24[i].style.display = 'block' : example24[i].style.display = 'none'
   }
 
   const example25 = document.getElementsByClassName('chal14') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example25.length; i++) {
-    player.challengecompletions[14].gt(0) ? example25[i].style.display = 'block' : example25[i].style.display = 'none'
+    player.challengecompletions[14] > 0 ? example25[i].style.display = 'block' : example25[i].style.display = 'none'
   }
 
   const example26 = document.getElementsByClassName('ascendunlockib') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example26.length; i++) {
-    example26[i].style.display = player.ascensionCount.gt(0) ? 'inline-block' : 'none'
+    example26[i].style.display = player.ascensionCount > 0 ? 'inline-block' : 'none'
   }
 
   const example27 = document.getElementsByClassName('prestigeunlockib') as HTMLCollectionOf<HTMLElement>
@@ -199,12 +199,12 @@ export const revealStuff = () => {
 
   const example29 = document.getElementsByClassName('cubeUpgrade10') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example29.length; i++) {
-    example29[i].style.display = player.cubeUpgrades[10].gt(0) ? 'flex' : 'none'
+    example29[i].style.display = player.cubeUpgrades[10] > 0 ? 'flex' : 'none'
   }
 
   const example30 = document.getElementsByClassName('cubeUpgrade19') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example30.length; i++) {
-    example30[i].style.display = player.cubeUpgrades[19].gt(0) ? 'block' : 'none'
+    example30[i].style.display = player.cubeUpgrades[19] > 0 ? 'block' : 'none'
   }
 
   const example31 = document.getElementsByClassName('sacrificeAnts') as HTMLCollectionOf<HTMLElement>
@@ -214,7 +214,7 @@ export const revealStuff = () => {
 
   const example32 = document.getElementsByClassName('hepteracts') as HTMLCollectionOf<HTMLElement>
   for (const ex of Array.from(example32)) { // Ability to use and gain hepteracts //
-    ex.style.display = player.challenge15Exponent.gte(1e15) ? 'block' : 'none'
+    ex.style.display = player.challenge15Exponent >= 1e15 ? 'block' : 'none'
   }
 
   const singularityHTMLs = document.getElementsByClassName('singularity') as HTMLCollectionOf<HTMLElement>
@@ -387,7 +387,7 @@ export const revealStuff = () => {
   player.researches[190] > 0 // 8x15 Research [Auto Tesseracts]
     ? DOMCacheGetOrSet('autotessbuyeramount').style.display = 'block'
     : DOMCacheGetOrSet('autotessbuyeramount').style.display = 'none'
-  ;(player.antUpgrades[11]! > 0 || player.ascensionCount.gt(0)) // Ant Talisman Unlock, Mortuus
+  ;(player.antUpgrades[11]! > 0 || player.ascensionCount > 0) // Ant Talisman Unlock, Mortuus
     ? DOMCacheGetOrSet('talisman6area').style.display = 'flex'
     : DOMCacheGetOrSet('talisman6area').style.display = 'none'
 
@@ -395,7 +395,7 @@ export const revealStuff = () => {
     ? DOMCacheGetOrSet('toggleautosacrifice').style.display = 'block'
     : DOMCacheGetOrSet('toggleautosacrifice').style.display = 'none'
 
-  player.cubeUpgrades[51].gt(0) && player.highestSingularityCount >= 40 // Auto Fragments Buy (After Cx1)
+  player.cubeUpgrades[51] > 0 && player.highestSingularityCount >= 40 // Auto Fragments Buy (After Cx1)
     ? DOMCacheGetOrSet('toggleautoBuyFragments').style.display = 'block'
     : DOMCacheGetOrSet('toggleautoBuyFragments').style.display = 'none'
 
@@ -412,7 +412,7 @@ export const revealStuff = () => {
     ? DOMCacheGetOrSet('talisman7area').style.display = 'flex'
     : DOMCacheGetOrSet('talisman7area').style.display = 'none'
 
-  player.cubeUpgrades[8].gt(0)
+  player.cubeUpgrades[8] > 0
     ? DOMCacheGetOrSet('reincarnateAutoUpgrade').style.display = 'block'
     : DOMCacheGetOrSet('reincarnateAutoUpgrade').style.display = 'none'
 
@@ -467,12 +467,12 @@ export const revealStuff = () => {
     : DOMCacheGetOrSet('toggleAutoPlatonicUpgrades').style.display = 'none'
 
   // Singularity confirmation toggle pic
-  player.highestSingularityCount > 0 && player.ascensionCount.gt(0)
+  player.highestSingularityCount > 0 && player.ascensionCount > 0
     ? (DOMCacheGetOrSet('settingpic6').style.display = 'block')
     : (DOMCacheGetOrSet('settingpic6').style.display = 'none')
 
   // Hepteract Confirmations toggle
-  player.highestSingularityCount > 0 && player.challenge15Exponent.gte(1e15)
+  player.highestSingularityCount > 0 && player.challenge15Exponent >= 1e15
     ? (DOMCacheGetOrSet('heptnotificationpic').style.display = 'block')
     : (DOMCacheGetOrSet('heptnotificationpic').style.display = 'none')
 
@@ -493,18 +493,18 @@ export const revealStuff = () => {
       ? 'block'
       : 'none'
 
-  player.runelevels[6].gt(0) || player.highestSingularityCount > 0
+  player.runelevels[6] > 0 || player.highestSingularityCount > 0
     ? (DOMCacheGetOrSet('singularitybtn').style.display = 'block')
     : (DOMCacheGetOrSet('singularitybtn').style.display = 'none')
 
-  player.highestSingularityCount > 0 && player.ascensionCount.gte(1)
+  player.highestSingularityCount > 0 && player.ascensionCount >= 1
     ? (DOMCacheGetOrSet('totalQuarkCountStatisticSing').style.display = 'block')
     : (DOMCacheGetOrSet('totalQuarkCountStatisticSing').style.display = 'none')
 
   DOMCacheGetOrSet('ascensionStats').style.visibility =
     (player.achievements[197] > 0 || player.highestSingularityCount > 0) ? 'visible' : 'hidden'
-  DOMCacheGetOrSet('ascHyperStats').style.display = player.challengecompletions[13].gt(0) ? '' : 'none'
-  DOMCacheGetOrSet('ascPlatonicStats').style.display = player.challengecompletions[14].gt(0) ? '' : 'none'
+  DOMCacheGetOrSet('ascHyperStats').style.display = player.challengecompletions[13] > 0 ? '' : 'none'
+  DOMCacheGetOrSet('ascPlatonicStats').style.display = player.challengecompletions[14] > 0 ? '' : 'none'
   DOMCacheGetOrSet('ascHepteractStats').style.display = player.achievements[255] > 0 ? '' : 'none'
 
   // I'll clean this up later. Note to 2019 Platonic: Fuck you
@@ -534,31 +534,31 @@ export const revealStuff = () => {
     toggle19: player.upgrades[97] === 1, // Autobuyer - Mythos Buildings - Tier 4 (Oracles)
     toggle20: player.upgrades[98] === 1, // Autobuyer - Mythos Buildings - Tier 5 (Grandmasters)
     toggle21: player.upgrades[89] === 1, // Feature - Mythos Buildings - Auto Transcend
-    toggle22: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 1 (Protons)
-    toggle23: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 2 (Elements)
-    toggle24: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 3 (Pulsars)
-    toggle25: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 4 (Quasars)
-    toggle26: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 5 (Galactic Nuclei)
+    toggle22: player.cubeUpgrades[7] === 1, // Autobuyer - Particle Buildings - Tier 1 (Protons)
+    toggle23: player.cubeUpgrades[7] === 1, // Autobuyer - Particle Buildings - Tier 2 (Elements)
+    toggle24: player.cubeUpgrades[7] === 1, // Autobuyer - Particle Buildings - Tier 3 (Pulsars)
+    toggle25: player.cubeUpgrades[7] === 1, // Autobuyer - Particle Buildings - Tier 4 (Quasars)
+    toggle26: player.cubeUpgrades[7] === 1, // Autobuyer - Particle Buildings - Tier 5 (Galactic Nuclei)
     toggle27: player.researches[46] === 1, // Feature - Particle Buildings - Auto Reincarnate
     coinAutoUpgrade: player.upgrades[91] === 1, // Feature - Upgrades - Auto Buy Coin Upgrades
     prestigeAutoUpgrade: player.upgrades[92] === 1, // Feature - Upgrades - Auto Buy Diamond Upgrades
     transcendAutoUpgrade: player.upgrades[99] === 1, // Feature - Upgrades - Auto Buy Mythos Upgrades
     generatorsAutoUpgrade: player.upgrades[90] === 1, // Feature - Upgrades - Auto Buy Generator Upgrades
     toggle9: player.unlocks.prestige, // Feature - Upgrades - Hover to Buy
-    toggle28: player.prestigeCount.gt(0.5) || player.reincarnationCount.gt(0.5), // Settings - Confirmations - Prestige
-    toggle29: player.transcendCount.gt(0.5) || player.reincarnationCount.gt(0.5), // Settings - Confirmations - Transcension
-    toggle30: player.reincarnationCount.gt(0.5), // Settings - Confirmations - Reincarnation
-    toggle31: player.ascensionCount.gt(0), // Settings - Confirmations - Ascension and Asc. Challenge
+    toggle28: player.prestigeCount > 0.5 || player.reincarnationCount > 0.5, // Settings - Confirmations - Prestige
+    toggle29: player.transcendCount > 0.5 || player.reincarnationCount > 0.5, // Settings - Confirmations - Transcension
+    toggle30: player.reincarnationCount > 0.5, // Settings - Confirmations - Reincarnation
+    toggle31: player.ascensionCount > 0, // Settings - Confirmations - Ascension and Asc. Challenge
     toggle32: player.achievements[173] > 0, // Settings - Confirmations - Ant Sacrifice
-    toggle33: player.highestSingularityCount > 0 && player.ascensionCount.gt(0), // Settings - Confirmations - Singularity
+    toggle33: player.highestSingularityCount > 0 && player.ascensionCount > 0, // Settings - Confirmations - Singularity
     toggle34: player.unlocks.coinfour, // Achievements - Notifications
-    toggle35: player.challenge15Exponent.gte(1e15) && player.highestSingularityCount > 0, // Hepteracts - Notifications
+    toggle35: player.challenge15Exponent >= 1e15 && player.highestSingularityCount > 0, // Hepteracts - Notifications
     toggle36: player.highestSingularityCount >= 15, // Auto Blessings
     toggle37: player.highestSingularityCount >= 15, // Auto Spirits
     toggle38: player.highestSingularityCount > 0, // Researchs Hover to Buy
     toggle39: player.unlocks.prestige, // Hotkeys
     toggle40: player.unlocks.prestige, // Number Hotkeys
-    toggle41: player.challengecompletions[11].gt(0), // Loadouts Notifx
+    toggle41: player.challengecompletions[11] > 0, // Loadouts Notifx
     toggle42: player.highestSingularityCount >= 6, // Potion Autogenerator for Offering Potions
     toggle43: player.highestSingularityCount >= 6 // Potion Autogenerator for Obtainium Potions
   }
@@ -638,7 +638,7 @@ export const hideStuff = () => {
     DOMCacheGetOrSet('runestab').style.backgroundColor = 'blue'
     DOMCacheGetOrSet('runeshowlevelup').textContent = i18next.t('runes.hover')
     DOMCacheGetOrSet('researchrunebonus').textContent = i18next.t('runes.thanksResearches', {
-      percent: format(G.effectiveLevelMult.sub(1).mul(100), 4, true)
+      percent: format(100 * G.effectiveLevelMult - 100, 4, true)
     })
     displayRuneInformation(1, false)
     displayRuneInformation(2, false)
@@ -764,9 +764,9 @@ export const buttoncolorchange = () => {
   DOMCacheGetOrSet('ascendChallengeBtn').style.backgroundColor = player.currentChallenge.ascension === 0 ? '' : 'purple'
 
   DOMCacheGetOrSet('ascendbtn').style.backgroundColor =
-    player.autoAscend && player.challengecompletions[11].gt(0) && player.cubeUpgrades[10].gt(0) ? 'green' : ''
+    player.autoAscend && player.challengecompletions[11] > 0 && player.cubeUpgrades[10] > 0 ? 'green' : ''
 
-  DOMCacheGetOrSet('singularitybtn').style.filter = player.runelevels[6].gt(0)
+  DOMCacheGetOrSet('singularitybtn').style.filter = player.runelevels[6] > 0
     ? ''
     : 'contrast(1.25) sepia(1) grayscale(0.25)'
 
@@ -787,8 +787,8 @@ export const buttoncolorchange = () => {
         ? 'greenyellow 0px 0px 10px 2px'
         : ''
     }
-    if (player.toggles[31] && player.ascensionCount.eq(0)) {
-      DOMCacheGetOrSet('ascendbtn').style.boxShadow = player.challengecompletions[10].gt(0)
+    if (player.toggles[31] && player.ascensionCount === 0) {
+      DOMCacheGetOrSet('ascendbtn').style.boxShadow = player.challengecompletions[10] > 0
         ? 'orange 0px 0px 10px 2px'
         : ''
     }
@@ -855,42 +855,63 @@ export const buttoncolorchange = () => {
     ;((!player.toggles[14] || player.achievements[106] === 0) && player.prestigePoints.gte(player.fifthCostDiamonds))
       ? e.classList.add('buildingPurchaseBtnAvailable')
       : e.classList.remove('buildingPurchaseBtnAvailable')
-    let k = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor()
+    let k = 0
+    k += Math.floor(G.rune3level / 16 * G.effectiveLevelMult) * 100 / 100
     if (player.upgrades[73] === 1 && player.currentChallenge.reincarnation !== 0) {
-      k = k.add(10)
+      k += 10
     }
 
     player.achievements[79] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[0], Decimal.mul(G.crystalUpgradeCostIncrement[0], Decimal.sub(player.crystalUpgrades[0], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.pow(
+            10,
+            G.crystalUpgradesCost[0]
+              + G.crystalUpgradeCostIncrement[0] * Math.floor(Math.pow(player.crystalUpgrades[0] + 0.5 - k, 2) / 2)
+          )
         )
         ? f.style.backgroundColor = 'purple'
         : f.style.backgroundColor = '')
       : f.style.backgroundColor = 'green'
     player.achievements[86] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[1], Decimal.mul(G.crystalUpgradeCostIncrement[1], Decimal.sub(player.crystalUpgrades[1], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.pow(
+            10,
+            G.crystalUpgradesCost[1]
+              + G.crystalUpgradeCostIncrement[1] * Math.floor(Math.pow(player.crystalUpgrades[1] + 0.5 - k, 2) / 2)
+          )
         )
         ? g.style.backgroundColor = 'purple'
         : g.style.backgroundColor = '')
       : g.style.backgroundColor = 'green'
     player.achievements[93] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[2], Decimal.mul(G.crystalUpgradeCostIncrement[2], Decimal.sub(player.crystalUpgrades[2], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.pow(
+            10,
+            G.crystalUpgradesCost[2]
+              + G.crystalUpgradeCostIncrement[2] * Math.floor(Math.pow(player.crystalUpgrades[2] + 0.5 - k, 2) / 2)
+          )
         )
         ? h.style.backgroundColor = 'purple'
         : h.style.backgroundColor = '')
       : h.style.backgroundColor = 'green'
     player.achievements[100] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[3], Decimal.mul(G.crystalUpgradeCostIncrement[3], Decimal.sub(player.crystalUpgrades[3], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.pow(
+            10,
+            G.crystalUpgradesCost[3]
+              + G.crystalUpgradeCostIncrement[3] * Math.floor(Math.pow(player.crystalUpgrades[3] + 0.5 - k, 2) / 2)
+          )
         )
         ? i.style.backgroundColor = 'purple'
         : i.style.backgroundColor = '')
       : i.style.backgroundColor = 'green'
     player.achievements[107] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[4], Decimal.mul(G.crystalUpgradeCostIncrement[4], Decimal.sub(player.crystalUpgrades[4], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.pow(
+            10,
+            G.crystalUpgradesCost[4]
+              + G.crystalUpgradeCostIncrement[4] * Math.floor(Math.pow(player.crystalUpgrades[4] + 0.5 - k, 2) / 2)
+          )
         )
         ? j.style.backgroundColor = 'purple'
         : j.style.backgroundColor = '')
@@ -900,7 +921,7 @@ export const buttoncolorchange = () => {
   if (G.currentTab === Tabs.Runes) {
     if (G.runescreen === 'runes') {
       for (let i = 1; i <= 7; i++) {
-        player.runeshards.gt(0.5)
+        player.runeshards > 0.5
           ? DOMCacheGetOrSet(`activaterune${i}`).classList.add('runeButtonAvailable')
           : DOMCacheGetOrSet(`activaterune${i}`).classList.remove('runeButtonAvailable')
       }
@@ -915,7 +936,8 @@ export const buttoncolorchange = () => {
       const g = DOMCacheGetOrSet('buyTalismanItem7')
       const arr = [a, b, c, d, e, f, g]
       for (let i = 0; i < arr.length; i++) {
-        ;(Decimal.gt(player.researchPoints, G.talismanResourceObtainiumCosts[i]) && Decimal.gt(player.runeshards, G.talismanResourceOfferingCosts[i]))
+        ;(player.researchPoints > G.talismanResourceObtainiumCosts[i]
+            && player.runeshards > G.talismanResourceOfferingCosts[i])
           ? arr[i].classList.add('talisminBtnAvailable')
           : arr[i].classList.remove('talisminBtnAvailable')
       }
@@ -961,7 +983,7 @@ export const buttoncolorchange = () => {
     }
 
     for (let i = 9; i <= 10; i++) {
-      if (player.researches[175] >= 1 || player.constantUpgrades[i]!.gte(1)) {
+      if (player.researches[175] >= 1 || player.constantUpgrades[i]! >= 1) {
         DOMCacheGetOrSet(`buyConstantUpgrade${i}`).classList.remove('constUpgradeAvailable')
         DOMCacheGetOrSet(`buyConstantUpgrade${i}`).classList.add('constUpgradeAuto')
       } else {
@@ -1070,18 +1092,18 @@ export const showCorruptionStatsLoadouts = () => {
 const updateAscensionStats = () => {
   let t = player.ascensionCounter
   // Division by 0 is not defined
-  if (t.eq(0)) {
-    t = new Decimal(1)
+  if (t === 0) {
+    t = 1
   }
   const [cubes, tess, hyper, platonic, hepteract] = CalcCorruptionStuff().slice(4)
   const addedAsterisk = player.singularityUpgrades.oneMind.getEffect().bonus
   const fillers: Record<string, string> = {
-    ascLen: formatTimeShort(player.ascStatToggles[6] ? player.ascensionCounter : player.ascensionCounterReal),
-    ascCubes: format(Decimal.mul(cubes, (player.ascStatToggles[1] ? 1 : t.recip())), 2),
-    ascTess: format(Decimal.mul(tess, (player.ascStatToggles[2] ? 1 : t.recip())), 3),
-    ascHyper: format(Decimal.mul(hyper, (player.ascStatToggles[3] ? 1 : t.recip())), 4),
-    ascPlatonic: format(Decimal.mul(platonic, (player.ascStatToggles[4] ? 1 : t.recip())), 5),
-    ascHepteract: format(Decimal.mul(hepteract, (player.ascStatToggles[5] ? 1 : t.recip())), 3),
+    ascLen: formatTimeShort(player.ascStatToggles[6] ? player.ascensionCounter : player.ascensionCounterReal, 0),
+    ascCubes: format(cubes * (player.ascStatToggles[1] ? 1 : 1 / t), 2),
+    ascTess: format(tess * (player.ascStatToggles[2] ? 1 : 1 / t), 3),
+    ascHyper: format(hyper * (player.ascStatToggles[3] ? 1 : 1 / t), 4),
+    ascPlatonic: format(platonic * (player.ascStatToggles[4] ? 1 : 1 / t), 5),
+    ascHepteract: format(hepteract * (player.ascStatToggles[5] ? 1 : 1 / t), 3),
     ascC10: `${format(player.challengecompletions[10])}`,
     ascTimeAccel: `${format(calculateTimeAcceleration().mult, 3)}x`,
     ascAscensionTimeAccel: `${format(calculateAscensionAcceleration(), 3)}x${addedAsterisk ? '*' : ''}`,

@@ -128,7 +128,6 @@ import {
   upgradedescriptions
 } from './Upgrades'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 /* STYLE GUIDE */
 /*
@@ -912,7 +911,7 @@ TODO: Fix this entire tab it's utter shit
   // DOMCacheGetOrSet('offeringPotions').addEventListener('click', () => buyShopUpgrades("offeringPotion"))  //Allow clicking of image to buy also
   DOMCacheGetOrSet('useofferingpotion').addEventListener('click', () => useConsumable('offeringPotion'))
   DOMCacheGetOrSet('toggle42').addEventListener('click', () => {
-    player.autoPotionTimer = new Decimal(0)
+    player.autoPotionTimer = 0
   })
   /*Obtainium Potion*/
   DOMCacheGetOrSet('obtainiumPotions').addEventListener('mouseover', () => shopDescriptions('obtainiumPotion'))
@@ -923,7 +922,7 @@ TODO: Fix this entire tab it's utter shit
   // DOMCacheGetOrSet('obtainiumPotions').addEventListener('click', () => buyShopUpgrades("obtainiumPotion"))  //Allow clicking of image to buy also
   DOMCacheGetOrSet('useobtainiumpotion').addEventListener('click', () => useConsumable('obtainiumPotion'))
   DOMCacheGetOrSet('toggle43').addEventListener('click', () => {
-    player.autoPotionTimerObtainium = new Decimal(0)
+    player.autoPotionTimerObtainium = 0
   })
   /* Permanent Upgrade Images */
   const shopKeys = Object.keys(
