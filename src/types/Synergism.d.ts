@@ -1,4 +1,4 @@
-import type Decimal from 'break_infinity.js'
+import type Decimal from 'break_eternity.js'
 import type { BlueberryUpgrade } from '../BlueberryUpgrades'
 import type { WowCubes, WowHypercubes, WowPlatonicCubes, WowTesseracts } from '../CubeExperimental'
 import type { HepteractCraft } from '../Hepteracts'
@@ -197,19 +197,19 @@ export interface Player {
   }
 
   multiplierCost: Decimal
-  multiplierBought: number
+  multiplierBought: Decimal
 
   acceleratorCost: Decimal
-  acceleratorBought: number
+  acceleratorBought: Decimal
 
-  acceleratorBoostBought: number
+  acceleratorBoostBought: Decimal
   acceleratorBoostCost: Decimal
 
   upgrades: number[]
 
-  prestigeCount: number
-  transcendCount: number
-  reincarnationCount: number
+  prestigeCount: Decimal
+  transcendCount: Decimal
+  reincarnationCount: Decimal
 
   prestigePoints: Decimal
   transcendPoints: Decimal
@@ -221,10 +221,10 @@ export interface Player {
 
   toggles: Record<number, boolean>
 
-  challengecompletions: number[]
-  highestchallengecompletions: number[]
-  challenge15Exponent: number
-  highestChallenge15Exponent: number
+  challengecompletions: Decimal[]
+  highestchallengecompletions: Decimal[]
+  challenge15Exponent: Decimal
+  highestChallenge15Exponent: Decimal
 
   retrychallenges: boolean
   currentChallenge: {
@@ -232,11 +232,11 @@ export interface Player {
     reincarnation: number
     ascension: number
   }
-  researchPoints: number
-  obtainiumtimer: number
-  obtainiumpersecond: number
-  maxobtainiumpersecond: number
-  maxobtainium: number
+  researchPoints: Decimal
+  obtainiumtimer: Decimal
+  obtainiumpersecond: Decimal
+  maxobtainiumpersecond: Decimal
+  maxobtainium: Decimal
   // Ignore the first index. The other 25 are shaped in a 5x5 grid similar to the production appearance
   researches: number[]
 
@@ -272,27 +272,27 @@ export interface Player {
   reincarnatenocoinprestigeortranscendupgrades: boolean
   reincarnatenocoinprestigetranscendorgeneratorupgrades: boolean
 
-  crystalUpgrades: number[]
-  crystalUpgradesCost: number[]
+  crystalUpgrades: Decimal[]
+  crystalUpgradesCost: Decimal[]
 
-  runelevels: number[]
-  runeexp: number[]
-  runeshards: number
-  maxofferings: number
-  offeringpersecond: number
+  runelevels: Decimal[]
+  runeexp: Decimal[]
+  runeshards: Decimal
+  maxofferings: Decimal
+  offeringpersecond: Decimal
 
-  prestigecounter: number
-  transcendcounter: number
-  reincarnationcounter: number
+  prestigecounter: Decimal
+  transcendcounter: Decimal
+  reincarnationcounter: Decimal
   offlinetick: number
 
-  prestigeamount: number
-  transcendamount: number
-  reincarnationamount: number
+  prestigeamount: Decimal
+  transcendamount: Decimal
+  reincarnationamount: Decimal
 
-  fastestprestige: number
-  fastesttranscend: number
-  fastestreincarnate: number
+  fastestprestige: Decimal
+  fastesttranscend: Decimal
+  fastestreincarnate: Decimal
 
   resettoggle1: number
   resettoggle2: number
@@ -405,8 +405,8 @@ export interface Player {
   shopConfirmationToggle: boolean
   shopBuyMaxToggle: boolean | 'TEN' | 'ANY'
   shopHideToggle: boolean
-  autoPotionTimer: number
-  autoPotionTimerObtainium: number
+  autoPotionTimer: Decimal
+  autoPotionTimerObtainium: Decimal
 
   autoSacrificeToggle: boolean
   autoBuyFragment: boolean
@@ -417,15 +417,15 @@ export interface Player {
   autoResearchMode: 'cheapest' | 'manual'
   autoResearch: number
   autoSacrifice: number
-  sacrificeTimer: number
-  quarkstimer: number
-  goldenQuarksTimer: number
+  sacrificeTimer: Decimal
+  quarkstimer: Decimal
+  goldenQuarksTimer: Decimal
 
   antPoints: Decimal
   antUpgrades: (null | number)[]
-  antSacrificePoints: number
-  antSacrificeTimer: number
-  antSacrificeTimerReal: number
+  antSacrificePoints: Decimal
+  antSacrificeTimer: Decimal
+  antSacrificeTimerReal: Decimal
 
   talismanLevels: number[]
   talismanRarity: number[]
@@ -436,13 +436,13 @@ export interface Player {
   talismanFive: (null | number)[]
   talismanSix: (null | number)[]
   talismanSeven: (null | number)[]
-  talismanShards: number
-  commonFragments: number
-  uncommonFragments: number
-  rareFragments: number
-  epicFragments: number
-  legendaryFragments: number
-  mythicalFragments: number
+  talismanShards: Decimal
+  commonFragments: Decimal
+  uncommonFragments: Decimal
+  rareFragments: Decimal
+  epicFragments: Decimal
+  legendaryFragments: Decimal
+  mythicalFragments: Decimal
 
   buyTalismanShardPercent: number
 
@@ -451,10 +451,10 @@ export interface Player {
   autoAntSacrificeMode: number
   antMax: boolean
 
-  ascensionCount: number
-  ascensionCounter: number
-  ascensionCounterReal: number
-  ascensionCounterRealReal: number
+  ascensionCount: Decimal
+  ascensionCounter: Decimal
+  ascensionCounterReal: Decimal
+  ascensionCounterRealReal: Decimal
   autoOpenCubes: boolean
   openCubes: number
   autoOpenTesseracts: boolean
@@ -463,7 +463,7 @@ export interface Player {
   openHypercubes: number
   autoOpenPlatonicsCubes: boolean
   openPlatonicsCubes: number
-  cubeUpgrades: [null, ...number[]]
+  cubeUpgrades: [null, ...Decimal[]]
   cubeUpgradesBuyMaxToggle: boolean
   autoCubeUpgradesToggle: boolean
   autoPlatonicUpgradesToggle: boolean
@@ -473,9 +473,9 @@ export interface Player {
   wowTesseracts: WowTesseracts
   wowHypercubes: WowHypercubes
   wowPlatonicCubes: WowPlatonicCubes
-  wowAbyssals: number
-  wowOcteracts: number
-  totalWowOcteracts: number
+  wowAbyssals: Decimal
+  wowOcteracts: Decimal
+  totalWowOcteracts: Decimal
   cubeBlessings: {
     accelerator: number
     multiplier: number
@@ -535,7 +535,7 @@ export interface Player {
   corruptionLoadoutNames: string[]
   corruptionShowStats: boolean
 
-  constantUpgrades: [null, ...number[]]
+  constantUpgrades: [null, ...Decimal[]]
   history: Record<Category, ResetHistoryEntryUnion[]>
   historyShowPerSecond: boolean
 
@@ -545,8 +545,8 @@ export interface Player {
   autoChallengeStartExponent: number
   autoChallengeTimer: Record<string, number>
 
-  runeBlessingLevels: number[]
-  runeSpiritLevels: number[]
+  runeBlessingLevels: Decimal[]
+  runeSpiritLevels: Decimal[]
   runeBlessingBuyAmount: number
   runeSpiritBuyAmount: number
 
@@ -594,16 +594,16 @@ export interface Player {
     acceleratorBoost: HepteractCraft
     multiplier: HepteractCraft
   }
-  overfluxOrbs: number
+  overfluxOrbs: Decimal
   overfluxOrbsAutoBuy: boolean
-  overfluxPowder: number
+  overfluxPowder: Decimal
   dailyPowderResetUses: number
   autoWarpCheck: boolean
 
   singularityCount: number
   highestSingularityCount: number
-  singularityCounter: number
-  goldenQuarks: number
+  singularityCounter: Decimal
+  goldenQuarks: Decimal
   quarksThisSingularity: number
   totalQuarksEver: number
   hotkeys: Record<number, string[]>
@@ -615,7 +615,7 @@ export interface Player {
   octeractUpgrades: Record<keyof typeof octeractData, OcteractUpgrade>
   dailyCodeUsed: boolean
   hepteractAutoCraftPercentage: number
-  octeractTimer: number
+  octeractTimer: Decimal
 
   insideSingularityChallenge: boolean
   singularityChallenges: Record<
@@ -625,8 +625,7 @@ export interface Player {
 
   ambrosia: number
   lifetimeAmbrosia: number
-  blueberryTime: number
-  ambrosiaRNG: number // DEPRECIATED, DO NOT USE
+  blueberryTime: Decimal
   visitedAmbrosiaSubtab: boolean
   spentBlueberries: number
   blueberryUpgrades: Record<
@@ -636,8 +635,8 @@ export interface Player {
   blueberryLoadouts: Record<number, BlueberryOpt>
   blueberryLoadoutMode: BlueberryLoadoutMode
 
-  ultimateProgress: number
-  ultimatePixels: number
+  ultimateProgress: Decimal
+  ultimatePixels: Decimal
 
   caches: {
     ambrosiaLuckAdditiveMult: AmbrosiaLuckAdditiveMultCache
@@ -655,7 +654,7 @@ export interface Player {
 export interface GlobalVariables {
   runediv: number[]
   runeexpbase: number[]
-  runeMaxLvl: number
+  runeMaxLvl: Decimal
   upgradeCosts: number[]
 
   // Mega list of Variables to be used elsewhere
@@ -667,29 +666,29 @@ export interface GlobalVariables {
 
   ticker: number
 
-  costDivisor: number
+  costDivisor: Decimal
 
-  freeAccelerator: number
-  totalAccelerator: number
-  freeAcceleratorBoost: number
-  totalAcceleratorBoost: number
-  acceleratorPower: number
+  freeAccelerator: Decimal
+  totalAccelerator: Decimal
+  freeAcceleratorBoost: Decimal
+  totalAcceleratorBoost: Decimal
+  acceleratorPower: Decimal
   acceleratorEffect: Decimal
   acceleratorEffectDisplay: Decimal
   generatorPower: Decimal
 
-  freeMultiplier: number
-  totalMultiplier: number
-  multiplierPower: number
+  freeMultiplier: Decimal
+  totalMultiplier: Decimal
+  multiplierPower: Decimal
   multiplierEffect: Decimal
-  challengeOneLog: number
-  freeMultiplierBoost: number
-  totalMultiplierBoost: number
+  challengeOneLog: Decimal
+  freeMultiplierBoost: Decimal
+  totalMultiplierBoost: Decimal
 
   globalCoinMultiplier: Decimal
-  totalCoinOwned: number
+  totalCoinOwned: Decimal
   prestigeMultiplier: Decimal
-  buildingPower: number
+  buildingPower: Decimal
   reincarnationMultiplier: Decimal
 
   coinOneMulti: Decimal
@@ -704,12 +703,12 @@ export interface GlobalVariables {
 
   atomsMultiplier: Decimal
 
-  mythosBuildingPower: number
+  mythosBuildingPower: Decimal
   challengeThreeMultiplier: Decimal
-  totalMythosOwned: number
+  totalMythosOwned: Decimal
 
   prestigePointGain: Decimal
-  challengeFivePower: number
+  challengeFivePower: Decimal
 
   transcendPointGain: Decimal
   reincarnationPointGain: Decimal
@@ -786,13 +785,13 @@ export interface GlobalVariables {
   mythosupgrade15: Decimal
   challengefocus: number
 
-  maxexponent: number
+  maxexponent: Decimal
 
-  effectiveLevelMult: number
-  optimalOfferingTimer: number
-  optimalObtainiumTimer: number
+  effectiveLevelMult: Decimal
+  optimalOfferingTimer: Decimal
+  optimalObtainiumTimer: Decimal
 
-  runeSum: number
+  runeSum: Decimal
 
   globalAntMult: Decimal
   antMultiplier: Decimal
@@ -811,37 +810,37 @@ export interface GlobalVariables {
   antUpgradeBaseCost: number[]
   antUpgradeCostIncreases: number[]
 
-  bonusant1: number
-  bonusant2: number
-  bonusant3: number
-  bonusant4: number
-  bonusant5: number
-  bonusant6: number
-  bonusant7: number
-  bonusant8: number
-  bonusant9: number
-  bonusant10: number
-  bonusant11: number
-  bonusant12: number
+  bonusant1: Decimal
+  bonusant2: Decimal
+  bonusant3: Decimal
+  bonusant4: Decimal
+  bonusant5: Decimal
+  bonusant6: Decimal
+  bonusant7: Decimal
+  bonusant8: Decimal
+  bonusant9: Decimal
+  bonusant10: Decimal
+  bonusant11: Decimal
+  bonusant12: Decimal
 
-  rune1level: number
-  rune2level: number
-  rune3level: number
-  rune4level: number
-  rune5level: number
-  rune1Talisman: number
-  rune2Talisman: number
-  rune3Talisman: number
-  rune4Talisman: number
-  rune5Talisman: number
+  rune1level: Decimal
+  rune2level: Decimal
+  rune3level: Decimal
+  rune4level: Decimal
+  rune5level: Decimal
+  rune1Talisman: Decimal
+  rune2Talisman: Decimal
+  rune3Talisman: Decimal
+  rune4Talisman: Decimal
+  rune5Talisman: Decimal
 
-  talisman1Effect: [null, ...number[]]
-  talisman2Effect: [null, ...number[]]
-  talisman3Effect: [null, ...number[]]
-  talisman4Effect: [null, ...number[]]
-  talisman5Effect: [null, ...number[]]
-  talisman6Effect: [null, ...number[]]
-  talisman7Effect: [null, ...number[]]
+  talisman1Effect: [null, ...Decimal[]]
+  talisman2Effect: [null, ...Decimal[]]
+  talisman3Effect: [null, ...Decimal[]]
+  talisman4Effect: [null, ...Decimal[]]
+  talisman5Effect: [null, ...Decimal[]]
+  talisman6Effect: [null, ...Decimal[]]
+  talisman7Effect: [null, ...Decimal[]]
 
   talisman6Power: number
   talisman7Quarks: number
@@ -866,28 +865,28 @@ export interface GlobalVariables {
 
   talismanRespec: number
 
-  obtainiumGain: number
+  obtainiumGain: Decimal
 
   mirrorTalismanStats: [null, ...number[]]
-  antELO: number
-  effectiveELO: number
+  antELO: Decimal
+  effectiveELO: Decimal
 
   timeWarp: boolean
 
-  blessingMultiplier: number
-  spiritMultiplier: number
-  runeBlessings: number[]
-  runeSpirits: number[]
+  blessingMultiplier: Decimal
+  spiritMultiplier: Decimal
+  runeBlessings: Decimal[]
+  runeSpirits: Decimal[]
 
-  effectiveRuneBlessingPower: number[]
-  effectiveRuneSpiritPower: number[]
+  effectiveRuneBlessingPower: Decimal[]
+  effectiveRuneSpiritPower: Decimal[]
 
   blessingBaseCost: number
   spiritBaseCost: number
 
   triggerChallenge: number
 
-  prevReductionValue: number
+  prevReductionValue: Decimal
 
   buildingSubTab: BuildingSubtab
   // number000 of each before Diminishing Returns
@@ -906,7 +905,7 @@ export interface GlobalVariables {
   hypercubeBonusMultiplier: [null, ...number[]]
   platonicBonusMultiplier: number[]
 
-  autoOfferingCounter: number
+  autoOfferingCounter: Decimal
 
   researchOrderByCost: number[]
 
@@ -928,11 +927,11 @@ export interface GlobalVariables {
     fourth: Decimal
     fifth: Decimal
   }
-  freeUpgradeAccelerator: number
-  freeUpgradeMultiplier: number
+  freeUpgradeAccelerator: Decimal
+  freeUpgradeMultiplier: Decimal
 
-  acceleratorMultiplier: number
-  multiplierMultiplier: number
+  acceleratorMultiplier: Decimal
+  multiplierMultiplier: Decimal
 
   constUpgradeCosts: [null, ...number[]]
 
@@ -943,47 +942,47 @@ export interface GlobalVariables {
   corruptionTrigger: number
 
   challenge15Rewards: {
-    cube1: number
-    ascensions: number
-    coinExponent: number
-    taxes: number
-    obtainium: number
-    offering: number
-    accelerator: number
-    multiplier: number
-    runeExp: number
-    runeBonus: number
-    cube2: number
-    transcendChallengeReduction: number
-    reincarnationChallengeReduction: number
-    antSpeed: number
-    bonusAntLevel: number
-    cube3: number
-    talismanBonus: number
-    globalSpeed: number
-    blessingBonus: number
-    constantBonus: number
-    cube4: number
-    spiritBonus: number
-    score: number
-    quarks: number
-    hepteractUnlocked: number
-    cube5: number
-    powder: number
-    exponent: number
-    freeOrbs: number
-    ascensionSpeed: number
+    cube1: Decimal
+    ascensions: Decimal
+    coinExponent: Decimal
+    taxes: Decimal
+    obtainium: Decimal
+    offering: Decimal
+    accelerator: Decimal
+    multiplier: Decimal
+    runeExp: Decimal
+    runeBonus: Decimal
+    cube2: Decimal
+    transcendChallengeReduction: Decimal
+    reincarnationChallengeReduction: Decimal
+    antSpeed: Decimal
+    bonusAntLevel: Decimal
+    cube3: Decimal
+    talismanBonus: Decimal
+    globalSpeed: Decimal
+    blessingBonus: Decimal
+    constantBonus: Decimal
+    cube4: Decimal
+    spiritBonus: Decimal
+    score: Decimal
+    quarks: Decimal
+    hepteractUnlocked: Decimal
+    cube5: Decimal
+    powder: Decimal
+    exponent: Decimal
+    freeOrbs: Decimal
+    ascensionSpeed: Decimal
   }
 
   autoResetTimers: {
-    prestige: number
-    transcension: number
-    reincarnation: number
-    ascension: 0
+    prestige: Decimal
+    transcension: Decimal
+    reincarnation: Decimal
+    ascension: Decimal
   }
 
-  timeMultiplier: number
-  upgradeMultiplier: number
+  timeMultiplier: Decimal
+  upgradeMultiplier: Decimal
 
   historyCountMax: number
 
@@ -992,7 +991,7 @@ export interface GlobalVariables {
 
   eventClicked: boolean
 
-  ambrosiaTimer: number
+  ambrosiaTimer: Decimal
   TIME_PER_AMBROSIA: number
 
   currentSingChallenge: keyof Player['singularityChallenges'] | undefined

@@ -1,10 +1,11 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCashGrabBlueberryBonus, calculateCashGrabCubeBonus, calculateCashGrabQuarkBonus, calculatePowderConversion, calculateSummationNonLinear, calculateTimeAcceleration } from './Calculate'
+import { calculateCashGrabBlueberryBonus, calculateCashGrabCubeBonus, calculateCashGrabQuarkBonus, calculatePowderConversion, calculateSummationNonLinearDecimal, calculateTimeAcceleration } from './Calculate'
 import type { IMultiBuy } from './Cubes'
 import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt, revealStuff } from './UpdateHTML'
+import Decimal from 'break_eternity.js'
 
 /**
  * Standardization of metadata contained for each shop upgrade.
@@ -797,10 +798,9 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
     case 'offeringPotion':
       lol.innerHTML = i18next.t('shop.upgradeEffects.offeringPotion', {
         amount: format(
-          7200
-            * player.offeringpersecond
-            * calculateTimeAcceleration().mult
-            * +player.singularityUpgrades.potionBuff.getEffect().bonus,
+          Decimal.mul(player.offeringpersecond, 7200)
+            .mul(calculateTimeAcceleration().mult)
+            .mul(player.singularityUpgrades.potionBuff.getEffect().bonus),
           0,
           true
         )
@@ -809,10 +809,9 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
     case 'obtainiumPotion':
       lol.innerHTML = i18next.t('shop.upgradeEffects.obtainiumPotion', {
         amount: format(
-          7200
-            * player.maxobtainiumpersecond
-            * calculateTimeAcceleration().mult
-            * +player.singularityUpgrades.potionBuff.getEffect().bonus,
+          Decimal.mul(player.maxobtainiumpersecond, 7200)
+            .mul(calculateTimeAcceleration().mult)
+            .mul(player.singularityUpgrades.potionBuff.getEffect().bonus),
           0,
           true
         )
@@ -1051,9 +1050,7 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
     case 'powderAuto':
       lol.innerHTML = i18next.t('shop.upgradeEffects.powderAuto', {
         amount: format(
-          100
-            / (Math.max(1, player.shopUpgrades.powderAuto)
-              * calculatePowderConversion().mult),
+          Decimal.div(100, Decimal.mul(Math.max(1, player.shopUpgrades.powderAuto), calculatePowderConversion().mult)),
           2,
           true
         )
@@ -1183,10 +1180,7 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
       lol.innerHTML = i18next.t(
         'shop.upgradeEffects.shopOcteractAmbrosiaLuck',
         {
-          amount: format(
-            player.shopUpgrades.shopOcteractAmbrosiaLuck
-              * (1 + Math.floor(Math.log10(player.totalWowOcteracts + 1)))
-          )
+          amount: format(player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck))
         }
       )
       break
@@ -1376,40 +1370,40 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
 
   let buyData: IMultiBuy
   const maxBuyAmount = shopItem.maxLevel - player.shopUpgrades[input]
-  let buyAmount: number
-  let buyCost: number
+  let buyAmount: Decimal
+  let buyCost: Decimal
   switch (player.shopBuyMaxToggle) {
     case false:
-      buyAmount = 1
-      buyCost = getShopCosts(input)
+      buyAmount = new Decimal(1)
+      buyCost = new Decimal(getShopCosts(input)) // no
       break
     case 'TEN':
-      buyData = calculateSummationNonLinear(
+      buyData = calculateSummationNonLinearDecimal(
         player.shopUpgrades[input],
         shopItem.price,
         +player.worlds,
         shopItem.priceIncrease / shopItem.price,
         Math.min(10, maxBuyAmount)
       )
-      buyAmount = buyData.levelCanBuy - player.shopUpgrades[input]
+      buyAmount = Decimal.sub(buyData.levelCanBuy, player.shopUpgrades[input])
       buyCost = buyData.cost
       break
     default:
-      buyData = calculateSummationNonLinear(
+      buyData = calculateSummationNonLinearDecimal(
         player.shopUpgrades[input],
         shopItem.price,
         +player.worlds,
         shopItem.priceIncrease / shopItem.price,
         maxBuyAmount
       )
-      buyAmount = buyData.levelCanBuy - player.shopUpgrades[input]
+      buyAmount = Decimal.sub(buyData.levelCanBuy, player.shopUpgrades[input])
       buyCost = buyData.cost
   }
 
   const singular = shopItem.maxLevel === 1
   const merch = buyAmount.toLocaleString()
     + (shopItem.type === shopUpgradeTypes.UPGRADE ? ' level' : ' vial')
-    + (buyAmount === 1 ? '' : 's')
+    + (buyAmount.eq(1) ? '' : 's')
   const noRefunds = shopItem.refundable
     ? ''
     : '\n\n\u26A0\uFE0F !! No Refunds !! \u26A0\uFE0F'
@@ -1425,44 +1419,44 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
         )
       } for ${buyCost.toLocaleString()} Quarks. How many would you like to buy?${maxPots + noRefunds}`
     )
-    let buyAny: number
+    let buyAny: Decimal
     if (
       Number(buyInput) === -1
       && shopItem.type === shopUpgradeTypes.CONSUMABLE
     ) {
       const other = input === 'offeringPotion' ? 'obtainiumPotion' : 'offeringPotion'
-      const toSpend = Math.max(+player.worlds / 2, +player.worlds - buyCost)
-      const otherPot: IMultiBuy = calculateSummationNonLinear(
+      const toSpend = Decimal.max(Decimal.div(Number(player.worlds), 2), Decimal.sub(Number(player.worlds), buyCost))
+      const otherPot: IMultiBuy = calculateSummationNonLinearDecimal(
         player.shopUpgrades[other],
         shopData[other].price,
         toSpend,
         shopData[other].priceIncrease / shopData[other].price,
         shopData[other].maxLevel - player.shopUpgrades[other]
       )
-      player.worlds.sub(otherPot.cost)
-      player.shopUpgrades[other] = otherPot.levelCanBuy
+      player.worlds.sub(otherPot.cost.toNumber()) // not yet :c
+      player.shopUpgrades[other] = otherPot.levelCanBuy.toNumber()
       buyAny = buyAmount
     } else {
-      buyAny = Math.floor(Number(buyInput))
-      if (buyAny === 0) {
+      buyAny = Decimal.floor(Number(buyInput))
+      if (buyAny.eq(0)) {
         return
       } else if (
         Number.isNaN(buyAny)
         || !Number.isFinite(buyAny)
-        || buyAny < 0
+        || buyAny.lt(0)
       ) {
         return Alert('Amount must be a finite, positive integer.')
       }
     }
-    const anyData: IMultiBuy = calculateSummationNonLinear(
+    const anyData: IMultiBuy = calculateSummationNonLinearDecimal(
       player.shopUpgrades[input],
       shopItem.price,
       +player.worlds,
       shopItem.priceIncrease / shopItem.price,
-      Math.min(buyAny, buyAmount)
+      Decimal.min(buyAny, buyAmount)
     )
-    player.worlds.sub(anyData.cost)
-    player.shopUpgrades[input] = anyData.levelCanBuy
+    player.worlds.sub(anyData.cost.toNumber())
+    player.shopUpgrades[input] = anyData.levelCanBuy.toNumber()
     revealStuff()
     player.caches.ambrosiaGeneration.updateVal('ShopUpgrades')
     player.caches.ambrosiaLuck.updateVal('ShopUpgrades')
@@ -1483,8 +1477,8 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
     )
   }
   if (p) {
-    player.worlds.sub(buyCost)
-    player.shopUpgrades[input] += buyAmount
+    player.worlds.sub(buyCost.toNumber()) // not yet pls
+    player.shopUpgrades[input] = Decimal.add(player.shopUpgrades[input], buyAmount).toNumber()
     player.caches.ambrosiaGeneration.updateVal('ShopUpgrades')
     player.caches.ambrosiaLuck.updateVal('ShopUpgrades')
     revealStuff()
@@ -1524,33 +1518,32 @@ export const useConsumable = async (
     : true
 
   if (p) {
-    const multiplier = +player.singularityUpgrades.potionBuff.getEffect().bonus
-      * +player.singularityUpgrades.potionBuff2.getEffect().bonus
-      * +player.singularityUpgrades.potionBuff3.getEffect().bonus
+    const multiplier = player.singularityUpgrades.potionBuff.getEffect().bonus
+      * player.singularityUpgrades.potionBuff2.getEffect().bonus
+      * player.singularityUpgrades.potionBuff3.getEffect().bonus
       * +player.octeractUpgrades.octeractAutoPotionEfficiency.getEffect().bonus
       * used
 
     if (input === 'offeringPotion') {
       if (player.shopUpgrades.offeringPotion >= used || !spend) {
         player.shopUpgrades.offeringPotion -= spend ? used : 0
-        player.runeshards += Math.floor(
-          7200
-            * player.offeringpersecond
-            * calculateTimeAcceleration().mult
-            * multiplier
-        )
-        player.runeshards = Math.min(1e300, player.runeshards)
+        
+        player.runeshards = player.runeshards.add(Decimal.floor(
+          Decimal.mul(player.offeringpersecond, 7200)
+            .mul(calculateTimeAcceleration().mult)
+            .mul(multiplier)
+        ))
+        player.runeshards = Decimal.min(1e300, player.runeshards) // cap :c
       }
     } else if (input === 'obtainiumPotion') {
       if (player.shopUpgrades.obtainiumPotion >= used || !spend) {
         player.shopUpgrades.obtainiumPotion -= spend ? used : 0
-        player.researchPoints += Math.floor(
-          7200
-            * player.maxobtainiumpersecond
-            * calculateTimeAcceleration().mult
-            * multiplier
-        )
-        player.researchPoints = Math.min(1e300, player.researchPoints)
+        player.researchPoints = player.researchPoints.add(Decimal.floor(
+          Decimal.mul(player.maxobtainiumpersecond, 7200)
+            .mul(calculateTimeAcceleration().mult)
+            .mul(multiplier)
+        ))
+        player.researchPoints = Decimal.min(1e300, player.researchPoints) // cap :c
       }
     }
   }
@@ -1629,90 +1622,90 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return true
     case 'offeringEX':
       return (
-        player.reincarnationCount > 0 || player.highestSingularityCount > 0
+        player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       )
     case 'offeringAuto':
       return (
-        player.reincarnationCount > 0 || player.highestSingularityCount > 0
+        player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       )
     case 'obtainiumEX':
       return (
-        player.reincarnationCount > 0 || player.highestSingularityCount > 0
+        player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       )
     case 'obtainiumAuto':
       return (
-        player.reincarnationCount > 0 || player.highestSingularityCount > 0
+        player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       )
     case 'instantChallenge':
       return (
-        player.reincarnationCount > 0 || player.highestSingularityCount > 0
+        player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       )
     case 'antSpeed':
       return (
-        player.highestchallengecompletions[8] > 0
-        || player.ascensionCount > 0
+        player.highestchallengecompletions[8].gt(0)
+        || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
     case 'cashGrab':
       return (
-        player.highestchallengecompletions[8] > 0
-        || player.ascensionCount > 0
+        player.highestchallengecompletions[8].gt(0)
+        || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
     case 'shopTalisman':
       return (
-        player.highestchallengecompletions[9] > 0
-        || player.ascensionCount > 0
+        player.highestchallengecompletions[9].gt(0)
+        || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
     case 'seasonPass':
-      return player.ascensionCount > 0 || player.highestSingularityCount > 0
+      return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'challengeExtension':
-      return player.ascensionCount > 0 || player.highestSingularityCount > 0
+      return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'challengeTome':
-      return player.ascensionCount > 0 || player.highestSingularityCount > 0
+      return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'cubeToQuark':
-      return player.ascensionCount > 0 || player.highestSingularityCount > 0
+      return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'tesseractToQuark':
       return (
-        player.highestchallengecompletions[11] > 0
+        player.highestchallengecompletions[11].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'hypercubeToQuark':
       return (
-        player.highestchallengecompletions[13] > 0
+        player.highestchallengecompletions[13].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'seasonPass2':
       return (
-        player.highestchallengecompletions[14] > 0
+        player.highestchallengecompletions[14].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'seasonPass3':
       return (
-        player.highestchallengecompletions[14] > 0
+        player.highestchallengecompletions[14].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'chronometer':
       return (
-        player.highestchallengecompletions[12] > 0
+        player.highestchallengecompletions[12].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'infiniteAscent':
       return (
-        player.highestchallengecompletions[14] > 0
+        player.highestchallengecompletions[14].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'calculator':
-      return player.ascensionCount > 0 || player.highestSingularityCount > 0
+      return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'calculator2':
       return (
-        player.highestchallengecompletions[11] > 0
+        player.highestchallengecompletions[11].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'calculator3':
       return (
-        player.highestchallengecompletions[13] > 0
+        player.highestchallengecompletions[13].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'calculator4':
@@ -1727,22 +1720,22 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       )
     case 'constantEX':
       return (
-        player.highestchallengecompletions[14] > 0
+        player.highestchallengecompletions[14].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'powderEX':
       return (
-        player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0
+        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
       )
     case 'chronometer2':
       return (
-        player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0
+        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
       )
     case 'chronometer3':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)
     case 'seasonPassY':
       return (
-        player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0
+        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
       )
     case 'seasonPassZ':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)
@@ -1772,7 +1765,7 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return Boolean(player.singularityUpgrades.wowPass3.getEffect().bonus)
     case 'improveQuarkHept':
       return (
-        player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0
+        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
       )
     case 'improveQuarkHept2':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)
@@ -1782,7 +1775,7 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return Boolean(player.singularityUpgrades.wowPass3.getEffect().bonus)
     case 'shopImprovedDaily':
       return (
-        player.highestchallengecompletions[14] > 0
+        player.highestchallengecompletions[14].gt(0)
         || player.highestSingularityCount > 0
       )
     case 'shopImprovedDaily2':

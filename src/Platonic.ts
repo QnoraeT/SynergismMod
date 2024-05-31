@@ -3,6 +3,7 @@ import { Synergism } from './Events'
 import { calculateSingularityDebuff } from './singularity'
 import { format, player } from './Synergism'
 import { Alert, revealStuff } from './UpdateHTML'
+import Decimal from 'break_eternity.js'
 
 const platonicUpgradeDesc = [
   '+0.0090% Cubes per Corruption level per level!',
@@ -289,7 +290,7 @@ const checkPlatonicUpgrade = (
       checksum++
       checks[resources[i]] = true
     } else if (
-      Math.floor(platUpgradeBaseCosts[index][resources[i]] * priceMultiplier) <= (player[resourceNames[i]] as number)
+      Decimal.lte(Math.floor(platUpgradeBaseCosts[index][resources[i]] * priceMultiplier), player[resourceNames[i]] as Decimal)
     ) {
       checksum++
       checks[resources[i]] = true
@@ -428,8 +429,8 @@ export const buyPlatonicUpgrades = (index: number, auto = false) => {
       player.platonicUpgrades[index] += 1
       // Auto Platonic Upgrades no longer claim the cost of Offerings and Obtainiums
       if (!auto) {
-        player.researchPoints -= Math.floor(platUpgradeBaseCosts[index].obtainium * priceMultiplier)
-        player.runeshards -= Math.floor(platUpgradeBaseCosts[index].offerings * priceMultiplier)
+        player.researchPoints = player.researchPoints.sub(Math.floor(platUpgradeBaseCosts[index].obtainium * priceMultiplier))
+        player.runeshards = player.runeshards.sub(Math.floor(platUpgradeBaseCosts[index].offerings * priceMultiplier))
       }
       player.wowCubes.sub(Math.floor(platUpgradeBaseCosts[index].cubes * priceMultiplier))
       player.wowTesseracts.sub(Math.floor(platUpgradeBaseCosts[index].tesseracts * priceMultiplier))

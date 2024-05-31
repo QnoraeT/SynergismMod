@@ -7,6 +7,7 @@ import type { Player } from './types/Synergism'
 import { Alert, Confirm } from './UpdateHTML'
 import { toOrdinal } from './Utility'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export interface ISingularityChallengeData {
   baseReq: number
@@ -14,7 +15,7 @@ export interface ISingularityChallengeData {
   unlockSingularity: number
   HTMLTag: keyof Player['singularityChallenges']
   singularityRequirement: (baseReq: number, completions: number) => number
-  effect: (n: number) => Record<string, number | boolean>
+  effect: (n: number) => Record<string, number>
   completions?: number
   enabled?: boolean
   highestSingularityCompleted?: number
@@ -82,7 +83,7 @@ export class SingularityChallenge {
     if (!this.enabled) {
       return this.enableChallenge()
     } else {
-      return this.exitChallenge(player.runelevels[6] > 0)
+      return this.exitChallenge(player.runelevels[6].gt(0))
     }
   }
 
@@ -114,7 +115,7 @@ export class SingularityChallenge {
       player.insideSingularityChallenge = true
       await singularity(setSingularity)
       player.singularityCounter = holdSingTimer
-      player.goldenQuarks = currentGQ + goldenQuarkGain
+      player.goldenQuarks = Decimal.add(currentGQ, goldenQuarkGain)
       player.quarkstimer = holdQuarkExport
       player.goldenQuarksTimer = holdGoldenQuarkExport
 
@@ -135,7 +136,7 @@ export class SingularityChallenge {
 
   public async exitChallenge (success: boolean) {
     if (!success) {
-      const extra = player.runelevels[6] === 0
+      const extra = player.runelevels[6].eq(0)
         ? i18next.t('singularityChallenge.exitChallenge.incompleteWarning')
         : ''
       const confirmation = await Confirm(
@@ -262,11 +263,11 @@ export const singularityChallengeData: Record<
     effect: (n: number) => {
       return {
         cubes: 1 + 0.5 * n,
-        goldenQuarks: 1 + 0.12 * +(n > 0),
-        blueberries: +(n > 0),
-        shopUpgrade: n >= 20,
+        goldenQuarks: n > 0 ? 1.12 : 1,
+        blueberries: n > 0 ? 1 : 0,
+        shopUpgrade: n >= 20 ? 1 : 0,
         luckBonus: n >= 30 ? 0.04 : 0,
-        shopUpgrade2: n >= 30
+        shopUpgrade2: n >= 30 ? 1 : 0
       }
     },
     cacheUpdates: [
@@ -286,9 +287,9 @@ export const singularityChallengeData: Record<
       return {
         corrScoreIncrease: 0.03 * n,
         blueberrySpeedMult: (1 + n/100),
-        capIncrease: 3 * +(n > 0),
-        freeCorruptionLevel: n >= 20,
-        shopUpgrade: n >= 20
+        capIncrease: n > 0 ? 3 : 0,
+        freeCorruptionLevel: n >= 20 ? 1 : 0,
+        shopUpgrade: n >= 20 ? 1 : 0
       }
     }
   },
@@ -303,9 +304,9 @@ export const singularityChallengeData: Record<
     effect: (n: number) => {
       return {
         octeractPow: 0.02 * n,
-        offeringBonus: n > 0,
-        obtainiumBonus: n >= 10,
-        shopUpgrade: n >= 10
+        offeringBonus: n > 0 ? 1 : 0,
+        obtainiumBonus: n >= 10 ? 1 : 0,
+        shopUpgrade: n >= 10 ? 1 : 0
       }
     }
   },
@@ -319,11 +320,11 @@ export const singularityChallengeData: Record<
     },
     effect: (n: number) => {
       return {
-        ultimateProgressBarUnlock: (n > 0),
+        ultimateProgressBarUnlock: n > 0 ? 1 : 0,
         ascensionSpeedMult: (0.1 * n) / 100,
-        hepteractCap: n > 0,
-        exaltBonus: n >= 20,
-        shopUpgrade: n >= 25
+        hepteractCap: n > 0 ? 1 : 0,
+        exaltBonus: n >= 20 ? 1 : 0,
+        shopUpgrade: n >= 25 ? 1 : 0
       }
     }
   },
@@ -337,13 +338,13 @@ export const singularityChallengeData: Record<
     },
     effect: (n: number) => {
       return {
-        bonusAmbrosia: +(n > 0),
-        blueberries: Math.floor(n/10) + +(n > 0),
+        bonusAmbrosia: n > 0 ? 1 : 0,
+        blueberries: Math.floor(n/10) + n > 0 ? 1 : 0,
         luckBonus: n/200,
         additiveLuck: 15 * n,
         blueberrySpeedMult: (1 + n/50),
-        shopUpgrade: n >= 15,
-        shopUpgrade2: n >= 20
+        shopUpgrade: n >= 15 ? 1 : 0,
+        shopUpgrade2: n >= 20 ? 1 : 0
       }
     }
   }

@@ -1,5 +1,4 @@
-import type { DecimalSource } from 'break_infinity.js'
-import Decimal from 'break_infinity.js'
+import Decimal, { type DecimalSource } from 'break_eternity.js'
 import i18next from 'i18next'
 import { antSacrificePointsToMultiplier } from './Ants'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -18,48 +17,48 @@ export type Kind = 'antsacrifice' | 'prestige' | 'transcend' | 'reincarnate' | '
 // Common to every kind
 interface ResetHistoryEntryBase {
   date: number
-  seconds: number
+  seconds: Decimal
   kind: Kind
 }
 
 export type ResetHistoryEntryAntSacrifice = ResetHistoryEntryBase & {
-  antSacrificePointsAfter: number
-  antSacrificePointsBefore: number
-  baseELO: number
+  antSacrificePointsAfter: Decimal
+  antSacrificePointsBefore: Decimal
+  baseELO: Decimal
   crumbs: string
   crumbsPerSecond: string
-  effectiveELO: number
-  obtainium: number
-  offerings: number
+  effectiveELO: Decimal
+  obtainium: Decimal
+  offerings: Decimal
   kind: 'antsacrifice'
 }
 
 export type ResetHistoryEntryPrestige = ResetHistoryEntryBase & {
-  offerings: number
+  offerings: Decimal
   diamonds: string
   kind: 'prestige'
 }
 export type ResetHistoryEntryTranscend = ResetHistoryEntryBase & {
-  offerings: number
+  offerings: Decimal
   mythos: string
   kind: 'transcend'
 }
 export type ResetHistoryEntryReincarnate = ResetHistoryEntryBase & {
-  offerings: number
+  offerings: Decimal
   particles: string
-  obtainium: number
+  obtainium: Decimal
   kind: 'reincarnate'
 }
 
 export type ResetHistoryEntryAscend = ResetHistoryEntryBase & {
-  c10Completions: number
+  c10Completions: Decimal
   usedCorruptions: number[]
-  corruptionScore: number
-  wowCubes: number
-  wowTesseracts: number
-  wowHypercubes: number
-  wowPlatonicCubes: number
-  wowHepteracts: number
+  corruptionScore: Decimal
+  wowCubes: Decimal
+  wowTesseracts: Decimal
+  wowHypercubes: Decimal
+  wowPlatonicCubes: Decimal
+  wowHepteracts: Decimal
   currentChallenge?: number
   kind: 'ascend'
 }
@@ -72,8 +71,8 @@ export interface ResetHistoryEntrySingularity extends ResetHistoryEntryBase {
   tessTribs: number
   hyperTribs: number
   platTribs: number
-  octeracts: number
-  c15Score: number
+  octeracts: Decimal
+  c15Score: Decimal
   quarkHept: number
   kind: 'singularity'
 }
@@ -143,13 +142,13 @@ const conditionalFormatPerSecond = (numOrStr: DecimalSource, data: ResetHistoryE
     return formatDecimalSource(numOrStr)
   }
 
-  if (typeof numOrStr === 'number' && player.historyShowPerSecond && data.seconds !== 0) {
+  if (typeof numOrStr === 'number' && player.historyShowPerSecond && data.seconds.neq(0)) {
     if (numOrStr === 0) { // work around format(0, 3) return 0 instead of 0.000, for consistency
       return '0.000/s'
     }
     // Use "long" display for smaller numbers, but once it exceeds 1000, use the "short" display.
     // This'll keep decimals intact until 1000 instead of 10 without creating unwieldy numbers between e6-e13.
-    return `${format(numOrStr / data.seconds, 3, numOrStr < 1000)}/s`
+    return `${format(Decimal.div(numOrStr, data.seconds), 3, numOrStr < 1000)}/s`
   }
   return format(numOrStr)
 }
@@ -198,7 +197,7 @@ const historyGains: Record<
     img: 'TinyWow5.png',
     formatter: conditionalFormatPerSecond,
     imgTitle: 'Wow! Hypercubes',
-    onlyif: () => player.challengecompletions[13] > 0
+    onlyif: () => player.challengecompletions[13].gt(0)
   },
   wowCubes: {
     img: 'TinyWow3.png',
@@ -209,7 +208,7 @@ const historyGains: Record<
     img: 'TinyWow6.png',
     formatter: conditionalFormatPerSecond,
     imgTitle: 'Platonic Cubes',
-    onlyif: () => player.challengecompletions[14] > 0
+    onlyif: () => player.challengecompletions[14].gt(0)
   },
   wowHepteracts: {
     img: 'TinyWow7.png',
@@ -394,7 +393,7 @@ const resetHistoryRenderRow = (
   const localDate = new Date(data.date).toLocaleString()
   rowContentHtml += `<td class="history-seconds" title="${localDate}"><img alt="${data.kind}" src="Pictures/${
     IconSets[player.iconSet][0]
-  }/${kindMeta.img}">${formatTimeShort(data.seconds, 60)}</td>`
+  }/${kindMeta.img}">${formatTimeShort(data.seconds)}</td>`
 
   // Carefully loop through everything we need to print in the right order, and add it to the gains array if present.
   const gains: string[] = []
@@ -420,7 +419,7 @@ const resetHistoryRenderRow = (
   if (data.kind === 'antsacrifice') {
     const oldMulti = antSacrificePointsToMultiplier(data.antSacrificePointsBefore)
     const newMulti = antSacrificePointsToMultiplier(data.antSacrificePointsAfter)
-    const diff = newMulti - oldMulti
+    const diff = Decimal.sub(newMulti, oldMulti)
     extra.push(
       `<span title="Ant Multiplier: ${format(oldMulti, 3, false)}--&gt;${
         format(newMulti, 3, false)

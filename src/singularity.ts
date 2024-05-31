@@ -6,6 +6,7 @@ import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Prompt, revealStuff } from './UpdateHTML'
 import { toOrdinal } from './Utility'
+import Decimal from 'break_eternity.js'
 
 export const updateSingularityPenalties = (): void => {
   const singularityCount = player.singularityCount
@@ -107,7 +108,7 @@ export const updateSingularityPenalties = (): void => {
       })
   }
         ${
-    player.runelevels[6] > 0
+    player.runelevels[6].gt(0)
       ? i18next.t('singularity.penalties.antiquitiesBought')
       : i18next.t('singularity.penalties.antiquitiesNotBought')
   }`
@@ -277,27 +278,27 @@ export class SingularityUpgrade extends DynamicUpgrade {
 
     if (event.shiftKey) {
       maxPurchasable = 100000
-      const buy = Number(
+      const buy = new Decimal(Number(
         await Prompt(
           i18next.t('singularity.goldenQuarks.spendPrompt', {
             gq: format(player.goldenQuarks, 0, true)
           })
         )
-      )
+      ))
 
-      if (isNaN(buy) || !isFinite(buy) || !Number.isInteger(buy)) {
+      if (Decimal.isNaN(buy) || !Decimal.isFinite(buy) || !(buy.floor().eq(buy))) {
         // nan + Infinity checks
         return Alert(i18next.t('general.validation.finite'))
       }
 
-      if (buy === -1) {
+      if (buy.eq(-1)) {
         GQBudget = player.goldenQuarks
-      } else if (buy <= 0) {
+      } else if (buy.lte(0)) {
         return Alert(i18next.t('general.validation.zeroOrLess'))
       } else {
         GQBudget = buy
       }
-      GQBudget = Math.min(player.goldenQuarks, GQBudget)
+      GQBudget = Decimal.min(player.goldenQuarks, GQBudget)
     }
 
     if (this.maxLevel > 0) {
@@ -316,20 +317,20 @@ export class SingularityUpgrade extends DynamicUpgrade {
     }
     while (maxPurchasable > 0) {
       const cost = this.getCostTNL()
-      if (player.goldenQuarks < cost || GQBudget < cost) {
+      if (Decimal.lt(player.goldenQuarks, cost) || Decimal.lt(GQBudget, cost)) {
         break
       } else {
-        player.goldenQuarks -= cost
-        GQBudget -= cost
+        player.goldenQuarks = player.goldenQuarks.sub(cost)
+        GQBudget = GQBudget.sub(cost)
         this.goldenQuarksInvested += cost
         this.level += 1
         purchased += 1
         maxPurchasable -= 1
       }
       if (this.name === player.singularityUpgrades.oneMind.name) {
-        player.ascensionCounter = 0
-        player.ascensionCounterReal = 0
-        player.ascensionCounterRealReal = 0
+        player.ascensionCounter = new Decimal(0)
+        player.ascensionCounterReal = new Decimal(0)
+        player.ascensionCounterRealReal = new Decimal(0)
         void Alert(i18next.t('singularity.goldenQuarks.ascensionReset'))
       }
 
@@ -414,7 +415,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
     return Math.max(linearLevels, polynomialLevels)
   }
 
-  public getEffect (): { bonus: number | boolean; desc: string } {
+  public getEffect (): { bonus: number; desc: string } {
     return this.effect(this.actualTotalLevels())
   }
 
@@ -427,7 +428,7 @@ export class SingularityUpgrade extends DynamicUpgrade {
   }
 
   public refund (): void {
-    player.goldenQuarks += this.goldenQuarksInvested
+    player.goldenQuarks = player.goldenQuarks.add(this.goldenQuarksInvested)
     this.level = 0
     this.goldenQuarksInvested = 0
   }
@@ -490,7 +491,7 @@ export const singularityData: Record<
     costPerLevel: 10,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.starterPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -504,7 +505,7 @@ export const singularityData: Record<
     costPerLevel: 350,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.wowPass.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -519,7 +520,7 @@ export const singularityData: Record<
     costPerLevel: 100,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.cookies.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -534,7 +535,7 @@ export const singularityData: Record<
     costPerLevel: 500,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.cookies2.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -549,7 +550,7 @@ export const singularityData: Record<
     costPerLevel: 24999,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.cookies3.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -564,7 +565,7 @@ export const singularityData: Record<
     costPerLevel: 499999,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.cookies4.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -580,7 +581,7 @@ export const singularityData: Record<
     minimumSingularity: 209,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.cookies5.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -613,7 +614,7 @@ export const singularityData: Record<
     costPerLevel: 1000,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.corruptionFourteen.effect${n > 0 ? 'Have' : 'HaveNot'}`,
@@ -630,7 +631,7 @@ export const singularityData: Record<
     costPerLevel: 40000,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.corruptionFifteen.effect${n > 0 ? 'Have' : 'HaveNot'}`,
@@ -815,7 +816,7 @@ export const singularityData: Record<
     minimumSingularity: 8,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.octeractUnlock.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -831,7 +832,7 @@ export const singularityData: Record<
     minimumSingularity: 12,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t('singularity.data.singOcteractPatreonBonus.effect', {
             n
@@ -859,7 +860,7 @@ export const singularityData: Record<
     minimumSingularity: 4,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.intermediatePack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -874,7 +875,7 @@ export const singularityData: Record<
     minimumSingularity: 9,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.advancedPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -889,7 +890,7 @@ export const singularityData: Record<
     minimumSingularity: 16,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.expertPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -904,7 +905,7 @@ export const singularityData: Record<
     minimumSingularity: 25,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.masterPack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -919,7 +920,7 @@ export const singularityData: Record<
     minimumSingularity: 36,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.divinePack.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -934,7 +935,7 @@ export const singularityData: Record<
     minimumSingularity: 11,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.wowPass2.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -950,7 +951,7 @@ export const singularityData: Record<
     minimumSingularity: 83,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.wowPass3.effect${n > 0 ? 'Have' : 'HaveNot'}`
@@ -1207,7 +1208,7 @@ export const singularityData: Record<
     minimumSingularity: 29,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicTau.effect${n ? 'Have' : 'HaveNot'}`
@@ -1223,7 +1224,7 @@ export const singularityData: Record<
     minimumSingularity: 70,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicAlpha.effect${n ? 'Have' : 'HaveNot'}`
@@ -1239,7 +1240,7 @@ export const singularityData: Record<
     minimumSingularity: 110,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicDelta.effect${n ? 'Have' : 'HaveNot'}`
@@ -1254,7 +1255,7 @@ export const singularityData: Record<
     minimumSingularity: 149,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.platonicPhi.effect${n ? 'Have' : 'HaveNot'}`
@@ -1270,7 +1271,7 @@ export const singularityData: Record<
     minimumSingularity: 50,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.singFastForward.effect${n ? 'Have' : 'HaveNot'}`
@@ -1286,7 +1287,7 @@ export const singularityData: Record<
     minimumSingularity: 147,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.singFastForward2.effect${n ? 'Have' : 'HaveNot'}`
@@ -1344,7 +1345,7 @@ export const singularityData: Record<
     minimumSingularity: 300,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t('singularity.data.ultimatePen.effect', {
             n: n ? '' : 'NOT',
@@ -1362,7 +1363,7 @@ export const singularityData: Record<
     minimumSingularity: 162,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.oneMind.effect${n ? 'Have' : 'HaveNot'}`
@@ -1378,7 +1379,7 @@ export const singularityData: Record<
     minimumSingularity: 147,
     effect: (n: number) => {
       return {
-        bonus: n > 0,
+        bonus: n > 0 ? 1 : 0,
         get desc () {
           return i18next.t(
             `singularity.data.wowPass4.effect${n ? 'Have' : 'HaveNot'}`
@@ -1613,8 +1614,7 @@ export const singularityPerks: SingularityPerk[] = [
     description: () => {
       return i18next.t('singularity.perks.goldenCoins', {
         amount: format(
-          Math.pow(player.goldenQuarks + 1, 1.5)
-            * Math.pow(player.highestSingularityCount + 1, 2),
+          player.goldenQuarks.add(1).pow(1.5).mul(Math.pow(player.highestSingularityCount + 1, 2)),
           2
         )
       })
@@ -2398,20 +2398,20 @@ export const getFastForwardTotalMultiplier = (): number => {
 }
 
 export const getGoldenQuarkCost = (): {
-  cost: number
-  costReduction: number
+  cost: Decimal
+  costReduction: Decimal
 } => {
-  const baseCost = 10000
+  const baseCost = new Decimal(10000)
 
-  let costReduction = 10000 // We will construct our cost reduction by subtracting 10000 - this value.
+  let costReduction = new Decimal(10000) // We will construct our cost reduction by subtracting 10000 - this value.
 
-  costReduction *= 1 - 0.1 * Math.min(1, player.achievementPoints / 10000)
-  costReduction *= 1 - (0.3 * player.cubeUpgrades[60]) / 10000
-  costReduction *= +player.singularityUpgrades.goldenQuarks2.getEffect().bonus
-  costReduction *= +player.octeractUpgrades.octeractGQCostReduce.getEffect().bonus
-  costReduction *= player.highestSingularityCount >= 100
+  costReduction = costReduction.mul(1 - 0.1 * Math.min(1, player.achievementPoints / 10000))
+  costReduction = costReduction.mul(Decimal.sub(1, player.cubeUpgrades[60].mul(0.00003)))
+  costReduction = costReduction.mul(+player.singularityUpgrades.goldenQuarks2.getEffect().bonus)
+  costReduction = costReduction.mul(+player.octeractUpgrades.octeractGQCostReduce.getEffect().bonus)
+  costReduction = costReduction.mul(player.highestSingularityCount >= 100
     ? 1 - (0.5 * player.highestSingularityCount) / 250
-    : 1
+    : 1)
 
   let perkDivisor = 1
   if (player.highestSingularityCount >= 200) {
@@ -2423,22 +2423,22 @@ export const getGoldenQuarkCost = (): {
   if (player.highestSingularityCount >= 221) {
     perkDivisor = 8
   }
-  costReduction /= perkDivisor
+  costReduction = costReduction.div(perkDivisor)
 
-  costReduction = 10000 - costReduction
+  costReduction = Decimal.sub(10000, costReduction)
 
   return {
-    cost: baseCost - costReduction,
+    cost: Decimal.sub(baseCost, costReduction),
     costReduction
   }
 }
 
 export async function buyGoldenQuarks (): Promise<void> {
   const goldenQuarkCost = getGoldenQuarkCost()
-  const maxBuy = Math.floor(+player.worlds / goldenQuarkCost.cost)
+  const maxBuy = Decimal.floor(Decimal.div(Number(player.worlds), goldenQuarkCost.cost))
   let buyAmount = null
 
-  if (maxBuy === 0) {
+  if (maxBuy.eq(0)) {
     return Alert(i18next.t('singularity.goldenQuarks.poor'))
   }
 
@@ -2463,23 +2463,23 @@ export async function buyGoldenQuarks (): Promise<void> {
   } else if (buyAmount <= 0 && buyAmount !== -1) {
     // 0 or less selected
     return Alert(i18next.t('general.validation.zeroOrLess'))
-  } else if (buyAmount > maxBuy) {
+  } else if (Decimal.gt(buyAmount, maxBuy)) {
     return Alert(i18next.t('general.validation.goldenQuarksTooMany'))
   } else if (!Number.isInteger(buyAmount)) {
     // non integer
     return Alert(i18next.t('general.validation.fraction'))
   }
 
-  let cost: number
+  let cost: Decimal
 
   if (buyAmount === -1) {
-    cost = maxBuy * goldenQuarkCost.cost
-    player.worlds.sub(cost)
-    player.goldenQuarks += maxBuy
+    cost = Decimal.mul(maxBuy, goldenQuarkCost.cost)
+    player.worlds.sub(cost.toNumber())
+    player.goldenQuarks = player.goldenQuarks.add(maxBuy.toNumber())
   } else {
-    cost = buyAmount * goldenQuarkCost.cost
-    player.worlds.sub(cost)
-    player.goldenQuarks += buyAmount
+    cost = Decimal.mul(buyAmount, goldenQuarkCost.cost)
+    player.worlds.sub(cost.toNumber())
+    player.goldenQuarks = player.goldenQuarks.add(buyAmount)
   }
 
   return Alert(
@@ -2592,7 +2592,7 @@ export const calculateSingularityDebuff = (
   if (singularityCount === 0) {
     return 1
   }
-  if (player.runelevels[6] > 0) {
+  if (player.runelevels[6].gt(0)) {
     return 1
   }
 

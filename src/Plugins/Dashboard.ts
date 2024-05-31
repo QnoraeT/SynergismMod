@@ -8,6 +8,7 @@ import { toggleAntAutoSacrifice, toggleAutoChallengeRun, toggleAutoResearch, tog
 import { visualUpdateCubes } from '../UpdateVisuals'
 import { getElementById, stripIndents } from '../Utility'
 import { Globals as G } from '../Variables'
+import Decimal from 'break_eternity.js'
 
 /**
  * An adaptation of @see {https://github.com/blaze33/synergism.dashboard/} for the new plugin/Typescript system
@@ -24,11 +25,11 @@ import { Globals as G } from '../Variables'
  * An infinite value can be passed into numberOfHours, but forcing it to be finite doesn't seem like
  * a valid solution.
  */
-const SplitTime = (numberOfHours: number) => {
-  const Days = Math.floor(numberOfHours / 24)
-  const Remainder = numberOfHours % 24
-  const Hours = Math.floor(Remainder)
-  const Minutes = Math.floor(60 * (Remainder - Hours))
+const SplitTime = (numberOfHours: Decimal) => {
+  const Days = Decimal.floor(numberOfHours.div(24))
+  const Remainder = numberOfHours.mod(24)
+  const Hours = Decimal.floor(Remainder)
+  const Minutes = Decimal.floor(Decimal.sub(Remainder, Hours).mul(60))
 
   return ({ Days, Hours, Minutes })
 }
@@ -40,20 +41,20 @@ const getCubeTimes = (i = 5, levels = 1) => {
   const tessCost = Upgrades.tesseracts * levels
   const hyperCost = Upgrades.hypercubes * levels
   const platCost = Upgrades.platonics * levels
-  const time = player.ascensionCounter / 3600
-  const platRate = plat / time
-  const hyperRate = hyper / time
-  const tessRate = tess / time
-  const platTimeNeeded = (platCost - Number(player.wowPlatonicCubes) - plat) / platRate
-  const hyperTimeNeeded = (hyperCost - Number(player.wowHypercubes) - hyper) / hyperRate
-  const tessTimeNeeded = (tessCost - Number(player.wowTesseracts) - tess) / tessRate
-  const Plats = SplitTime(Math.max(0, platTimeNeeded))
-  const Hypers = SplitTime(Math.max(0, hyperTimeNeeded))
-  const Tess = SplitTime(Math.max(0, tessTimeNeeded))
+  const time = player.ascensionCounter.div(3600)
+  const platRate = Decimal.div(plat, time)
+  const hyperRate = Decimal.div(hyper, time)
+  const tessRate = Decimal.div(tess, time)
+  const platTimeNeeded = Decimal.sub(platCost, Number(player.wowPlatonicCubes)).sub(plat).div(platRate)
+  const hyperTimeNeeded = Decimal.sub(hyperCost, Number(player.wowHypercubes)).sub(hyper).div(hyperRate)
+  const tessTimeNeeded = Decimal.sub(tessCost, Number(player.wowTesseracts)).sub(tess).div(tessRate)
+  const Plats = SplitTime(Decimal.max(0, platTimeNeeded))
+  const Hypers = SplitTime(Decimal.max(0, hyperTimeNeeded))
+  const Tess = SplitTime(Decimal.max(0, tessTimeNeeded))
 
-  const totalTimeNeeded = Math.max(0, platTimeNeeded, hyperTimeNeeded, tessTimeNeeded)
-  const minutesToAdd = totalTimeNeeded * 60
-  const futureDate = new Date(Date.now() + minutesToAdd * 60000)
+  const totalTimeNeeded = Decimal.max(0, platTimeNeeded).max(hyperTimeNeeded).max(tessTimeNeeded)
+  const minutesToAdd = totalTimeNeeded.mul(60)
+  const futureDate = new Date(minutesToAdd.mul(60000).add(Date.now()).toNumber())
 
   return stripIndents`
         Time left until next ${levels} level(s) of platonic upgrade ${i} purchase:
@@ -64,10 +65,10 @@ const getCubeTimes = (i = 5, levels = 1) => {
         At your current rate, you are expected to get this at:
         ${futureDate}
 
-        Leftovers after ${(totalTimeNeeded / 24).toPrecision(4)} days:
-        Platonics: ${(platRate * (totalTimeNeeded - platTimeNeeded)).toPrecision(4)}
-        Hypers: ${(hyperRate * (totalTimeNeeded - hyperTimeNeeded)).toPrecision(4)}
-        Tesseracts: ${(tessRate * (totalTimeNeeded - tessTimeNeeded)).toPrecision(4)}
+        Leftovers after ${format(totalTimeNeeded.div(24), 4)} days:
+        Platonics: ${format(Decimal.mul(platRate, Decimal.sub(totalTimeNeeded, platTimeNeeded)), 4)}
+        Hypers: ${format(Decimal.mul(hyperRate, Decimal.sub(totalTimeNeeded, hyperTimeNeeded)), 4)}
+        Tesseracts: ${format(Decimal.mul(tessRate, Decimal.sub(totalTimeNeeded, tessTimeNeeded)), 4)}
     `
 }
 
