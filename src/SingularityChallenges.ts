@@ -207,7 +207,7 @@ export class SingularityChallenge {
       }</span>`
       : ''
     return `<span style="color: gold">${this.name}</span> ${enabled}
-    ${
+      ${
       i18next.t(
         'singularityChallenge.toString.tiersCompleted'
       )
@@ -240,7 +240,7 @@ export class SingularityChallenge {
     const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.ScalingReward${i}`);
     text += i > 1 ? `\n${list}` : list
     }
-      return text
+    return text
   }
 
   //Ditto. Also worth mentioning this implementation means the list size can be arbitrary!
@@ -250,7 +250,7 @@ export class SingularityChallenge {
     const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.UniqueReward${i}`);
     text += i > 1 ? `\n${list}` : list
     }
-      return text
+    return text
   }
 
   public updateChallengeHTML (): void {

@@ -542,13 +542,13 @@ export const generateEventHandlers = () => {
     'input',
     () => updateAutoChallenge(3)
   )
-    // Part 3: Subtabs because Mixelz doesn't know what the fuck he's doing
-    for (let index = 0; index < 2; index++) {
-      DOMCacheGetOrSet(`toggleChallengesSubTab${index + 1}`).addEventListener(
-        'click',
-        () => changeSubTab(Tabs.Challenges, { page: index })
-      )
-    }
+  // Part 3: Subtabs because Mixelz doesn't know what the fuck he's doing
+  for (let index = 0; index < 2; index++) {
+    DOMCacheGetOrSet(`toggleChallengesSubTab${index + 1}`).addEventListener(
+      'click',
+      () => changeSubTab(Tabs.Challenges, { page: index })
+    )
+  }
 
   // RESEARCH TAB
   // Part 1: Researches
