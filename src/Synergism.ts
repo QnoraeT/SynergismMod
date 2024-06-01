@@ -29,11 +29,11 @@ import { antSacrificePointsToMultiplier, autoBuyAnts, calculateCrumbToCoinExp } 
 import { autoUpgrades } from './Automation'
 import type { TesseractBuildings } from './Buy'
 import {
-  boostAccelerator,
-  buyAccelerator,
+  buyMaxBoostAccel,
+  buyMaxAccels,
   buyCrystalUpgrades,
   buyMax,
-  buyMultiplier,
+  buyMaxMuls,
   buyParticleBuilding,
   buyRuneBonusLevels,
   buyTesseractBuilding,
@@ -5377,21 +5377,21 @@ export const updateAll = (): void => {
     && player.upgrades[86] === 1
     && player.coins.gte(player.acceleratorCost)
   ) {
-    buyAccelerator(true)
+    buyMaxAccels()
   }
   if (
     player.toggles[7]
     && player.upgrades[87] === 1
     && player.coins.gte(player.multiplierCost)
   ) {
-    buyMultiplier(true)
+    buyMaxMuls()
   }
   if (
     player.toggles[8]
     && player.upgrades[88] === 1
     && player.prestigePoints.gte(player.acceleratorBoostCost)
   ) {
-    boostAccelerator(true)
+    buyMaxBoostAccel()
   }
 
   // Autobuy "Prestige" Tab
@@ -5553,35 +5553,35 @@ export const updateAll = (): void => {
     && player.cubeUpgrades[7] === 1
     && player.reincarnationPoints.gte(player.firstCostParticles)
   ) {
-    buyParticleBuilding(1, true)
+    buyParticleBuilding(1)
   }
   if (
     player.toggles[23]
     && player.cubeUpgrades[7] === 1
     && player.reincarnationPoints.gte(player.secondCostParticles)
   ) {
-    buyParticleBuilding(2, true)
+    buyParticleBuilding(2)
   }
   if (
     player.toggles[24]
     && player.cubeUpgrades[7] === 1
     && player.reincarnationPoints.gte(player.thirdCostParticles)
   ) {
-    buyParticleBuilding(3, true)
+    buyParticleBuilding(3)
   }
   if (
     player.toggles[25]
     && player.cubeUpgrades[7] === 1
     && player.reincarnationPoints.gte(player.fourthCostParticles)
   ) {
-    buyParticleBuilding(4, true)
+    buyParticleBuilding(4)
   }
   if (
     player.toggles[26]
     && player.cubeUpgrades[7] === 1
     && player.reincarnationPoints.gte(player.fifthCostParticles)
   ) {
-    buyParticleBuilding(5, true)
+    buyParticleBuilding(5)
   }
 
   // Autobuy "ascension" tab
@@ -5903,8 +5903,7 @@ export const updateAll = (): void => {
         player[`${num}Cost${resource}` as const] = getCost(
           (ord + 1) as OneToFive,
           resource,
-          player[`${num}Owned${resource}` as const] + 1,
-          reductionValue
+          player[`${num}Owned${resource}` as const] + 1
         )
       }
     }

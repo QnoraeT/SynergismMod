@@ -16,11 +16,11 @@ import {
   resetBlueberryTree
 } from './BlueberryUpgrades'
 import {
-  boostAccelerator,
-  buyAccelerator,
+  buyMaxBoostAccel,
+  buyMaxAccels,
   buyAllBlessings,
   buyCrystalUpgrades,
-  buyMultiplier,
+  buyMaxMuls,
   buyParticleBuilding,
   buyProducer,
   buyRuneBonusLevels,
@@ -229,7 +229,7 @@ export const generateEventHandlers = () => {
   DOMCacheGetOrSet('prestigebtn').addEventListener('click', () => resetCheck('prestige'))
   DOMCacheGetOrSet('transcendbtn').addEventListener('click', () => resetCheck('transcension'))
   DOMCacheGetOrSet('reincarnatebtn').addEventListener('click', () => resetCheck('reincarnation'))
-  DOMCacheGetOrSet('acceleratorboostbtn').addEventListener('click', () => boostAccelerator())
+  DOMCacheGetOrSet('acceleratorboostbtn').addEventListener('click', () => buyMaxBoostAccel())
   DOMCacheGetOrSet('challengebtn').addEventListener('click', () => resetCheck('transcensionChallenge', undefined, true))
   DOMCacheGetOrSet('reincarnatechallengebtn').addEventListener(
     'click',
@@ -271,9 +271,9 @@ export const generateEventHandlers = () => {
   }
   // Part 3: Building Purchasers + Upgrades
   // Accelerator, Multiplier, Accelerator Boost
-  DOMCacheGetOrSet('buyaccelerator').addEventListener('click', () => buyAccelerator())
-  DOMCacheGetOrSet('buymultiplier').addEventListener('click', () => buyMultiplier())
-  DOMCacheGetOrSet('buyacceleratorboost').addEventListener('click', () => boostAccelerator())
+  DOMCacheGetOrSet('buyaccelerator').addEventListener('click', () => buyMaxAccels())
+  DOMCacheGetOrSet('buymultiplier').addEventListener('click', () => buyMaxMuls())
+  DOMCacheGetOrSet('buyacceleratorboost').addEventListener('click', () => buyMaxBoostAccel())
 
   // Coin, Diamond and Mythos Buildings
   const buildingTypesAlternate2 = ['coin', 'diamond', 'mythos']
@@ -285,8 +285,7 @@ export const generateEventHandlers = () => {
       ).addEventListener('click', () =>
         buyProducer(
           ordinals[index2 as OneToFive],
-          buildingTypesAlternate3[index],
-          index === 0 ? index2 : (index2 * (index2 + 1)) / 2
+          buildingTypesAlternate3[index]
         ))
     }
   }

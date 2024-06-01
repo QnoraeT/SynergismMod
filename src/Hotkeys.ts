@@ -1,5 +1,5 @@
 import { sacrificeAnts } from './Ants'
-import { boostAccelerator, buyAccelerator, buyMultiplier } from './Buy'
+import { buyMaxBoostAccel, buyMaxAccels, buyMaxMuls } from './Buy'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { promocodes } from './ImportExport'
 import { useConsumable } from './Shop'
@@ -10,8 +10,8 @@ import { Alert, Confirm, Prompt } from './UpdateHTML'
 import { Globals as G } from './Variables'
 
 export const defaultHotkeys = new Map<string, [string, () => unknown, /* hide during notification */ boolean]>([
-  ['A', ['Buy Accelerators', () => buyAccelerator(), false]],
-  ['B', ['Boost Accelerator', () => boostAccelerator(), false]],
+  ['A', ['Buy Accelerators', () => buyMaxAccels(), false]],
+  ['B', ['Boost Accelerator', () => buyMaxBoostAccel(), false]],
   ['C', ['Auto Challenge', () => {
     toggleChallengeSweep()
   }, false]],
@@ -22,7 +22,7 @@ export const defaultHotkeys = new Map<string, [string, () => unknown, /* hide du
       exitTranscendAndPrestigeChallenge()
     }
   }, false]],
-  ['M', ['Multipliers', () => buyMultiplier(), false]],
+  ['M', ['Multipliers', () => buyMaxMuls(), false]],
   ['N', ['No (Cancel)', () => confirmReply(false), true]],
   ['P', ['Reset Prestige', () => resetCheck('prestige'), false]],
   ['R', ['Reset Reincarnate', () => resetCheck('reincarnation'), false]],
