@@ -7,6 +7,7 @@ import {
   toggleCorruptionLoadoutsStats,
   toggleCubeSubTab,
   toggleRuneScreen,
+  toggleChallengesScreen,
   toggleSingularityScreen
 } from './Toggles'
 import { changeTabColor, hideStuff, revealStuff } from './UpdateHTML'
@@ -61,7 +62,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: 'ascendHistorySubTab',
         get unlocked () {
-          return player.ascensionCount > 0
+          return player.ascensionCount.gt(0)
         }
       },
       {
@@ -144,7 +145,19 @@ const subtabInfo: Record<Tabs, SubTab> = {
       }
     ]
   },
-  [Tabs.Challenges]: { subTabList: [] },
+  [Tabs.Challenges]: { 
+    tabSwitcher: () => toggleChallengesScreen,
+    subTabList: [
+      { subTabID: '1', unlocked: true, buttonID: 'toggleChallengesSubTab1' },
+      {
+        subTabID: '2',
+        get unlocked () {
+          return player.highestSingularityCount >= 25
+        },
+        buttonID: 'toggleChallengesSubTab2'
+      },
+    ] 
+  },
   [Tabs.Research]: { subTabList: [] },
   [Tabs.AntHill]: { subTabList: [] },
   [Tabs.WowCubes]: {
@@ -195,7 +208,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: '7',
         get unlocked () {
-          return player.challenge15Exponent >= 1e15
+          return player.challenge15Exponent.gte(1e15)
         },
         buttonID: 'switchCubeSubTab7'
       }
@@ -247,16 +260,9 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: '4',
         get unlocked () {
-          return player.highestSingularityCount >= 25
-        },
-        buttonID: 'toggleSingularitySubTab4'
-      },
-      {
-        subTabID: '5',
-        get unlocked () {
           return player.singularityChallenges.noSingularityUpgrades.completions >= 1
         },
-        buttonID: 'toggleSingularitySubTab5'
+        buttonID: 'toggleSingularitySubTab4'
       }
     ]
   },
@@ -525,7 +531,7 @@ tabRow.appendButton(
     .makeDraggable()
     .makeRemoveable(),
   new $Tab({ class: 'chal11', id: 'traitstab', i18n: 'tabs.main.corruption' })
-    .setUnlockedState(() => player.challengecompletions[11] > 0)
+    .setUnlockedState(() => player.challengecompletions[11].gt(0))
     .setType(Tabs.Corruption)
     .makeDraggable()
     .makeRemoveable(),

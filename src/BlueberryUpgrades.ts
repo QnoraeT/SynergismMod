@@ -7,6 +7,7 @@ import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt } from './UpdateHTML'
 import { visualUpdateAmbrosia } from './UpdateVisuals'
+import Decimal from 'break_eternity.js'
 
 export type blueberryUpgradeNames =
   | 'ambrosiaTutorial'
@@ -30,7 +31,7 @@ export type BlueberryLoadoutMode = 'saveTree' | 'loadTree'
 
 export interface IBlueberryData extends Omit<IUpgradeData, 'name' | 'description' | 'effect'> {
   costFormula(this: void, level: number, baseCost: number): number
-  rewards(this: void, n: number): Record<string, number | boolean | string>
+  rewards(this: void, n: number): Record<string, number | string>
   blueberryCost: number
   ambrosiaInvested?: number
   blueberriesInvested?: number
@@ -40,7 +41,7 @@ export interface IBlueberryData extends Omit<IUpgradeData, 'name' | 'description
 
 export class BlueberryUpgrade extends DynamicUpgrade {
   readonly costFormula: (level: number, baseCost: number) => number
-  readonly rewards: (n: number) => Record<string, number | boolean | string>
+  readonly rewards: (n: number) => Record<string, number | string>
   public ambrosiaInvested = 0
   public blueberriesInvested = 0
   public blueberryCost: number
@@ -224,8 +225,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
         costNextLevel,
         2,
         true,
-        true,
-        true
+        
       )
     }</span> ${i18next.t('ambrosia.ambrosia')} ${affordableInfo}
                 ${
@@ -242,8 +242,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
         this.ambrosiaInvested,
         2,
         true,
-        true,
-        true
+        
       )
     }</span>`
   }
@@ -452,15 +451,14 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.0001 * n
-      const val = 1
-        + baseVal
-          * (Math.floor(Math.log10(Number(player.wowCubes) + 1))
-            + Math.floor(Math.log10(Number(player.wowTesseracts) + 1))
-            + Math.floor(Math.log10(Number(player.wowHypercubes) + 1))
-            + Math.floor(Math.log10(Number(player.wowPlatonicCubes) + 1))
-            + Math.floor(Math.log10(player.wowAbyssals + 1))
-            + Math.floor(Math.log10(player.wowOcteracts + 1))
-            + 6)
+      const val = Decimal.mul(baseVal
+          , Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowCubes), 1)))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowTesseracts), 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowHypercubes), 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowPlatonicCubes), 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowAbyssals, 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowOcteracts, 1))))
+            .add(6)).add(1).toNumber()
       return {
         quarks: val,
         desc: String(
@@ -513,14 +511,14 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.02 * n
-      const val = baseVal
-        * (Math.floor(Math.log10(Number(player.wowCubes) + 1))
-          + Math.floor(Math.log10(Number(player.wowTesseracts) + 1))
-          + Math.floor(Math.log10(Number(player.wowHypercubes) + 1))
-          + Math.floor(Math.log10(Number(player.wowPlatonicCubes) + 1))
-          + Math.floor(Math.log10(player.wowAbyssals + 1))
-          + Math.floor(Math.log10(player.wowOcteracts + 1))
-          + 6)
+      const val = Decimal.mul(baseVal
+        , Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowCubes), 1)))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowTesseracts), 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowHypercubes), 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowPlatonicCubes), 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowAbyssals, 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowOcteracts, 1))))
+          .add(6)).toNumber()
       return {
         ambrosiaLuck: val,
         desc: String(

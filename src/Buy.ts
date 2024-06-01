@@ -1,8 +1,8 @@
-import Decimal from 'break_infinity.js'
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinear } from './Calculate'
+import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal } from './Calculate'
 import { CalcECC } from './Challenges'
 import { format, player, updateAllMultiplier, updateAllTick } from './Synergism'
 import type { FirstToFifth, OneToFive, ZeroToFour } from './types/Synergism'
@@ -10,12 +10,12 @@ import { crystalupgradedescriptions, upgradeupdate } from './Upgrades'
 import { Globals as G, Upgrade } from './Variables'
 
 export const getReductionValue = () => {
-  let reduction = 1
-  reduction += Math.min(1e15, (G.rune4level * G.effectiveLevelMult) / 160)
-  reduction += (player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
-    + player.researches[60]) / 200
-  reduction += CalcECC('transcend', player.challengecompletions[4]) / 200
-  reduction += Math.min(99999.9, (3 * (player.antUpgrades[7 - 1]! + G.bonusant7)) / 100)
+  let reduction = new Decimal(1)
+  reduction = reduction.add(Decimal.min(1e15, Decimal.mul(G.rune4level, G.effectiveLevelMult).div(160)))
+  reduction = reduction.add((player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
+    + player.researches[60]) / 200)
+  reduction = reduction.add(CalcECC('transcend', player.challengecompletions[4]).div(200))
+  reduction = reduction.add(Decimal.min(99999.9, Decimal.add(player.antUpgrades[7 - 1]!, G.bonusant7).mul(0.03)))
   return reduction
 }
 
@@ -60,7 +60,7 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
       player[`${pos}Cost${type}` as const] = cost
     }
   } else {
-    let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).floor().add(1)
+    const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).floor().add(1)
     const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1)
     player[posOwnedType] = boughtBuild.toNumber()
     player[`${pos}Cost${type}` as const] = cost
@@ -78,19 +78,19 @@ export const buyProducer = (
   pos: FirstToFifth,
   type: keyof typeof buyProducerTypes
 ) => {
-  let r = 1
-  r += (G.rune4level * G.effectiveLevelMult) / 160
-  r += (player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
-    + player.researches[60]) / 200
-  r += CalcECC('transcend', player.challengecompletions[4]) / 200
-  r += (3 * (G.bonusant7 + player.antUpgrades[7 - 1]!)) / 100
+  // let r = 1
+  // r += (G.rune4level * G.effectiveLevelMult) / 160
+  // r += (player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
+  //   + player.researches[60]) / 200
+  // r += CalcECC('transcend', player.challengecompletions[4]) / 200
+  // r += (3 * (G.bonusant7 + player.antUpgrades[7 - 1]!)) / 100
 
   const fckYou = {
-    "first": 1,
-    "second": 2,
-    "third": 3,
-    "fourth": 4,
-    "fifth": 5
+    first: 1,
+    second: 2,
+    third: 3,
+    fourth: 4,
+    fifth: 5
   }
   buyMax(fckYou[pos] as OneToFive, type)
 }
@@ -128,9 +128,8 @@ export const calculateCrystalBuy = (i: number) => {
   const u = i - 1
   const exponent = Decimal.log(player.prestigeShards.add(1), 10)
 
-  const toBuy = Math.floor(
-    Math.pow(Math.max(0, 2 * (exponent - G.crystalUpgradesCost[u]) / G.crystalUpgradeCostIncrement[u] + 1 / 4), 1 / 2)
-      + 1 / 2
+  const toBuy = Decimal.floor(
+    Decimal.sub(exponent, G.crystalUpgradesCost[u]).div(G.crystalUpgradeCostIncrement[u]).mul(2).add(0.25).max(0).sqrt().add(0.5)
   )
   return toBuy
 }
@@ -138,22 +137,19 @@ export const calculateCrystalBuy = (i: number) => {
 export const buyCrystalUpgrades = (i: number, auto = false) => {
   const u = i - 1
 
-  let c = 0
-  c += Math.floor(G.rune3level / 16 * G.effectiveLevelMult) * 100 / 100
+  let c = new Decimal(0)
+  c = c.add(Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor())
   if (player.upgrades[73] > 0.5 && player.currentChallenge.reincarnation !== 0) {
-    c += 10
+    c = c.add(10)
   }
 
   const toBuy = calculateCrystalBuy(i)
 
-  if (toBuy + c > player.crystalUpgrades[u]) {
-    player.crystalUpgrades[u] = 100 / 100 * (toBuy + c)
-    if (toBuy > 0) {
+  if (Decimal.add(toBuy, c).gt(player.crystalUpgrades[u])) {
+    player.crystalUpgrades[u] = Decimal.add(toBuy, c)
+    if (toBuy.gt(0)) {
       player.prestigeShards = player.prestigeShards.sub(
-        Decimal.pow(
-          10,
-          G.crystalUpgradesCost[u] + G.crystalUpgradeCostIncrement[u] * (1 / 2 * Math.pow(toBuy - 1 / 2, 2) - 1 / 8)
-        )
+        Decimal.mul(G.crystalUpgradeCostIncrement[u], toBuy.sub(0.5).pow(2).div(2).sub(0.125)).add(G.crystalUpgradesCost[u]).pow10()
       )
       if (!auto) {
         crystalupgradedescriptions(i)
@@ -183,7 +179,7 @@ export const buyParticleBuilding = (
       player[`${pos}CostParticles` as const] = cost
     }
   } else {
-    let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).floor().add(1)
+    const boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).floor().add(1)
     const cost = getParticleCostq(boughtPartBuild, originalCost)
     player[key] = boughtPartBuild.toNumber()
     player[`${pos}CostParticles` as const] = cost
@@ -418,10 +414,10 @@ export const buyTesseractBuilding = (index: OneToFive, amount = player.tesseract
 }
 
 export const buyRuneBonusLevels = (type: 'Blessings' | 'Spirits', index: number) => {
-  const unlocked = type === 'Spirits' ? player.challengecompletions[12] > 0 : player.achievements[134] === 1
-  if (unlocked && isFinite(player.runeshards) && player.runeshards > 0) {
+  const unlocked = type === 'Spirits' ? player.challengecompletions[12].gt(0) : player.achievements[134] === 1
+  if (unlocked && Decimal.isFinite(player.runeshards) && player.runeshards.gt(0)) {
     let baseCost: number
-    let baseLevels: number
+    let baseLevels: Decimal
     let levelCap: number
     if (type === 'Spirits') {
       baseCost = G.spiritBaseCost
@@ -433,17 +429,17 @@ export const buyRuneBonusLevels = (type: 'Blessings' | 'Spirits', index: number)
       levelCap = player.runeBlessingBuyAmount
     }
 
-    const [level, cost] = calculateSummationLinear(baseLevels, baseCost, player.runeshards, levelCap)
+    const [level, cost] = calculateSummationLinearDecimal(baseLevels, baseCost, player.runeshards, levelCap)
     if (type === 'Spirits') {
       player.runeSpiritLevels[index] = level
     } else {
       player.runeBlessingLevels[index] = level
     }
 
-    player.runeshards -= cost
+    player.runeshards = player.runeshards.sub(cost)
 
-    if (player.runeshards < 0) {
-      player.runeshards = 0
+    if (player.runeshards.lt(0)) {
+      player.runeshards = new Decimal(0)
     }
 
     updateRuneBlessing(type, index)
@@ -454,14 +450,14 @@ export const updateRuneBlessing = (type: 'Blessings' | 'Spirits', index: number)
   if (index === 1) {
     const requirementArray = [0, 1e5, 1e8, 1e11]
     for (let i = 1; i <= 3; i++) {
-      if (player.runeBlessingLevels[1] >= requirementArray[i] && player.achievements[231 + i] < 1) {
+      if (player.runeBlessingLevels[1].gte(requirementArray[i]) && player.achievements[231 + i] < 1) {
         achievementaward(231 + i)
       }
-      if (player.runeSpiritLevels[1] >= 10 * requirementArray[i] && player.achievements[234 + i] < 1) {
+      if (player.runeSpiritLevels[1].gte(10 * requirementArray[i]) && player.achievements[234 + i] < 1) {
         achievementaward(234 + i)
       }
     }
-    if (player.runeBlessingLevels[1] >= 1e22 && player.achievements[245] < 1) {
+    if (player.runeBlessingLevels[1].gte(1e22) && player.achievements[245] < 1) {
       achievementaward(245)
     }
   }
@@ -474,29 +470,29 @@ export const updateRuneBlessing = (type: 'Blessings' | 'Spirits', index: number)
     DOMCacheGetOrSet(`runeBlessingPower${index}Value1`).innerHTML = i18next.t('runes.blessings.blessingPower', {
       reward: i18next.t(`runes.blessings.rewards.${index - 1}`),
       value: format(G.runeBlessings[index]),
-      speed: format(1 - t + blessingMultiplierArray[index] * G.effectiveRuneBlessingPower[index], 4, true)
+      speed: format(Decimal.sub(1, Decimal.mul(blessingMultiplierArray[index], G.effectiveRuneBlessingPower[index]).add(t)), 4, true)
     })
   } else if (type === 'Spirits') {
-    const spiritMultiplierArray = [0, 1, 1, 20, 1, 100]
-    spiritMultiplierArray[index] *= calculateCorruptionPoints() / 400
+    const spiritMultiplierArray = [new Decimal(0), new Decimal(1), new Decimal(1), new Decimal(20), new Decimal(1), new Decimal(100)]
+    spiritMultiplierArray[index] = spiritMultiplierArray[index].mul(calculateCorruptionPoints().div(400))
     const t = (index === 3) ? 1 : 0
 
     DOMCacheGetOrSet(`runeSpiritPower${index}Value1`).innerHTML = i18next.t('runes.spirits.spiritPower', {
       reward: i18next.t(`runes.spirits.rewards.${index - 1}`),
       value: format(G.runeSpirits[index]),
-      speed: format(1 - t + spiritMultiplierArray[index] * G.effectiveRuneSpiritPower[index], 4, true)
+      speed: format(Decimal.sub(1, Decimal.mul(spiritMultiplierArray[index], G.effectiveRuneSpiritPower[index]).add(t)), 4, true)
     })
   }
 }
 
 export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100, auto = false) => {
-  const unlocked = type === 'Spirits' ? player.challengecompletions[12] > 0 : player.achievements[134] === 1
+  const unlocked = type === 'Spirits' ? player.challengecompletions[12].gt(0) : player.achievements[134] === 1
   if (unlocked) {
-    const runeshards = Math.floor(player.runeshards / 100 * percentage / 5)
+    const runeshards = Decimal.floor(player.runeshards.div(100).mul(percentage).div(5))
     for (let index = 1; index < 6; index++) {
-      if (isFinite(player.runeshards) && player.runeshards > 0) {
+      if (Decimal.isFinite(player.runeshards) && player.runeshards.gt(0)) {
         let baseCost: number
-        let baseLevels: number
+        let baseLevels: Decimal
         const levelCap = 1e300
         if (type === 'Spirits') {
           baseCost = G.spiritBaseCost
@@ -506,18 +502,18 @@ export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100,
           baseLevels = player.runeBlessingLevels[index]
         }
 
-        const [level, cost] = calculateSummationLinear(baseLevels, baseCost, runeshards, levelCap)
-        if (level > baseLevels && (!auto || (level - baseLevels) * 10000 > baseLevels)) {
+        const [level, cost] = calculateSummationLinearDecimal(baseLevels, baseCost, runeshards, levelCap)
+        if (Decimal.gt(level, baseLevels) && (!auto || Decimal.gt(Decimal.sub(level, baseLevels).mul(10000), baseLevels))) {
           if (type === 'Spirits') {
             player.runeSpiritLevels[index] = level
           } else {
             player.runeBlessingLevels[index] = level
           }
 
-          player.runeshards -= cost
+          player.runeshards = player.runeshards.sub(cost)
 
-          if (player.runeshards < 0) {
-            player.runeshards = 0
+          if (player.runeshards.lt(0)) {
+            player.runeshards = new Decimal(0)
           }
 
           updateRuneBlessing(type, index)
@@ -598,13 +594,13 @@ export const buyMaxAccels = () => {
       player.coins = player.coins.sub(getAccelCost(boughtAccel))
       boughtAccel = boughtAccel.add(1)
       const cost = getAccelCost(boughtAccel)
-      player.acceleratorBought = boughtAccel.toNumber()
+      player.acceleratorBought = boughtAccel
       player.acceleratorCost = cost
     }
   } else {
-    let boughtAccel = getAccelTarget(player.coins).floor().add(1)
+    const boughtAccel = getAccelTarget(player.coins).floor().add(1)
     const cost = getAccelCost(boughtAccel)
-    player.acceleratorBought = boughtAccel.toNumber()
+    player.acceleratorBought = boughtAccel
     player.acceleratorCost = cost
   }
 
@@ -612,25 +608,25 @@ export const buyMaxAccels = () => {
   player.transcendnoaccelerator = false
   player.reincarnatenoaccelerator = false
   updateAllTick()
-  if (player.acceleratorBought >= 5 && player.achievements[148] === 0) {
+  if (player.acceleratorBought.gte(5) && player.achievements[148] === 0) {
     achievementaward(148)
   }
-  if (player.acceleratorBought >= 25 && player.achievements[149] === 0) {
+  if (player.acceleratorBought.gte(25) && player.achievements[149] === 0) {
     achievementaward(149)
   }
-  if (player.acceleratorBought >= 100 && player.achievements[150] === 0) {
+  if (player.acceleratorBought.gte(100) && player.achievements[150] === 0) {
     achievementaward(150)
   }
-  if (player.acceleratorBought >= 666 && player.achievements[151] === 0) {
+  if (player.acceleratorBought.gte(666) && player.achievements[151] === 0) {
     achievementaward(151)
   }
-  if (player.acceleratorBought >= 2000 && player.achievements[152] === 0) {
+  if (player.acceleratorBought.gte(2000) && player.achievements[152] === 0) {
     achievementaward(152)
   }
-  if (player.acceleratorBought >= 12500 && player.achievements[153] === 0) {
+  if (player.acceleratorBought.gte(12500) && player.achievements[153] === 0) {
     achievementaward(153)
   }
-  if (player.acceleratorBought >= 100000 && player.achievements[154] === 0) {
+  if (player.acceleratorBought.gte(100000) && player.achievements[154] === 0) {
     achievementaward(154)
   }
 }
@@ -645,13 +641,13 @@ export const buyMaxMuls = () => {
       player.coins = player.coins.sub(getMulCost(boughtMul))
       boughtMul = boughtMul.add(1)
       const cost = getMulCost(boughtMul)
-      player.multiplierBought = boughtMul.toNumber()
+      player.multiplierBought = boughtMul
       player.multiplierCost = cost
     }
   } else {
-    let boughtMul = getMulTarget(player.coins).floor().add(1)
+    const boughtMul = getMulTarget(player.coins).floor().add(1)
     const cost = getMulCost(boughtMul)
-    player.multiplierBought = boughtMul.toNumber()
+    player.multiplierBought = boughtMul
     player.multiplierCost = cost
   }
 
@@ -659,25 +655,25 @@ export const buyMaxMuls = () => {
   player.transcendnomultiplier = false
   player.reincarnatenomultiplier = false
   updateAllMultiplier()
-  if (player.multiplierBought >= 2 && player.achievements[155] === 0) {
+  if (player.multiplierBought.gte(2) && player.achievements[155] === 0) {
     achievementaward(155)
   }
-  if (player.multiplierBought >= 20 && player.achievements[156] === 0) {
+  if (player.multiplierBought.gte(20) && player.achievements[156] === 0) {
     achievementaward(156)
   }
-  if (player.multiplierBought >= 100 && player.achievements[157] === 0) {
+  if (player.multiplierBought.gte(100) && player.achievements[157] === 0) {
     achievementaward(157)
   }
-  if (player.multiplierBought >= 500 && player.achievements[158] === 0) {
+  if (player.multiplierBought.gte(500) && player.achievements[158] === 0) {
     achievementaward(158)
   }
-  if (player.multiplierBought >= 2000 && player.achievements[159] === 0) {
+  if (player.multiplierBought.gte(2000) && player.achievements[159] === 0) {
     achievementaward(159)
   }
-  if (player.multiplierBought >= 12500 && player.achievements[160] === 0) {
+  if (player.multiplierBought.gte(12500) && player.achievements[160] === 0) {
     achievementaward(160)
   }
-  if (player.multiplierBought >= 100000 && player.achievements[161] === 0) {
+  if (player.multiplierBought.gte(100000) && player.achievements[161] === 0) {
     achievementaward(161)
   }
 }
@@ -692,13 +688,13 @@ export const buyMaxBoostAccel = () => {
       player.prestigePoints = player.prestigePoints.sub(getAccelBoostCost(boughtAccelBoost))
       boughtAccelBoost = boughtAccelBoost.add(1)
       const cost = getAccelBoostCost(boughtAccelBoost)
-      player.acceleratorBoostBought = boughtAccelBoost.toNumber()
+      player.acceleratorBoostBought = boughtAccelBoost
       player.acceleratorBoostCost = cost
     }
   } else {
-    let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).floor().add(1)
+    const boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).floor().add(1)
     const cost = getAccelBoostCost(boughtAccelBoost)
-    player.acceleratorBoostBought = boughtAccelBoost.toNumber()
+    player.acceleratorBoostBought = boughtAccelBoost
     player.acceleratorBoostCost = cost
   }
   player.transcendnoaccelerator = false
@@ -735,7 +731,7 @@ export const getMulCost = (bought: number | Decimal): Decimal => {
   }
 
   const baseCost = new Decimal(1e4)
-  return Decimal.pow10(i.div(G.costDivisor).toNumber()).mul(baseCost)
+  return i.div(G.costDivisor).pow10().mul(baseCost)
 }
 
 export const getMulTarget = (amt: Decimal): Decimal => {
@@ -744,16 +740,16 @@ export const getMulTarget = (amt: Decimal): Decimal => {
 
   const scaling = getMulScaling()
   if (i.gte(scaling[0])) {
-      i = i.div(scaling[0]).pow(1/1.35).mul(scaling[0])
+      i = i.div(scaling[0]).root(1.35).mul(scaling[0])
       i = i.sub(scaling[0]).div(2).add(scaling[0])
   }
 
   if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).pow(1/2).mul(scaling[1])   
+      i = i.div(scaling[1]).root(2).mul(scaling[1])   
   }
 
   if (player.currentChallenge.reincarnation === 8) {
-      i = Decimal.pow10(Decimal.pow(i.log10(), 1/1.2).toNumber()).pow(3/10)
+      i = i.log10().root(1.2).pow10().root(10/3)
   }
 
   if (player.currentChallenge.transcension === 4) {
@@ -775,7 +771,7 @@ export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
       i = i.div(scaling).pow(3).mul(scaling)
   }
 
-  return Decimal.pow10(i.pow(2).mul(0.5).add(i.mul(10.5)).add(3).toNumber())
+  return i.pow(2).mul(0.5).add(i.mul(10.5)).add(3).pow10()
 }
 
 export const getAccelBoostTarget = (amt: Decimal): Decimal => {
@@ -783,11 +779,11 @@ export const getAccelBoostTarget = (amt: Decimal): Decimal => {
   const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
 
   if (i.gte(scaling)) {
-      i = i.div(scaling).pow(1/3).mul(scaling)
+      i = i.div(scaling).root(3).mul(scaling)
   }
 
   if (i.gte(1e15)) {
-    i = i.div(1e15).pow(3/7).mul(1e15)
+    i = i.div(1e15).root(7/3).mul(1e15)
 }
 
   return i
@@ -809,7 +805,7 @@ export const getParticleTarget = (amt: Decimal, baseCost: Decimal): Decimal => {
   const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
 
   if (Decimal.gte(i, scaling)) {
-      i = Decimal.div(i, scaling).pow(1/2).mul(scaling)
+      i = Decimal.div(i, scaling).root(2).mul(scaling)
   }
 
   return i
@@ -817,13 +813,13 @@ export const getParticleTarget = (amt: Decimal, baseCost: Decimal): Decimal => {
 
 export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal, index: number): Decimal => {
   let i = new Decimal(bought)
-  i = Decimal.pow10(i.pow(2).mul(Math.log10(1 + 0.001 * index)).add(i.mul(Math.log10(1.25) * index)).toNumber()).mul(baseCost)
+  i = i.pow(2).mul(Decimal.log10(1 + 0.001 * index)).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
   return i
 }
 
 export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: number): Decimal => {
   let i = amt
-  i = inverseQuad(new Decimal(i.log10()), new Decimal(Decimal.log10(1 + 0.001 * index)), new Decimal(Math.log10(1.25) * index), new Decimal(baseCost.log10()))
+  i = inverseQuad(i.log10(), Decimal.log10(1 + 0.001 * index), Decimal.pow(1.25, index).log10(), baseCost.log10())
   return i
 }
 

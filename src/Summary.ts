@@ -17,11 +17,12 @@ import { version } from './Config'
 import { saveFilename } from './ImportExport'
 import { friendlyShopName, isShopUpgradeUnlocked, shopData, shopUpgradeTypes } from './Shop'
 import { calculateEffectiveSingularities } from './singularity'
-import { format, player } from './Synergism'
+import { format, formatTime, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert } from './UpdateHTML'
-import { formatS, sumContents } from './Utility'
+import { sumContentsNumber } from './Utility'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export const generateExportSummary = async (): Promise<void> => {
   const titleText = '===== SUMMARY STATS ====='
@@ -34,28 +35,28 @@ export const generateExportSummary = async (): Promise<void> => {
 
   let resources = '===== RESOURCES =====\n'
   resources = resources
-    + (player.reincarnationCount > 0 || player.highestSingularityCount > 0
+    + (player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
       ? `Quarks: ${format(Number(player.worlds), 0, true)}\n`
       : '')
   resources = resources
     + (player.highestSingularityCount > 0 ? `Golden Quarks: ${format(player.goldenQuarks, 2, true)}\n` : '')
   resources = resources + subCategoryDivisor
   resources = `${resources}Coins: ${format(player.coins, 2, true)}\n`
-  if (player.prestigeCount > 0 || player.highestSingularityCount > 0) {
+  if (player.prestigeCount.gt(0) || player.highestSingularityCount > 0) {
     resources = `${resources}Diamonds: ${format(player.prestigePoints, 2, true)}\n`
     resources = `${resources}Crystals: ${format(player.prestigeShards, 2, true)}\n`
     resources = `${resources}Offerings: ${format(player.runeshards, 0, true)}\n`
   }
-  if (player.transcendCount > 0 || player.highestSingularityCount > 0) {
+  if (player.transcendCount.gt(0) || player.highestSingularityCount > 0) {
     resources = `${resources}Mythos: ${format(player.transcendPoints, 2, true)}\n`
     resources = `${resources}Mythos Shards: ${format(player.transcendShards, 2, true)}\n`
   }
-  if (player.reincarnationCount > 0 || player.highestSingularityCount > 0) {
+  if (player.reincarnationCount.gt(0) || player.highestSingularityCount > 0) {
     resources = `${resources}Particles: ${format(player.reincarnationPoints, 2, true)}\n`
     resources = `${resources}Atoms: ${format(player.reincarnationShards, 2, true)}\n`
     resources = `${resources}Obtainium: ${format(player.researchPoints, 0, true)}\n`
   }
-  if (player.ascensionCount > 0 || player.highestSingularityCount > 0) {
+  if (player.ascensionCount.gt(0) || player.highestSingularityCount > 0) {
     const cubeArray = [
       null,
       player.cubeBlessings.accelerator,
@@ -105,10 +106,10 @@ export const generateExportSummary = async (): Promise<void> => {
       player.platonicBlessings.scoreBonus,
       player.platonicBlessings.globalSpeed
     ]
-    const cubeSum = format(sumContents(cubeArray.slice(1) as number[]), 0, true)
-    const tesseractSum = format(sumContents(tesseractArray.slice(1) as number[]), 0, true)
-    const hypercubeSum = format(sumContents(hypercubeArray.slice(1) as number[]), 0, true)
-    const platonicSum = format(sumContents(platonicArray), 0, true)
+    const cubeSum = format(sumContentsNumber(cubeArray.slice(1) as number[]), 0, true)
+    const tesseractSum = format(sumContentsNumber(tesseractArray.slice(1) as number[]), 0, true)
+    const hypercubeSum = format(sumContentsNumber(hypercubeArray.slice(1) as number[]), 0, true)
+    const platonicSum = format(sumContentsNumber(platonicArray), 0, true)
 
     resources = resources + subCategoryDivisor
     resources = `${resources}Wow! Cubes: ${format(Number(player.wowCubes), 0, true)} -+- Total Tributes: ${cubeSum}\n`
@@ -134,8 +135,8 @@ export const generateExportSummary = async (): Promise<void> => {
     octeract = `${octeract}Current Octeracts: ${format(player.wowOcteracts, 2, true)}\n`
     octeract = `${octeract}Current Per Second: ${format(octeractGainPerSecond(), 2, true)}\n`
     octeract = `${octeract}Total Generated Octeracts: ${format(player.totalWowOcteracts, 2, true)}\n`
-    octeract = `${octeract}Octeract Cube Bonus: ${format(100 * (calculateTotalOcteractCubeBonus() - 1), 2, true)}%\n`
-    octeract = `${octeract}Octeract Quark Bonus: ${format(100 * (calculateTotalOcteractQuarkBonus() - 1), 2, true)}%\n`
+    octeract = `${octeract}Octeract Cube Bonus: ${format(Decimal.sub(calculateTotalOcteractCubeBonus(), 1).mul(100), 2, true)}%\n`
+    octeract = `${octeract}Octeract Quark Bonus: ${format(Decimal.sub(calculateTotalOcteractQuarkBonus(), 1).mul(100), 2, true)}%\n`
   }
 
   // Singularity Subportion!
@@ -146,35 +147,35 @@ export const generateExportSummary = async (): Promise<void> => {
     singularity = `${singularity}Highest Singularity Reached: ${player.highestSingularityCount}\n`
     singularity = `${singularity}Golden Quarks: ${format(player.goldenQuarks, 2, true)}\n`
     singularity = `${singularity}+Golden Quarks on Singularity: ${format(calculateGoldenQuarkGain(), 2, true)}\n`
-    singularity = `${singularity}Time in Singularity: ${formatS(player.singularityCounter)}\n`
+    singularity = `${singularity}Time in Singularity: ${formatTime(player.singularityCounter)}\n`
     singularity = `${singularity}Effective Singularity [for penalties]: ${
       format(calculateEffectiveSingularities(), 2, true)
     }\n`
-    singularity = `${singularity}Antiquity of Ant God Upgraded: ${(player.runelevels[6] > 0) ? '✔' : '✖'}\n`
+    singularity = `${singularity}Antiquity of Ant God Upgraded: ${(player.runelevels[6].gt(0)) ? '✔' : '✖'}\n`
   }
 
   // Ascension Subportion!
   let ascension = ''
-  if (player.ascensionCount > 0 || player.highestSingularityCount > 0) {
+  if (player.ascensionCount.gt(0) || player.highestSingularityCount > 0) {
     ascension = '===== ASCENSION ===== \n'
     ascension = `${ascension}Ascension Count: ${format(player.ascensionCount, 0, true)}\n`
-    ascension = `${ascension}Ascension Timer: ${formatS(player.ascensionCounter)}\n`
-    ascension = `${ascension}Real Life Ascension Timer: ${formatS(player.ascensionCounterReal)}\n`
-    ascension = `${ascension}Truly Real Life Ascension Timer: ${formatS(player.ascensionCounterRealReal)}\n`
+    ascension = `${ascension}Ascension Timer: ${formatTime(player.ascensionCounter)}\n`
+    ascension = `${ascension}Real Life Ascension Timer: ${formatTime(player.ascensionCounterReal)}\n`
+    ascension = `${ascension}Truly Real Life Ascension Timer: ${formatTime(player.ascensionCounterRealReal)}\n`
     ascension = `${ascension}Ascension Speed Multiplier: ${format(calculateAscensionAcceleration(), 2, true)}\n`
     ascension = `${ascension}Challenge 11 Completions: ${player.challengecompletions[11]}/${getMaxChallenges(11)}\n`
     ascension = `${ascension}Challenge 12 Completions: ${player.challengecompletions[12]}/${getMaxChallenges(12)}\n`
     ascension = `${ascension}Challenge 13 Completions: ${player.challengecompletions[13]}/${getMaxChallenges(13)}\n`
     ascension = `${ascension}Challenge 14 Completions: ${player.challengecompletions[14]}/${getMaxChallenges(14)}\n`
-    if (player.highestchallengecompletions[14] > 0 || player.highestSingularityCount > 0) {
+    if (player.highestchallengecompletions[14].gt(0) || player.highestSingularityCount > 0) {
       ascension = `${ascension}Challenge 15 Exponent: ${format(player.challenge15Exponent, 2, true)}\n`
       ascension = `${ascension}Research [8x25] MAXED: ${(player.researches[200] === 1e5) ? '✔' : '✖'}\n`
-      ascension = `${ascension}Cube [w5x10] MAXED: ${(player.cubeUpgrades[50] === 1e5) ? '✔' : '✖'}\n`
+      ascension = `${ascension}Cube [w5x10] MAXED: ${(player.cubeUpgrades[50].eq(1e5)) ? '✔' : '✖'}\n`
       ascension = `${ascension}Platonic α: ${player.platonicUpgrades[5] > 0 ? '✔' : '✖'}\n`
       ascension = `${ascension}Platonic β: ${player.platonicUpgrades[10] > 0 ? '✔' : '✖'}\n`
       ascension = `${ascension}Platonic Ω: ${player.platonicUpgrades[15] > 0 ? '✔' : '✖'}\n`
     }
-    if (player.challenge15Exponent >= 1e15 || player.highestSingularityCount > 0) {
+    if (player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0) {
       ascension = `${ascension}----- HEPTERACTS -----\n`
       ascension = `${ascension}Chronos Hepteract: ${format(player.hepteractCrafts.chronos.BAL, 0, true)}/${
         format(player.hepteractCrafts.chronos.CAP, 0, true)
@@ -208,11 +209,11 @@ export const generateExportSummary = async (): Promise<void> => {
 
   // Reincarnation Portion!
   let reincarnation = ''
-  if (player.reincarnationCount > 0 || player.highestSingularityCount > 0) {
+  if (player.reincarnationCount.gt(0) || player.highestSingularityCount > 0) {
     reincarnation = '===== REINCARNATION =====\n'
     reincarnation = `${reincarnation}Reincarnation Count: ${format(player.reincarnationCount, 0, true)}\n`
-    reincarnation = `${reincarnation}Reincarnation Timer: ${formatS(player.reincarnationcounter)}\n`
-    reincarnation = `${reincarnation}Fastest Reincarnation: ${formatS(player.fastestreincarnate)}\n`
+    reincarnation = `${reincarnation}Reincarnation Timer: ${formatTime(player.reincarnationcounter)}\n`
+    reincarnation = `${reincarnation}Fastest Reincarnation: ${formatTime(player.fastestreincarnate)}\n`
     reincarnation = `${reincarnation}Global Speed Multiplier: ${format(calculateTimeAcceleration().mult, 2, true)}\n`
     reincarnation = `${reincarnation}Challenge 6 Completions: ${player.highestchallengecompletions[6]}/${
       getMaxChallenges(6)
@@ -233,11 +234,11 @@ export const generateExportSummary = async (): Promise<void> => {
 
   // Transcension Portion!
   let transcension = ''
-  if (player.transcendCount > 0 || player.highestSingularityCount > 0) {
+  if (player.transcendCount.gt(0) || player.highestSingularityCount > 0) {
     transcension = '===== TRANSCENSION =====\n'
     transcension = `${transcension}Transcension Count: ${format(player.transcendCount, 0, true)}\n`
-    transcension = `${transcension}Transcension Timer: ${formatS(player.transcendcounter)}\n`
-    transcension = `${transcension}Fastest Transcension: ${formatS(player.fastesttranscend)}\n`
+    transcension = `${transcension}Transcension Timer: ${formatTime(player.transcendcounter)}\n`
+    transcension = `${transcension}Fastest Transcension: ${formatTime(player.fastesttranscend)}\n`
     transcension = `${transcension}Challenge 1 Completions: ${player.highestchallengecompletions[1]}/${
       getMaxChallenges(1)
     }\n`
@@ -257,11 +258,11 @@ export const generateExportSummary = async (): Promise<void> => {
 
   // Prestige Portion!
   let prestige = ''
-  if (player.prestigeCount > 0 || player.highestSingularityCount > 0) {
+  if (player.prestigeCount.gt(0) || player.highestSingularityCount > 0) {
     prestige = '===== PRESTIGE & RUNES =====\n'
     prestige = `${prestige}Prestige Count: ${format(player.prestigeCount, 0, true)}\n`
-    prestige = `${prestige}Prestige Timer: ${formatS(player.prestigecounter)}\n`
-    prestige = `${prestige}Fastest Prestige: ${formatS(player.fastestprestige)}\n`
+    prestige = `${prestige}Prestige Timer: ${formatTime(player.prestigecounter)}\n`
+    prestige = `${prestige}Fastest Prestige: ${formatTime(player.fastestprestige)}\n`
     prestige = `${
       prestige + i18next.t('achievements.totalPoints', {
         x: format(player.achievementPoints),
@@ -271,26 +272,26 @@ export const generateExportSummary = async (): Promise<void> => {
     }\n`
     prestige = `${prestige}Speed Rune: Level ${format(player.runelevels[0], 0, true)}/${
       format(calculateMaxRunes(1))
-    } [Bonus: ${format(G.rune1level - player.runelevels[0], 0, true)}]\n`
+    } [Bonus: ${format(Decimal.sub(G.rune1level, player.runelevels[0]), 0, true)}]\n`
     if (player.achievements[38] > 0 || player.highestSingularityCount > 0) {
       prestige = `${prestige}Duplication Rune: Level ${format(player.runelevels[1], 0, true)}/${
         format(calculateMaxRunes(2))
-      } [Bonus: ${format(G.rune2level - player.runelevels[1], 0, true)}]\n`
+      } [Bonus: ${format(Decimal.sub(G.rune2level, player.runelevels[1]), 0, true)}]\n`
     }
     if (player.achievements[44] > 0 || player.highestSingularityCount > 0) {
       prestige = `${prestige}Prism Rune: Level ${format(player.runelevels[2], 0, true)}/${
         format(calculateMaxRunes(3))
-      } [Bonus: ${format(G.rune3level - player.runelevels[2], 0, true)}]\n`
+      } [Bonus: ${format(Decimal.sub(G.rune3level, player.runelevels[2]), 0, true)}]\n`
     }
     if (player.achievements[102] > 0 || player.highestSingularityCount > 0) {
       prestige = `${prestige}Thrift Rune: Level ${format(player.runelevels[3], 0, true)}/${
         format(calculateMaxRunes(4))
-      } [Bonus: ${format(G.rune4level - player.runelevels[3], 0, true)}]\n`
+      } [Bonus: ${format(Decimal.sub(G.rune4level, player.runelevels[3]), 0, true)}]\n`
     }
     if (player.researches[82] > 0 || player.highestSingularityCount > 0) {
       prestige = `${prestige}Superior Intellect: Level ${format(player.runelevels[4], 0, true)}/${
         format(calculateMaxRunes(5))
-      } [Bonus: ${format(G.rune5level - player.runelevels[4], 0, true)}]\n`
+      } [Bonus: ${format(Decimal.sub(G.rune5level, player.runelevels[4]), 0, true)}]\n`
     }
     if (player.shopUpgrades.infiniteAscent > 0 || player.highestSingularityCount > 0) {
       prestige = `${prestige}Infinite Ascent: Level ${format(player.runelevels[5], 0, true)}/${
@@ -306,7 +307,7 @@ export const generateExportSummary = async (): Promise<void> => {
 
   // Create Shop Stuffs
   let shopUpgradeStats = '\n'
-  if (player.reincarnationCount > 0 || player.highestSingularityCount > 0) {
+  if (player.reincarnationCount.gt(0) || player.highestSingularityCount > 0) {
     shopUpgradeStats =
       '===== SHOP UPGRADES =====\n - [★]: Upgrade is MAXED - \n - [✔]: Upgrade is unlocked - \n - [✖]: Upgrade is locked - \n'
     const shopUpgrade = Object.keys(player.shopUpgrades) as (keyof Player['shopUpgrades'])[]

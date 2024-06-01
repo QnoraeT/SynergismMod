@@ -50,20 +50,20 @@ export const toggleSettings = (toggle: HTMLElement) => {
 
 export const toggleChallenges = (i: number, auto = false) => {
   if ((i <= 5)) {
-    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter >= 2) {
+    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter.gt(2)) {
       player.currentChallenge.transcension = i
       reset('transcensionChallenge', false, 'enterChallenge')
-      player.transcendCount -= 1
+      player.transcendCount = player.transcendCount.sub(1)
     }
     if (!player.currentChallenge.reincarnation && !document.querySelector('.resetbtn.hover')) {
       resetrepeat('transcensionChallenge')
     }
   }
   if ((i >= 6 && i < 11)) {
-    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter >= 2) {
+    if (player.currentChallenge.ascension !== 15 || player.ascensionCounter.gt(2)) {
       player.currentChallenge.reincarnation = i
       reset('reincarnationChallenge', false, 'enterChallenge')
-      player.reincarnationCount -= 1
+      player.reincarnationCount = player.reincarnationCount.sub(1)
     }
     if (!document.querySelector('.resetbtn.hover')) {
       resetrepeat('reincarnationChallenge')
@@ -71,7 +71,7 @@ export const toggleChallenges = (i: number, auto = false) => {
   }
   if (
     i >= 11
-    && ((!auto && !player.toggles[31]) || player.challengecompletions[10] > 0
+    && ((!auto && !player.toggles[31]) || player.challengecompletions[10].gt(0)
       || (player.currentChallenge.transcension === 0 && player.currentChallenge.reincarnation === 0
         && player.currentChallenge.ascension === 0))
   ) {
@@ -398,6 +398,23 @@ export const toggleRuneScreen = (indexStr: string) => {
   player.subtabNumber = index - 1
 }
 
+export const toggleChallengesScreen = (indexStr: string) => {
+  const index = Number(indexStr)
+
+  for (let i = 1; i <= 2; i++) {
+    const a = DOMCacheGetOrSet(`toggleChallengesSubTab${i}`)
+    const b = DOMCacheGetOrSet(`challengesWrapper${i}`)
+    if (i === index) {
+      a.style.backgroundColor = 'crimson'
+      b.style.display = 'block'
+    } else {
+      a.style.backgroundColor = ''
+      b.style.display = 'none'
+    }
+  }
+  player.subtabNumber = index - 1
+}
+
 export const toggleautofortify = () => {
   const el = DOMCacheGetOrSet('toggleautofortify')
   if (player.autoFortifyToggle) {
@@ -447,7 +464,7 @@ export const toggleSaveOff = () => {
 export const toggleSingularityScreen = (indexStr: string) => {
   const index = Number(indexStr)
 
-  for (let i = 1; i <= 5; i++) {
+  for (let i = 1; i <= 4; i++) {
     const a = DOMCacheGetOrSet(`toggleSingularitySubTab${i}`)
     const b = DOMCacheGetOrSet(`singularityContainer${i}`)
     if (i === index) {
@@ -465,7 +482,7 @@ export const toggleSingularityScreen = (indexStr: string) => {
     visualUpdateOcteracts()
   }
 
-  if (player.subtabNumber === 4) {
+  if (player.subtabNumber === 3) {
     visualUpdateAmbrosia()
   }
 }

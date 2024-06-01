@@ -4,6 +4,8 @@ import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateCubeQuarkMultiplier, calculateQuarkMultiplier } from './Calculate'
 import { format, player } from './Synergism'
 import { Alert } from './UpdateHTML'
+import Decimal from 'break_eternity.js'
+
 
 const getBonus = async (): Promise<null | number> => {
   if (!navigator.onLine) {
@@ -41,9 +43,9 @@ const getBonus = async (): Promise<null | number> => {
 }
 
 export const quarkHandler = () => {
-  let maxTime = 90000 // In Seconds
+  let maxTime = new Decimal(90000) // In Seconds
   if (player.researches[195] > 0) {
-    maxTime += 18000 * player.researches[195] // Research 8x20
+    maxTime = maxTime.add(18000 * player.researches[195]) // Research 8x20
   }
 
   // Part 2: Calculate quark gain per hour
@@ -59,10 +61,10 @@ export const quarkHandler = () => {
   const quarkPerHour = baseQuarkPerHour
 
   // Part 3: Calculates capacity of quarks on export
-  const capacity = Math.floor(quarkPerHour * maxTime / 3600)
+  const capacity = Decimal.floor(Decimal.mul(quarkPerHour, maxTime).div(3600))
 
   // Part 4: Calculate how many quarks are to be gained.
-  const quarkGain = Math.floor(player.quarkstimer * quarkPerHour / 3600)
+  const quarkGain = Decimal.floor(Decimal.mul(player.quarkstimer, quarkPerHour).div(3600))
 
   // Part 5 [June 9, 2021]: Calculate bonus awarded to cube quarks.
   const cubeMult = calculateCubeQuarkMultiplier()
@@ -100,9 +102,9 @@ export class QuarkHandler {
   }
 
   /*** Calculates the number of quarks to give with the current bonus. */
-  applyBonus (amount: number) {
+  applyBonus (amount: number | Decimal) {
     const nonPatreon = calculateQuarkMultiplier()
-    return amount * (1 + (this.BONUS / 100)) * nonPatreon
+    return Decimal.mul(amount, (1 + (this.BONUS / 100))).mul(nonPatreon).toNumber()
   }
 
   /** Subtracts quarks, as the name suggests. */
@@ -158,8 +160,8 @@ export class QuarkHandler {
     this.BONUS = b
   }
 
-  public toString (val: number): string {
-    return format(Math.floor(this.applyBonus(val)), 0, true)
+  public toString (val: number | Decimal): string {
+    return format(Decimal.floor(this.applyBonus(val)), 0, true)
   }
 
   /**

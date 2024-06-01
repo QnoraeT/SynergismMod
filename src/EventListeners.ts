@@ -128,6 +128,7 @@ import {
   upgradedescriptions
 } from './Upgrades'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 /* STYLE GUIDE */
 /*
@@ -541,6 +542,13 @@ export const generateEventHandlers = () => {
     'input',
     () => updateAutoChallenge(3)
   )
+    // Part 3: Subtabs because Mixelz doesn't know what the fuck he's doing
+    for (let index = 0; index < 2; index++) {
+      DOMCacheGetOrSet(`toggleChallengesSubTab${index + 1}`).addEventListener(
+        'click',
+        () => changeSubTab(Tabs.Challenges, { page: index })
+      )
+    }
 
   // RESEARCH TAB
   // Part 1: Researches
@@ -910,7 +918,7 @@ TODO: Fix this entire tab it's utter shit
   // DOMCacheGetOrSet('offeringPotions').addEventListener('click', () => buyShopUpgrades("offeringPotion"))  //Allow clicking of image to buy also
   DOMCacheGetOrSet('useofferingpotion').addEventListener('click', () => useConsumable('offeringPotion'))
   DOMCacheGetOrSet('toggle42').addEventListener('click', () => {
-    player.autoPotionTimer = 0
+    player.autoPotionTimer = new Decimal(0)
   })
   /*Obtainium Potion*/
   DOMCacheGetOrSet('obtainiumPotions').addEventListener('mouseover', () => shopDescriptions('obtainiumPotion'))
@@ -921,7 +929,7 @@ TODO: Fix this entire tab it's utter shit
   // DOMCacheGetOrSet('obtainiumPotions').addEventListener('click', () => buyShopUpgrades("obtainiumPotion"))  //Allow clicking of image to buy also
   DOMCacheGetOrSet('useobtainiumpotion').addEventListener('click', () => useConsumable('obtainiumPotion'))
   DOMCacheGetOrSet('toggle43').addEventListener('click', () => {
-    player.autoPotionTimerObtainium = 0
+    player.autoPotionTimerObtainium = new Decimal(0)
   })
   /* Permanent Upgrade Images */
   const shopKeys = Object.keys(
@@ -1079,7 +1087,7 @@ TODO: Fix this entire tab it's utter shit
   DOMCacheGetOrSet('importBlueberries').addEventListener('change', async (e) => importData(e, importBlueberryTree))
 
   // Toggle subtabs of Singularity tab
-  for (let index = 0; index < 5; index++) {
+  for (let index = 0; index < 4; index++) {
     DOMCacheGetOrSet(`toggleSingularitySubTab${index + 1}`).addEventListener(
       'click',
       () => changeSubTab(Tabs.Singularity, { page: index })

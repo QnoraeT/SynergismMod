@@ -6,7 +6,7 @@ file without asking me first. You may edit this file as much as you
 want, though!
 Thank you! */
 
-import Decimal from 'break_infinity.js'
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { calculateCubeBlessings } from './Calculate'
@@ -130,18 +130,18 @@ export abstract class Cube {
     }
     // General quark multiplier from other in-game features
     // Multiplier from passed parameter
-    const multiplier = mult * quarkHandler().cubeMult
+    const multiplier = Decimal.mul(mult, quarkHandler().cubeMult)
 
-    return Math.floor(player.worlds.applyBonus(Math.log10(cubes) * base * multiplier))
+    return Math.floor(player.worlds.applyBonus(Decimal.mul(multiplier, base).mul(Decimal.log10(cubes))))
   }
 
   /** @description Check how many cubes you need to gain an additional quark from opening */
   checkCubesToNextQuark (base: number, mult: number, quarks: number, cubes: number): number {
     // General quark multiplier from other in-game features
     // Multiplier from passed parameter
-    const multiplier = mult * quarkHandler().cubeMult
+    const multiplier = Decimal.mul(mult, quarkHandler().cubeMult)
 
-    return Math.ceil(Math.pow(10, (quarks + 1) / player.worlds.applyBonus(multiplier * base)) - cubes)
+    return Math.ceil(Math.pow(10, (quarks + 1) / player.worlds.applyBonus(Decimal.mul(multiplier, base))) - cubes)
   }
 
   add (amount: number): this {
@@ -197,13 +197,13 @@ export class WowCubes extends Cube {
     let toSpendModulo = toSpend % 20
     let toSpendDiv20 = Math.floor(toSpend / 20)
 
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[13] === 1) {
+    if (toSpendDiv20 > 0 && player.cubeUpgrades[13].eq(1)) {
       toSpendModulo += toSpendDiv20
     }
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[23] === 1) {
+    if (toSpendDiv20 > 0 && player.cubeUpgrades[23].eq(1)) {
       toSpendModulo += toSpendDiv20
     }
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[33] === 1) {
+    if (toSpendDiv20 > 0 && player.cubeUpgrades[33].eq(1)) {
       toSpendModulo += toSpendDiv20
     }
 
@@ -214,8 +214,7 @@ export class WowCubes extends Cube {
 
     // If you're opening more than 20 cubes, it will consume all cubes until remainder mod 20, giving expected values.
     for (const key of keys) {
-      player.cubeBlessings[key] += blessings[key].weight * toSpendDiv20
-        * (1 + Math.floor(CalcECC('ascension', player.challengecompletions[12])))
+      player.cubeBlessings[key] += Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1).mul(toSpendDiv20).mul(blessings[key].weight).toNumber()
     }
 
     // Then, the remaining cubes will be opened, simulating the probability [RNG Element]
@@ -223,7 +222,7 @@ export class WowCubes extends Cube {
       const num = 100 * Math.random()
       for (const key of keys) {
         if (blessings[key].pdf(num)) {
-          player.cubeBlessings[key] += 1 + Math.floor(CalcECC('ascension', player.challengecompletions[12]))
+          player.cubeBlessings[key] += Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1).toNumber()
         }
       }
     }
@@ -344,7 +343,7 @@ export class WowPlatonicCubes extends Cube {
     for (const key in player.platonicBlessings) {
       player.platonicBlessings[key as keyof Player['platonicBlessings']] +=
         platonicBlessings[key as keyof typeof platonicBlessings].weight * toSpendDiv40000
-      if (platonicBlessings[key as keyof typeof platonicBlessings].weight === 1 && player.cubeUpgrades[64] > 0) {
+      if (platonicBlessings[key as keyof typeof platonicBlessings].weight === 1 && player.cubeUpgrades[64].gt(0)) {
         player.platonicBlessings[key as keyof Player['platonicBlessings']] += toSpendDiv40000 // Doubled!
       }
     }
@@ -379,9 +378,9 @@ export class WowPlatonicCubes extends Cube {
     }
     calculatePlatonicBlessings()
     if (player.achievements[271] > 0) {
-      const extraHypercubes = Math.floor(
-        toSpend * Math.max(0, Math.min(1, (Decimal.log(player.ascendShards.add(1), 10) - 1e5) / 9e5))
-      )
+      const extraHypercubes = 
+        Decimal.mul(toSpend, player.ascendShards.add(1).log10().sub(1e5).div(9e5).min(1).max(0)).floor().toNumber() // change this to decimal
+
       player.wowHypercubes.open(extraHypercubes, false, true)
     }
   }

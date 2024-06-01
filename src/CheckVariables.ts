@@ -1,4 +1,4 @@
-import Decimal from 'break_infinity.js'
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { type IBlueberryData, updateLoadoutHoverClasses } from './BlueberryUpgrades'
 import { BlueberryUpgrade, blueberryUpgradeData } from './BlueberryUpgrades'
@@ -36,7 +36,6 @@ import { blankSave, player, resetCheck } from './Synergism'
 import type { LegacyShopUpgrades, PlayerSave } from './types/LegacySynergism'
 import type { Player } from './types/Synergism'
 import { Alert } from './UpdateHTML'
-import { padArray } from './Utility'
 import { Globals } from './Variables'
 
 /**
@@ -70,24 +69,24 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   // backwards compatibility for v1.0101 (and possibly older) saves
-  if (
-    !Array.isArray(data.challengecompletions)
-    && data.challengecompletions != null
-  ) {
-    player.challengecompletions = Object.values(data.challengecompletions)
-    padArray(
-      player.challengecompletions,
-      0,
-      blankSave.challengecompletions.length
-    )
-  }
+  // if (
+  //   !Array.isArray(data.challengecompletions)
+  //   && data.challengecompletions != null
+  // ) {
+  //   player.challengecompletions = Object.values(data.challengecompletions)
+  //   padArray(
+  //     player.challengecompletions,
+  //     0,
+  //     blankSave.challengecompletions.length
+  //   )
+  // }
 
   // backwards compatibility for v1.0101 (and possibly older) saves
   if (!Array.isArray(data.highestchallengecompletions)) {
     // if highestchallengecompletions is every added onto, this will need to be padded.
     player.highestchallengecompletions = Object.values(
       data.highestchallengecompletions as unknown as object
-    ) as number[]
+    ) as Decimal[]
   }
 
   if (data.wowCubes === undefined) {
@@ -97,56 +96,56 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     // dprint-ignore
     player.cubeUpgrades = [
       null,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
     ];
   }
   if (data.shoptoggles?.reincarnate === undefined) {
@@ -156,31 +155,31 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.ascendBuilding1 = {
       cost: 1,
       owned: 0,
-      generated: new Decimal('0'),
+      generated: new Decimal(0),
       multiplier: 0.01
     }
     player.ascendBuilding2 = {
       cost: 10,
       owned: 0,
-      generated: new Decimal('0'),
+      generated: new Decimal(0),
       multiplier: 0.01
     }
     player.ascendBuilding3 = {
       cost: 100,
       owned: 0,
-      generated: new Decimal('0'),
+      generated: new Decimal(0),
       multiplier: 0.01
     }
     player.ascendBuilding4 = {
       cost: 1000,
       owned: 0,
-      generated: new Decimal('0'),
+      generated: new Decimal(0),
       multiplier: 0.01
     }
     player.ascendBuilding5 = {
       cost: 10000,
       owned: 0,
-      generated: new Decimal('0'),
+      generated: new Decimal(0),
       multiplier: 0.01
     }
   }
@@ -218,8 +217,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.usedCorruptions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
   }
   if (data.constantUpgrades === undefined) {
-    player.ascendShards = new Decimal('0')
-    player.constantUpgrades = [null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    player.ascendShards = new Decimal(0)
+    player.constantUpgrades = [null, new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
   }
   if (data.roombaResearchIndex === undefined) {
     player.roombaResearchIndex = 0
@@ -262,8 +261,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.autoAscendThreshold = 1
   }
   if (data.runeBlessingLevels === undefined) {
-    player.runeBlessingLevels = [0, 0, 0, 0, 0, 0]
-    player.runeSpiritLevels = [0, 0, 0, 0, 0, 0]
+    player.runeBlessingLevels = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+    player.runeSpiritLevels = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
     player.runeBlessingBuyAmount = 0
     player.runeSpiritBuyAmount = 0
   }
@@ -330,8 +329,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   for (let i = 0; i <= 4; i++) {
-    if (player.runelevels[i] > calculateMaxRunes(i + 1)) {
-      player.runelevels[i] = 0
+    if (Decimal.gt(player.runelevels[i], calculateMaxRunes(i + 1))) {
+      player.runelevels[i] = new Decimal(0)
     }
   }
 
@@ -345,8 +344,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
   if (
     data.cubeUpgrades == null
-    || data.cubeUpgrades[19] === 0
-    || player.cubeUpgrades[19] === 0
+    || Decimal.eq(data.cubeUpgrades[19], 0)
+    || player.cubeUpgrades[19].eq(0)
   ) {
     for (let i = 121; i <= 125; i++) {
       player.upgrades[i] = 0
@@ -873,14 +872,14 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.loadedOct4Hotfix = true
     // Only process refund if the save's researches array is already updated to v2
     if (player.researches.length > 200) {
-      player.researchPoints += player.researches[200] * 1e56
+      player.researchPoints = player.researchPoints.add(player.researches[200] * 1e56)
       player.researches[200] = 0
       buyResearch(200, true, 0.01)
-      player.researchPoints += player.researches[195] * 1e60
+      player.researchPoints = player.researchPoints.add(player.researches[195] * 1e60)
       player.worlds.add(250 * player.researches[195])
       player.researches[195] = 0
-      player.wowCubes.add(player.cubeUpgrades[50] * 5e10)
-      player.cubeUpgrades[50] = 0
+      player.wowCubes.add(Decimal.mul(5e10, player.cubeUpgrades[50]).toNumber())
+      player.cubeUpgrades[50] = new Decimal(0)
     }
   }
 
@@ -911,14 +910,14 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.usedCorruptions[0] = 0
   }
   if (player.antSacrificeTimerReal === undefined) {
-    player.antSacrificeTimerReal = player.antSacrificeTimer / calculateTimeAcceleration().mult
+    player.antSacrificeTimerReal = Decimal.div(player.antSacrificeTimer, calculateTimeAcceleration().mult)
   }
   if (player.subtabNumber === undefined || data.subtabNumber === undefined) {
     player.subtabNumber = 0
   }
   if (data.wowPlatonicCubes === undefined) {
     player.wowPlatonicCubes = new WowPlatonicCubes(0)
-    player.wowAbyssals = 0
+    player.wowAbyssals = new Decimal(0)
   }
   if (data.platonicBlessings === undefined) {
     const ascCount = player.ascensionCount
@@ -930,12 +929,12 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     }
     if (player.currentChallenge.ascension === 15) {
       void resetCheck('ascensionChallenge', false, true)
-      player.challenge15Exponent = 0
+      player.challenge15Exponent = new Decimal(0)
       c15RewardUpdate()
     }
     player.ascensionCount = ascCount
-    player.challengecompletions[15] = 0
-    player.highestchallengecompletions[15] = 0
+    player.challengecompletions[15] = new Decimal(0)
+    player.highestchallengecompletions[15] = new Decimal(0)
     player.platonicBlessings = {
       cubes: 0,
       tesseracts: 0,
@@ -947,7 +946,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
       globalSpeed: 0
     }
     player.platonicUpgrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    player.challenge15Exponent = 0
+    player.challenge15Exponent = new Decimal(0)
     player.loadedNov13Vers = false
   }
   if (player.researches.some((k) => typeof k !== 'number')) {
@@ -958,10 +957,10 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   if (data.loadedDec16Vers === false || data.loadedDec16Vers === undefined) {
     if (player.currentChallenge.ascension === 15) {
       void resetCheck('ascensionChallenge', false, true)
-      player.challenge15Exponent = 0
+      player.challenge15Exponent = new Decimal(0)
       c15RewardUpdate()
     }
-    player.challenge15Exponent = 0
+    player.challenge15Exponent = new Decimal(0)
     c15RewardUpdate()
     player.loadedDec16Vers = true
   }
@@ -1105,8 +1104,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (player.runeexp[5] === undefined) {
-    player.runeexp[5] = player.runeexp[6] = 0
-    player.runelevels[5] = player.runelevels[6] = 0
+    player.runeexp[5] = player.runeexp[6] = new Decimal(0)
+    player.runelevels[5] = player.runelevels[6] = new Decimal(0)
   }
 
   // resets all hepteract values on the player object
@@ -1153,13 +1152,13 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.overfluxOrbs === undefined) {
-    player.overfluxOrbs = 0
+    player.overfluxOrbs = new Decimal(0)
   }
   if (data.overfluxOrbsAutoBuy === undefined) {
     player.overfluxOrbsAutoBuy = false
   }
   if (data.overfluxPowder === undefined) {
-    player.overfluxPowder = 0
+    player.overfluxPowder = new Decimal(0)
     player.shopUpgrades.powderEX = 0
     player.dailyPowderResetUses = 1
   }
@@ -1198,7 +1197,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.shopUpgrades.calculator = 0
     player.shopUpgrades.calculator2 = 0
     player.shopUpgrades.calculator3 = 0
-    player.wowAbyssals += 1e8 * player.platonicUpgrades[16] // Refund based off of abyss hepteracts spent
+    player.wowAbyssals = player.wowAbyssals.add(1e8 * player.platonicUpgrades[16]) // Refund based off of abyss hepteracts spent
     void Alert(i18next.t('general.updateAlerts.june282021'))
   }
 
@@ -1223,7 +1222,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
 
   if (data.singularityCount === undefined) {
     player.singularityCount = 0
-    player.goldenQuarks = 0
+    player.goldenQuarks = new Decimal(0)
 
     player.quarksThisSingularity = 0
     player.quarksThisSingularity += +player.worlds
@@ -1429,6 +1428,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
           highestSingularityCompleted,
           enabled,
           singularityRequirement: singularityChallengeData[k].singularityRequirement,
+          scalingrewardcount: singularityChallengeData[k].scalingrewardcount,
+          uniquerewardcount: singularityChallengeData[k].uniquerewardcount,
           effect: singularityChallengeData[k].effect,
           cacheUpdates: singularityChallengeData[k].cacheUpdates
         }
@@ -1446,7 +1447,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   while (player.cubeUpgrades.length < 71) {
-    player.cubeUpgrades.push(0)
+    player.cubeUpgrades.push(new Decimal(0))
   }
 
   if (data.dailyCodeUsed === undefined) {
@@ -1462,7 +1463,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     data.goldenQuarksTimer === undefined
     || player.goldenQuarksTimer === undefined
   ) {
-    player.goldenQuarksTimer = 90000
+    player.goldenQuarksTimer = new Decimal(90000)
   }
 
   if (data.hepteractAutoCraftPercentage === undefined) {
@@ -1501,8 +1502,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.wowOcteracts === undefined) {
-    player.wowOcteracts = 0
-    player.octeractTimer = 0
+    player.wowOcteracts = new Decimal(0)
+    player.octeractTimer = new Decimal(0)
   }
 
   if (data.shopHideToggle === undefined) {
@@ -1518,18 +1519,18 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.ascensionCounterRealReal === undefined) {
-    player.ascensionCounterRealReal = 0
+    player.ascensionCounterRealReal = new Decimal(0)
   }
 
   if (data.totalWowOcteracts === undefined) {
-    player.totalWowOcteracts = 0
+    player.totalWowOcteracts = new Decimal(0)
   }
 
   if (data.highestSingularityCount === undefined) {
     player.highestSingularityCount = player.singularityCount
     if (player.singularityCount > 0) {
-      player.goldenQuarks += 200
-      player.goldenQuarks += 100 * Math.min(10, player.singularityCount)
+      player.goldenQuarks = player.goldenQuarks.add(200)
+      player.goldenQuarks = player.goldenQuarks.add(100 * Math.min(10, player.singularityCount))
 
       if (player.singularityCount >= 5) {
         player.singularityUpgrades.goldenQuarks3.freeLevels += 1
@@ -1542,10 +1543,10 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.autoPotionTimer === undefined) {
-    player.autoPotionTimer = 0
+    player.autoPotionTimer = new Decimal(0)
   }
   if (data.autoPotionTimerObtainium === undefined) {
-    player.autoPotionTimerObtainium = 0
+    player.autoPotionTimerObtainium = new Decimal(0)
   }
   if (data.insideSingularityChallenge === undefined) {
     player.insideSingularityChallenge = false
@@ -1604,12 +1605,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   if (data.ambrosia === undefined) {
     player.ambrosia = 0
     player.lifetimeAmbrosia = 0
-    player.ambrosiaRNG = 0 // NOW DEPRECIATED
     player.visitedAmbrosiaSubtab = false
-  }
-
-  if (data.blueberryTime === undefined) {
-    player.blueberryTime = player.ambrosiaRNG
   }
 
   if (data.spentBlueberries === undefined) {
@@ -1669,8 +1665,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (player.ultimatePixels === undefined) {
-    player.ultimatePixels = 0
-    player.ultimateProgress = 0
+    player.ultimatePixels = new Decimal(0)
+    player.ultimateProgress = new Decimal(0)
   }
 
   if (player.shopUpgrades.shopAmbrosiaAccelerator === undefined) { 
