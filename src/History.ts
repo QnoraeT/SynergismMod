@@ -66,7 +66,7 @@ export type ResetHistoryEntryAscend = ResetHistoryEntryBase & {
 export interface ResetHistoryEntrySingularity extends ResetHistoryEntryBase {
   singularityCount: number
   quarks: number
-  goldenQuarks: number
+  goldenQuarks: Decimal
   wowTribs: number
   tessTribs: number
   hyperTribs: number

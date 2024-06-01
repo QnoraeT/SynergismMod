@@ -595,7 +595,7 @@ export const visualUpdateRunes = () => {
       // +1 if C1 completion
       Decimal.min(1, player.highestchallengecompletions[1]),
       // +0.10 per C1 completion
-      player.highestchallengecompletions[1].mul(0.04),
+      Decimal.mul(0.04, player.highestchallengecompletions[1]),
       // Research 5x2
       0.6 * player.researches[22],
       // Research 5x3

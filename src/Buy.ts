@@ -34,9 +34,9 @@ const getOriginalCostAndNum = (index: OneToFive, type: keyof typeof buyProducerT
   return [originalCost, num] as const
 }
 
-export const getCost = (index: OneToFive, type: keyof typeof buyProducerTypes, buyingTo: number) => {
+export const getCost = (index: OneToFive, type: keyof typeof buyProducerTypes, buyingTo: Decimal) => {
   const [originalCost] = getOriginalCostAndNum(index, type)
-  return getMiscBuildingCost(buyingTo - 1, originalCost, index)
+  return getMiscBuildingCost(buyingTo.sub(1), originalCost, index)
 }
 
 export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) => {
@@ -56,13 +56,13 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
       player[tag] = player[tag].sub(getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1))
       boughtBuild = boughtBuild.add(1)
       const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1)
-      player[posOwnedType] = boughtBuild.toNumber()
+      player[posOwnedType] = boughtBuild
       player[`${pos}Cost${type}` as const] = cost
     }
   } else {
     const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).floor().add(1)
     const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1)
-    player[posOwnedType] = boughtBuild.toNumber()
+    player[posOwnedType] = boughtBuild
     player[`${pos}Cost${type}` as const] = cost
   }
 }
@@ -175,13 +175,13 @@ export const buyParticleBuilding = (
       player.reincarnationPoints = player.reincarnationPoints.sub(getParticleCostq(boughtPartBuild, originalCost))
       boughtPartBuild = boughtPartBuild.add(1)
       const cost = getParticleCostq(boughtPartBuild, originalCost)
-      player[key] = boughtPartBuild.toNumber()
+      player[key] = boughtPartBuild
       player[`${pos}CostParticles` as const] = cost
     }
   } else {
     const boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).floor().add(1)
     const cost = getParticleCostq(boughtPartBuild, originalCost)
-    player[key] = boughtPartBuild.toNumber()
+    player[key] = boughtPartBuild
     player[`${pos}CostParticles` as const] = cost
   }
 }
@@ -718,7 +718,7 @@ export const getMulCost = (bought: number | Decimal): Decimal => {
   }
 
   if (player.currentChallenge.reincarnation === 8) {
-      i = Decimal.pow10(Decimal.pow(i.min(2).pow(10/3).log10(), 1.2).toNumber())
+      i = Decimal.pow(i.min(2).pow(10/3).log10(), 1.2).pow10()
   }
 
   if (i.gte(scaling[1])) {
@@ -753,7 +753,7 @@ export const getMulTarget = (amt: Decimal): Decimal => {
   }
 
   if (player.currentChallenge.transcension === 4) {
-      i = i.pow(1/2)
+      i = i.root(2)
   }
 
   return i
@@ -789,7 +789,7 @@ export const getAccelBoostTarget = (amt: Decimal): Decimal => {
   return i
 }
 
-export const getParticleCostq = (bought: number | Decimal, baseCost: Decimal): Decimal => {
+export const getParticleCostq = (bought: number | Decimal, baseCost: number | Decimal): Decimal => {
   let i = new Decimal(bought)
   const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
 
@@ -800,7 +800,7 @@ export const getParticleCostq = (bought: number | Decimal, baseCost: Decimal): D
   return Decimal.pow(2, i).mul(baseCost)
 }
 
-export const getParticleTarget = (amt: Decimal, baseCost: Decimal): Decimal => {
+export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
   let i = new Decimal(amt.div(baseCost).log(2))
   const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
 

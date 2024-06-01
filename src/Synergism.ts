@@ -38,7 +38,8 @@ import {
   buyTesseractBuilding,
   calculateTessBuildingsInBudget,
   getCost,
-  getReductionValue
+  getReductionValue,
+  getParticleCostq
 } from './Buy'
 import {
   calculateAcceleratorMultiplier,
@@ -183,102 +184,102 @@ export const player: Player = {
   coinsThisReincarnation: new Decimal(100),
   coinsTotal: new Decimal(100),
 
-  firstOwnedCoin: 0,
+  firstOwnedCoin: new Decimal(0),
   firstGeneratedCoin: new Decimal(0),
   firstCostCoin: new Decimal(100),
   firstProduceCoin: 0.25,
 
-  secondOwnedCoin: 0,
+  secondOwnedCoin: new Decimal(0),
   secondGeneratedCoin: new Decimal(0),
   secondCostCoin: new Decimal(1000),
   secondProduceCoin: 2.5,
 
-  thirdOwnedCoin: 0,
+  thirdOwnedCoin: new Decimal(0),
   thirdGeneratedCoin: new Decimal(0),
   thirdCostCoin: new Decimal('2e4'),
   thirdProduceCoin: 25,
 
-  fourthOwnedCoin: 0,
+  fourthOwnedCoin: new Decimal(0),
   fourthGeneratedCoin: new Decimal(0),
   fourthCostCoin: new Decimal('4e5'),
   fourthProduceCoin: 250,
 
-  fifthOwnedCoin: 0,
+  fifthOwnedCoin: new Decimal(0),
   fifthGeneratedCoin: new Decimal(0),
   fifthCostCoin: new Decimal('8e6'),
   fifthProduceCoin: 2500,
 
-  firstOwnedDiamonds: 0,
+  firstOwnedDiamonds: new Decimal(0),
   firstGeneratedDiamonds: new Decimal(0),
   firstCostDiamonds: new Decimal(100),
   firstProduceDiamonds: 0.05,
 
-  secondOwnedDiamonds: 0,
+  secondOwnedDiamonds: new Decimal(0),
   secondGeneratedDiamonds: new Decimal(0),
   secondCostDiamonds: new Decimal('1e5'),
   secondProduceDiamonds: 0.0005,
 
-  thirdOwnedDiamonds: 0,
+  thirdOwnedDiamonds: new Decimal(0),
   thirdGeneratedDiamonds: new Decimal(0),
   thirdCostDiamonds: new Decimal('1e15'),
   thirdProduceDiamonds: 0.00005,
 
-  fourthOwnedDiamonds: 0,
+  fourthOwnedDiamonds: new Decimal(0),
   fourthGeneratedDiamonds: new Decimal(0),
   fourthCostDiamonds: new Decimal('1e40'),
   fourthProduceDiamonds: 0.000005,
 
-  fifthOwnedDiamonds: 0,
+  fifthOwnedDiamonds: new Decimal(0),
   fifthGeneratedDiamonds: new Decimal(0),
   fifthCostDiamonds: new Decimal('1e100'),
   fifthProduceDiamonds: 0.000005,
 
-  firstOwnedMythos: 0,
+  firstOwnedMythos: new Decimal(0),
   firstGeneratedMythos: new Decimal(0),
   firstCostMythos: new Decimal(1),
   firstProduceMythos: 1,
 
-  secondOwnedMythos: 0,
+  secondOwnedMythos: new Decimal(0),
   secondGeneratedMythos: new Decimal(0),
   secondCostMythos: new Decimal(100),
   secondProduceMythos: 0.01,
 
-  thirdOwnedMythos: 0,
+  thirdOwnedMythos: new Decimal(0),
   thirdGeneratedMythos: new Decimal(0),
   thirdCostMythos: new Decimal(1e4),
   thirdProduceMythos: 0.001,
 
-  fourthOwnedMythos: 0,
+  fourthOwnedMythos: new Decimal(0),
   fourthGeneratedMythos: new Decimal(0),
   fourthCostMythos: new Decimal('1e8'),
   fourthProduceMythos: 0.0002,
 
-  fifthOwnedMythos: 0,
+  fifthOwnedMythos: new Decimal(0),
   fifthGeneratedMythos: new Decimal(0),
   fifthCostMythos: new Decimal('1e16'),
   fifthProduceMythos: 0.00004,
 
-  firstOwnedParticles: 0,
+  firstOwnedParticles: new Decimal(0),
   firstGeneratedParticles: new Decimal(0),
   firstCostParticles: new Decimal(1),
   firstProduceParticles: 0.25,
 
-  secondOwnedParticles: 0,
+  secondOwnedParticles: new Decimal(0),
   secondGeneratedParticles: new Decimal(0),
   secondCostParticles: new Decimal(100),
   secondProduceParticles: 0.2,
 
-  thirdOwnedParticles: 0,
+  thirdOwnedParticles: new Decimal(0),
   thirdGeneratedParticles: new Decimal(0),
   thirdCostParticles: new Decimal(1e4),
   thirdProduceParticles: 0.15,
 
-  fourthOwnedParticles: 0,
+  fourthOwnedParticles: new Decimal(0),
   fourthGeneratedParticles: new Decimal(0),
   fourthCostParticles: new Decimal('1e8'),
   fourthProduceParticles: 0.1,
 
-  fifthOwnedParticles: 0,
+  fifthOwnedParticles: new Decimal(0),
   fifthGeneratedParticles: new Decimal(0),
   fifthCostParticles: new Decimal('1e16'),
   fifthProduceParticles: 0.5,
@@ -1820,11 +1821,11 @@ const loadSynergy = async () => {
       || data.loaded1009hotfix1 === null
       || data.shopUpgrades?.offeringPotion === undefined
     ) {
-      player.firstOwnedParticles = 0
-      player.secondOwnedParticles = 0
-      player.thirdOwnedParticles = 0
-      player.fourthOwnedParticles = 0
-      player.fifthOwnedParticles = 0
+      player.firstOwnedParticles =  new Decimal(0)
+      player.secondOwnedParticles = new Decimal(0)
+      player.thirdOwnedParticles =  new Decimal(0)
+      player.fourthOwnedParticles = new Decimal(0)
+      player.fifthOwnedParticles =  new Decimal(0)
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
@@ -1842,11 +1843,11 @@ const loadSynergy = async () => {
     if (!data.loaded1009hotfix1) {
       player.loaded1009hotfix1 = true
       player.codes.set(19, true)
-      player.firstOwnedParticles = 0
-      player.secondOwnedParticles = 0
-      player.thirdOwnedParticles = 0
-      player.fourthOwnedParticles = 0
-      player.fifthOwnedParticles = 0
+      player.firstOwnedParticles =  new Decimal(0)
+      player.secondOwnedParticles = new Decimal(0)
+      player.thirdOwnedParticles =  new Decimal(0)
+      player.fourthOwnedParticles = new Decimal(0)
+      player.fifthOwnedParticles =  new Decimal(0)
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
@@ -3641,17 +3642,7 @@ export const updateAllMultiplier = (): void => {
     a = a.add(1)
   }
   if (player.upgrades[28] > 0) {
-    a = a.add(Math.min(
-      1000,
-      Math.floor(
-        (player.firstOwnedCoin
-          + player.secondOwnedCoin
-          + player.thirdOwnedCoin
-          + player.fourthOwnedCoin
-          + player.fifthOwnedCoin)
-          / 160
-      )
-    ))
+    a = a.add(player.firstOwnedCoin.add(player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(160).floor().min(1000))
   }
   if (player.upgrades[30] > 0) {
     a = a.add(Decimal.add(player.coins.add(1).log10().div(10).floor().min(75), player.coins.add(1).log10().div(30).floor().min(925)))
@@ -3780,6 +3771,7 @@ export const updateAllMultiplier = (): void => {
 
   let b = new Decimal(0)
   let c = new Decimal(0)
+  b = b.add(player.transcendShards.add(1).log(3))
   b = b.mul(Decimal.mul(player.researches[33], 0.11).add(1))
   b = b.mul(Decimal.mul(player.researches[34], 0.11).add(1))
   b = b.mul(Decimal.mul(player.researches[35], 0.11).add(1))
@@ -3802,10 +3794,7 @@ export const updateAllMultiplier = (): void => {
   G.multiplierPower = Decimal.mul(G.totalMultiplierBoost, c7).mul(0.005).add(2)
 
   // No MA and Sadistic will always override Transcend Challenges starting in v2.0.0
-  if (
-    player.currentChallenge.reincarnation !== 7
-    && player.currentChallenge.reincarnation !== 10
-  ) {
+  if (player.currentChallenge.reincarnation !== 7 && player.currentChallenge.reincarnation !== 10) {
     if (player.currentChallenge.transcension === 1) {
       G.multiplierPower = new Decimal(1)
     }
@@ -4356,16 +4345,7 @@ export const resourceGain = (dt: Decimal): void => {
 
   let pm = new Decimal(1)
   if (player.upgrades[67] > 0.5) {
-    pm = pm.times(
-      Decimal.pow(
-        1.03,
-        player.firstOwnedParticles
-          + player.secondOwnedParticles
-          + player.thirdOwnedParticles
-          + player.fourthOwnedParticles
-          + player.fifthOwnedParticles
-      )
-    )
+    pm = pm.mul(Decimal.pow(1.03, player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(player.fourthOwnedParticles).add(player.fifthOwnedParticles)))
   }
   G.produceFifthParticles = player.fifthGeneratedParticles
     .add(player.fifthOwnedParticles)
@@ -5931,7 +5911,7 @@ export const updateAll = (): void => {
         player[`${num}Cost${resource}` as const] = getCost(
           (ord + 1) as OneToFive,
           resource,
-          player[`${num}Owned${resource}` as const] + 1
+          player[`${num}Owned${resource}` as const].add(1)
         )
       }
     }
@@ -5939,15 +5919,8 @@ export const updateAll = (): void => {
     for (let i = 0; i <= 4; i++) {
       const particleOriginalCost = [1, 1e2, 1e4, 1e8, 1e16]
       const num = G.ordinals[i as ZeroToFour]
-      const buyTo = player[`${num}OwnedParticles` as const] + 1
-      player[`${num}CostParticles` as const] = new Decimal(
-        Decimal.pow(2, buyTo - 1).times(
-          Decimal.pow(
-            1.001,
-            (Math.max(0, buyTo - 325000) * Math.max(0, buyTo - 325000 + 1)) / 2
-          )
-        )
-      ).times(particleOriginalCost[i])
+      const buyTo = player[`${num}OwnedParticles` as const].add(1)
+      player[`${num}CostParticles` as const] = getParticleCostq(buyTo, particleOriginalCost[i])
     }
   }
 

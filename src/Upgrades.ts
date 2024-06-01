@@ -46,10 +46,10 @@ const upgradetexts = [
   () => format((G.totalCoinOwned.add(1)).mul(Decimal.min(1e30, Decimal.pow(1.008, G.totalCoinOwned))), 2),
   () => format((G.totalCoinOwned.add(1)).mul(Decimal.min(1e30, Decimal.pow(1.008, G.totalCoinOwned))), 2),
   () => format((G.totalCoinOwned.add(1)).mul(Decimal.min(1e30, Decimal.pow(1.008, G.totalCoinOwned))), 2),
-  () => Decimal.add(player.fifthOwnedCoin, 1).log10().floor().add(1).min(4),
-  () => player.multiplierBought.div(7).floor(),
-  () => player.acceleratorBought.div(10).floor(),
-  () => format(Decimal.pow(2, Math.min(50, player.secondOwnedCoin / 15)), 2),
+  () => format(Decimal.add(player.fifthOwnedCoin, 1).log10().floor().add(1).min(4)),
+  () => format(player.multiplierBought.div(7).floor()),
+  () => format(player.acceleratorBought.div(10).floor()),
+  () => format(Decimal.pow(2, Decimal.min(50, player.secondOwnedCoin.div(15))), 2),
   () => format(Decimal.pow(1.02, G.freeAccelerator), 2),
   () => format(Decimal.min(1e4, Decimal.pow(1.01, player.prestigeCount)), 2),
   () =>
@@ -94,21 +94,19 @@ const upgradetexts = [
     ),
   () =>
     format(
-      Math.min(
+      Decimal.min(
         1000,
-        Math.floor(
-          (player.firstOwnedCoin + player.secondOwnedCoin + player.thirdOwnedCoin + player.fourthOwnedCoin
-            + player.fifthOwnedCoin) / 160
+        Decimal.floor(
+          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(160)
         )
       )
     ),
   () =>
     format(
-      Math.floor(
-        Math.min(
+      Decimal.floor(
+        Decimal.min(
           2000,
-          (player.firstOwnedCoin + player.secondOwnedCoin + player.thirdOwnedCoin + player.fourthOwnedCoin
-            + player.fifthOwnedCoin) / 80
+          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(80)
         )
       )
     ),
@@ -156,8 +154,7 @@ const upgradetexts = [
     format(
       Decimal.pow(
         1.03,
-        player.firstOwnedParticles + player.secondOwnedParticles + player.thirdOwnedParticles
-          + player.fourthOwnedParticles + player.fifthOwnedParticles
+        player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(player.fourthOwnedParticles).add(player.fifthOwnedParticles)
       ),
       2
     ),
@@ -343,7 +340,7 @@ const crystalupgeffect: Record<number, () => Record<string, string>> = {
   1: () => ({
     x: format(
       Decimal.min(
-        Decimal.pow(10, player.crystalUpgrades[0].mul(2).add(50)),
+        Decimal.pow(10, Decimal.mul(player.crystalUpgrades[0], 2).add(50)),
         Decimal.pow(1.05, Decimal.mul(player.achievementPoints, player.crystalUpgrades[0]))
       ),
       2,
@@ -353,8 +350,8 @@ const crystalupgeffect: Record<number, () => Record<string, string>> = {
   2: () => ({
     x: format(
       Decimal.min(
-        Decimal.pow(10, player.crystalUpgrades[1].mul(5).add(100)),
-        Decimal.pow(player.coins.add(1).log10(), player.crystalUpgrades[1].div(3))
+        Decimal.pow(10, Decimal.mul(player.crystalUpgrades[1], 5).add(100)),
+        Decimal.pow(player.coins.add(1).log10(), Decimal.div(player.crystalUpgrades[1], 3))
       ),
       2,
       true
@@ -365,7 +362,7 @@ const crystalupgeffect: Record<number, () => Record<string, string>> = {
       Decimal.pow(
         Decimal.min(
 Decimal.mul(0.88, player.upgrades[122]).add(Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.001)).add(0.12)
-            , player.crystalUpgrades[2].mul(0.001)
+            , Decimal.mul(player.crystalUpgrades[2], 0.001)
           ).add(1),
         Decimal.add(player.firstOwnedDiamonds, player.secondOwnedDiamonds).add(player.thirdOwnedDiamonds).add(player.fourthOwnedDiamonds)
         .add(player.fifthOwnedDiamonds)
@@ -378,7 +375,7 @@ Decimal.mul(0.88, player.upgrades[122]).add(Decimal.mul(player.researches[129], 
     x: format(
       Decimal.min(
         Decimal.add(player.commonFragments, 1).log(4).add(Decimal.mul(calculateCorruptionPoints(), G.effectiveRuneSpiritPower[3]).div(20)).mul(player.researches[129]).mul(0.05).add(10),
-        player.crystalUpgrades[3].mul(0.05)
+        Decimal.mul(player.crystalUpgrades[3], 0.05)
       ),
       2,
       true

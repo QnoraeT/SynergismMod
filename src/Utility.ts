@@ -102,19 +102,19 @@ export const smallestInc = (x = 0): number => {
  * @returns {number}
  */
 export const sumContentsNumber = (array: number[]): number => {
-  let product = 1
+  let sum = 0
   for (let i = 0; i < array.length; i++) {
-    product = product + array[i]
+    sum = sum + array[i]
   }
-  return product
+  return sum
 }
 
 export const sumContentsDecimal = (array: (number | Decimal)[]): Decimal => {
-  let product = new Decimal(1)
+  let sum = new Decimal(0)
   for (let i = 0; i < array.length; i++) {
-    product = product.add(array[i])
+    sum = sum.add(array[i])
   }
-  return product
+  return sum
 }
 
 /**

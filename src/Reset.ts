@@ -326,19 +326,19 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
   resetUpgrades(1)
   player.coins = new Decimal('102')
   player.coinsThisPrestige = new Decimal(100)
-  player.firstOwnedCoin = 0
+  player.firstOwnedCoin = new Decimal(0)
   player.firstGeneratedCoin = new Decimal(0)
   player.firstCostCoin = new Decimal(100)
-  player.secondOwnedCoin = 0
+  player.secondOwnedCoin = new Decimal(0)
   player.secondGeneratedCoin = new Decimal(0)
   player.secondCostCoin = new Decimal('1e3')
-  player.thirdOwnedCoin = 0
+  player.thirdOwnedCoin = new Decimal(0)
   player.thirdGeneratedCoin = new Decimal(0)
   player.thirdCostCoin = new Decimal('2e4')
-  player.fourthOwnedCoin = 0
+  player.fourthOwnedCoin = new Decimal(0)
   player.fourthGeneratedCoin = new Decimal(0)
   player.fourthCostCoin = new Decimal('4e5')
-  player.fifthOwnedCoin = 0
+  player.fifthOwnedCoin = new Decimal(0)
   player.fifthGeneratedCoin = new Decimal(0)
   player.fifthCostCoin = new Decimal('8e6')
   player.firstGeneratedDiamonds = new Decimal(0)
@@ -399,15 +399,15 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
   if (types.includes(input)) {
     resetUpgrades(2)
     player.coinsThisTranscension = new Decimal(100)
-    player.firstOwnedDiamonds = 0
+    player.firstOwnedDiamonds = new Decimal(0)
     player.firstCostDiamonds = new Decimal(100)
-    player.secondOwnedDiamonds = 0
+    player.secondOwnedDiamonds = new Decimal(0)
     player.secondCostDiamonds = new Decimal('1e5')
-    player.thirdOwnedDiamonds = 0
+    player.thirdOwnedDiamonds = new Decimal(0)
     player.thirdCostDiamonds = new Decimal('1e15')
-    player.fourthOwnedDiamonds = 0
+    player.fourthOwnedDiamonds = new Decimal(0)
     player.fourthCostDiamonds = new Decimal('1e40')
-    player.fifthOwnedDiamonds = 0
+    player.fifthOwnedDiamonds = new Decimal(0)
     player.fifthCostDiamonds = new Decimal('1e100')
     player.firstGeneratedMythos = new Decimal(0)
     player.secondGeneratedMythos = new Decimal(0)
@@ -430,19 +430,19 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     G.transcendPointGain = new Decimal(0)
 
     if (player.achievements[78] > 0.5) {
-      player.firstOwnedDiamonds += 1
+      player.firstOwnedDiamonds = player.firstOwnedDiamonds.add(1)
     }
     if (player.achievements[85] > 0.5) {
-      player.secondOwnedDiamonds += 1
+      player.secondOwnedDiamonds = player.secondOwnedDiamonds.add(1)
     }
     if (player.achievements[92] > 0.5) {
-      player.thirdOwnedDiamonds += 1
+      player.thirdOwnedDiamonds = player.thirdOwnedDiamonds.add(1)
     }
     if (player.achievements[99] > 0.5) {
-      player.fourthOwnedDiamonds += 1
+      player.fourthOwnedDiamonds = player.fourthOwnedDiamonds.add(1)
     }
     if (player.achievements[106] > 0.5) {
-      player.fifthOwnedDiamonds += 1
+      player.fifthOwnedDiamonds = player.fifthOwnedDiamonds.add(1)
     }
 
     if (player.achievements[4] > 0.5) {
@@ -496,15 +496,15 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.currentChallenge.transcension = 0
     resetUpgrades(3)
     player.coinsThisReincarnation = new Decimal(100)
-    player.firstOwnedMythos = 0
+    player.firstOwnedMythos = new Decimal(0)
     player.firstCostMythos = new Decimal(1)
-    player.secondOwnedMythos = 0
+    player.secondOwnedMythos = new Decimal(0)
     player.secondCostMythos = new Decimal('1e2')
-    player.thirdOwnedMythos = 0
+    player.thirdOwnedMythos = new Decimal(0)
     player.thirdCostMythos = new Decimal('1e4')
-    player.fourthOwnedMythos = 0
+    player.fourthOwnedMythos = new Decimal(0)
     player.fourthCostMythos = new Decimal('1e8')
-    player.fifthOwnedMythos = 0
+    player.fifthOwnedMythos = new Decimal(0)
     player.fifthCostMythos = new Decimal('1e16')
     player.firstGeneratedParticles = new Decimal(0)
     player.secondGeneratedParticles = new Decimal(0)
@@ -598,11 +598,11 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     for (let j = 94; j <= 100; j++) {
       player.upgrades[j] = 0
     }
-    player.firstOwnedParticles = 0
-    player.secondOwnedParticles = 0
-    player.thirdOwnedParticles = 0
-    player.fourthOwnedParticles = 0
-    player.fifthOwnedParticles = 0
+    player.firstOwnedParticles = new Decimal(0)
+    player.secondOwnedParticles = new Decimal(0)
+    player.thirdOwnedParticles = new Decimal(0)
+    player.fourthOwnedParticles = new Decimal(0)
+    player.fifthOwnedParticles = new Decimal(0)
     player.firstCostParticles = new Decimal(1)
     player.secondCostParticles = new Decimal(100)
     player.thirdCostParticles = new Decimal('1e4')
@@ -620,11 +620,11 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.runelevels[4] = player.cubeUpgrades[26].mul(3)
 
     if (player.cubeUpgrades[27].eq(1)) {
-      player.firstOwnedParticles = 1
-      player.secondOwnedParticles = 1
-      player.thirdOwnedParticles = 1
-      player.fourthOwnedParticles = 1
-      player.fifthOwnedParticles = 1
+      player.firstOwnedParticles = new Decimal(1)
+      player.secondOwnedParticles = new Decimal(1)
+      player.thirdOwnedParticles = new Decimal(1)
+      player.fourthOwnedParticles = new Decimal(1)
+      player.fifthOwnedParticles = new Decimal(1)
     }
 
     // If challenge 10 is incomplete, you won't get a cube no matter what

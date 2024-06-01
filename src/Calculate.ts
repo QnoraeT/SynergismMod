@@ -141,7 +141,6 @@ export const calculateRecycleMultiplier = () => {
     Decimal.min(1, G.rune4level.div(400)).mul(0.25),
     player.cubeUpgrades[2].mul(0.005)
   ])
-
   return Decimal.sub(1, recycleFactors).recip()
 }
 
@@ -182,7 +181,7 @@ export function calculateRuneExpGiven (
       // +1 if C1 completion
       Decimal.min(1, player.highestchallengecompletions[1]),
       // +0.10 per C1 completion
-      player.highestchallengecompletions[1].mul(0.04),
+      Decimal.mul(player.highestchallengecompletions[1], 0.04),
       // Research 5x2
       0.6 * player.researches[22],
       // Research 5x3
@@ -210,7 +209,7 @@ export function calculateRuneExpGiven (
     // Cube Upgrade Bonus
     player.ascensionCounter.div(1000).mul(player.cubeUpgrades[32]).add(1),
     // Constant Upgrade Multiplier
-    player.constantUpgrades[8].mul(0.1).add(1),
+    Decimal.mul(player.constantUpgrades[8], 0.1).add(1),
     // Challenge 15 reward multiplier
     G.challenge15Rewards.runeExp
   ])
@@ -508,12 +507,7 @@ export function calculateOfferings (
 export const calculateObtainium = () => {
   G.obtainiumGain = new Decimal(1)
   if (player.upgrades[69] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(
-      10,
-      new Decimal(
-        Decimal.pow(Decimal.log(G.reincarnationPointGain.add(10), 10), 0.5)
-      ).toNumber()
-    ))
+    G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(10, G.reincarnationPointGain.add(10).log10().sqrt()))
   }
   if (player.upgrades[72] > 0) {
     G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(
@@ -2212,8 +2206,8 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
   }
 }
 
-export const calculateGoldenQuarkGain = (computeMultiplier = false): number => {
-  return calculateGoldenQuarkMultiplier(computeMultiplier).mult.toNumber() // nope not yet
+export const calculateGoldenQuarkGain = (computeMultiplier = false): Decimal => {
+  return calculateGoldenQuarkMultiplier(computeMultiplier).mult // nope not yet
 }
 
 export const calculateCorruptionPoints = () => {

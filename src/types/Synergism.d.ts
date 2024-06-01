@@ -25,102 +25,102 @@ export interface Player {
   coinsThisReincarnation: Decimal
   coinsTotal: Decimal
 
-  firstOwnedCoin: number
+  firstOwnedCoin: Decimal
   firstGeneratedCoin: Decimal
   firstCostCoin: Decimal
   firstProduceCoin: number
 
-  secondOwnedCoin: number
+  secondOwnedCoin: Decimal
   secondGeneratedCoin: Decimal
   secondCostCoin: Decimal
   secondProduceCoin: number
 
-  thirdOwnedCoin: number
+  thirdOwnedCoin: Decimal
   thirdGeneratedCoin: Decimal
   thirdCostCoin: Decimal
   thirdProduceCoin: number
 
-  fourthOwnedCoin: number
+  fourthOwnedCoin: Decimal
   fourthGeneratedCoin: Decimal
   fourthCostCoin: Decimal
   fourthProduceCoin: number
 
-  fifthOwnedCoin: number
+  fifthOwnedCoin: Decimal
   fifthGeneratedCoin: Decimal
   fifthCostCoin: Decimal
   fifthProduceCoin: number
 
-  firstOwnedDiamonds: number
+  firstOwnedDiamonds: Decimal
   firstGeneratedDiamonds: Decimal
   firstCostDiamonds: Decimal
   firstProduceDiamonds: number
 
-  secondOwnedDiamonds: number
+  secondOwnedDiamonds: Decimal
   secondGeneratedDiamonds: Decimal
   secondCostDiamonds: Decimal
   secondProduceDiamonds: number
 
-  thirdOwnedDiamonds: number
+  thirdOwnedDiamonds: Decimal
   thirdGeneratedDiamonds: Decimal
   thirdCostDiamonds: Decimal
   thirdProduceDiamonds: number
 
-  fourthOwnedDiamonds: number
+  fourthOwnedDiamonds: Decimal
   fourthGeneratedDiamonds: Decimal
   fourthCostDiamonds: Decimal
   fourthProduceDiamonds: number
 
-  fifthOwnedDiamonds: number
+  fifthOwnedDiamonds: Decimal
   fifthGeneratedDiamonds: Decimal
   fifthCostDiamonds: Decimal
   fifthProduceDiamonds: number
 
-  firstOwnedMythos: number
+  firstOwnedMythos: Decimal
   firstGeneratedMythos: Decimal
   firstCostMythos: Decimal
   firstProduceMythos: number
 
-  secondOwnedMythos: number
+  secondOwnedMythos: Decimal
   secondGeneratedMythos: Decimal
   secondCostMythos: Decimal
   secondProduceMythos: number
 
-  thirdOwnedMythos: number
+  thirdOwnedMythos: Decimal
   thirdGeneratedMythos: Decimal
   thirdCostMythos: Decimal
   thirdProduceMythos: number
 
-  fourthOwnedMythos: number
+  fourthOwnedMythos: Decimal
   fourthGeneratedMythos: Decimal
   fourthCostMythos: Decimal
   fourthProduceMythos: number
 
-  fifthOwnedMythos: number
+  fifthOwnedMythos: Decimal
   fifthGeneratedMythos: Decimal
   fifthCostMythos: Decimal
   fifthProduceMythos: number
 
-  firstOwnedParticles: number
+  firstOwnedParticles: Decimal
   firstGeneratedParticles: Decimal
   firstCostParticles: Decimal
   firstProduceParticles: number
 
-  secondOwnedParticles: number
+  secondOwnedParticles: Decimal
   secondGeneratedParticles: Decimal
   secondCostParticles: Decimal
   secondProduceParticles: number
 
-  thirdOwnedParticles: number
+  thirdOwnedParticles: Decimal
   thirdGeneratedParticles: Decimal
   thirdCostParticles: Decimal
   thirdProduceParticles: number
 
-  fourthOwnedParticles: number
+  fourthOwnedParticles: Decimal
   fourthGeneratedParticles: Decimal
   fourthCostParticles: Decimal
   fourthProduceParticles: number
 
-  fifthOwnedParticles: number
+  fifthOwnedParticles: Decimal
   fifthGeneratedParticles: Decimal
   fifthCostParticles: Decimal
   fifthProduceParticles: number
