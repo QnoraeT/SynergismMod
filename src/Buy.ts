@@ -2,20 +2,21 @@ import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal } from './Calculate'
+import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal, thriftRuneEffect } from './Calculate'
 import { CalcECC } from './Challenges'
 import { format, player, updateAllMultiplier, updateAllTick } from './Synergism'
 import type { FirstToFifth, OneToFive, ZeroToFour } from './types/Synergism'
 import { crystalupgradedescriptions, upgradeupdate } from './Upgrades'
 import { Globals as G, Upgrade } from './Variables'
+import { ant7Effect } from './Ants'
 
 export const getReductionValue = () => {
   let reduction = new Decimal(1)
-  reduction = reduction.add(Decimal.min(1e15, Decimal.mul(G.rune4level, G.effectiveLevelMult).div(160)))
+  reduction = reduction.add(thriftRuneEffect())
   reduction = reduction.add((player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
     + player.researches[60]) / 200)
   reduction = reduction.add(CalcECC('transcend', player.challengecompletions[4]).div(200))
-  reduction = reduction.add(Decimal.min(99999.9, Decimal.add(player.antUpgrades[7 - 1]!, G.bonusant7).mul(0.03)))
+  reduction = reduction.add(ant7Effect())
   return reduction
 }
 
@@ -36,7 +37,7 @@ const getOriginalCostAndNum = (index: OneToFive, type: keyof typeof buyProducerT
 
 export const getCost = (index: OneToFive, type: keyof typeof buyProducerTypes, buyingTo: Decimal) => {
   const [originalCost] = getOriginalCostAndNum(index, type)
-  return getMiscBuildingCost(buyingTo.sub(1), originalCost, index)
+  return getMiscBuildingCost(buyingTo.sub(1), originalCost, index, type)
 }
 
 export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) => {
@@ -47,23 +48,24 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
   const tag = buyProducerTypes[type][0]
 
   const posOwnedType = `${pos}Owned${type}` as const
-  if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).lt(Number.MAX_SAFE_INTEGER)) {
-    let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).sub(10).floor().max(player[posOwnedType])
+  const posCostType = `${pos}Cost${type}` as const
+  if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER)) {
+    let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).sub(9).floor().max(player[posOwnedType])
     for (let i = 0; i < 10; i++) {
-      if (player[tag].lt(player[`${pos}Cost${type}` as const])) {
+      if (player[tag].lt(player[posCostType])) {
         return
       }
-      player[tag] = player[tag].sub(getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1))
+      player[tag] = player[tag].sub(getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type))
       boughtBuild = boughtBuild.add(1)
-      const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1)
+      const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
       player[posOwnedType] = boughtBuild
-      player[`${pos}Cost${type}` as const] = cost
+      player[posCostType] = cost
     }
   } else {
-    const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1).floor().add(1)
-    const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1)
+    const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).floor().add(1)
+    const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     player[posOwnedType] = boughtBuild
-    player[`${pos}Cost${type}` as const] = cost
+    player[posCostType] = cost
   }
 }
 
@@ -167,7 +169,7 @@ export const buyParticleBuilding = (
   const key = `${pos}OwnedParticles` as const
 
   if (getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER)) {
-    let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).sub(10).floor().max(player[key])
+    let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).sub(9).floor().max(player[key])
     for (let i = 0; i < 10; i++) {
       if (player.reincarnationPoints.lt(player[`${pos}CostParticles` as const])) {
         return
@@ -534,25 +536,33 @@ export const getAccelScaling = (): Array<Decimal> => {
   return scaling
 }
 
+export const getMulScaling = (): Array<Decimal> => {
+  const scaling = [new Decimal(75), new Decimal(2000)]
+  scaling[0] = scaling[0].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
+  scaling[1] = scaling[1].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
+
+  return scaling
+}
+
 export const getAccelCost = (bought: number | Decimal): Decimal => {
   let i = new Decimal(bought)
   const scaling = getAccelScaling()
 
-  if (player.currentChallenge.transcension === 4) {
-      i = i.pow(2)
+  if (player.currentChallenge.reincarnation === 8) {
+    i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
   }
 
-  if (player.currentChallenge.reincarnation === 8) {
-      i = Decimal.pow10(Decimal.pow(i.min(2).pow(10/3).log10(), 1.2).toNumber())
+  if (player.currentChallenge.transcension === 4) {
+    i = i.pow(2)
   }
 
   if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).pow(2).mul(scaling[1])   
+    i = i.div(scaling[1]).pow(2).mul(scaling[1])   
   }
 
   if (i.gte(scaling[0])) {
-      i = i.sub(scaling[0]).mul(2).add(scaling[0])
-      i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
+    i = i.sub(scaling[0]).mul(2).add(scaling[0])
+    i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
   }
 
   const baseCost = new Decimal(500)
@@ -561,6 +571,7 @@ export const getAccelCost = (bought: number | Decimal): Decimal => {
 
 export const getAccelTarget = (amt: Decimal): Decimal => {
   const baseCost = new Decimal(500)
+  if (amt.lt(baseCost)) { return new Decimal(0) }
   let i = Decimal.mul(amt.div(baseCost).log(4), G.costDivisor)
 
   const scaling = getAccelScaling()
@@ -573,20 +584,168 @@ export const getAccelTarget = (amt: Decimal): Decimal => {
       i = i.div(scaling[1]).pow(1/2).mul(scaling[1])   
   }
 
+  if (player.currentChallenge.transcension === 4) {
+    i = i.root(2)
+  }
+
   if (player.currentChallenge.reincarnation === 8) {
-      i = Decimal.pow10(Decimal.pow(i.log10(), 1.2).toNumber()).pow(3/10)
+    i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
+  }
+  return i
+}
+
+export const getMulCost = (bought: number | Decimal): Decimal => {
+  let i = new Decimal(bought)
+  const scaling = getMulScaling()
+
+  if (player.currentChallenge.reincarnation === 8) {
+    i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
   }
 
   if (player.currentChallenge.transcension === 4) {
-      i = i.pow(2)
+    i = i.pow(2)
+  }
+
+  if (i.gte(scaling[1])) {
+      i = i.div(scaling[1]).pow(2).mul(scaling[1])   
+  }
+
+  if (i.gte(scaling[0])) {
+      i = i.sub(scaling[0]).mul(2).add(scaling[0])
+      i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
+  }
+
+  const baseCost = new Decimal(1e4)
+  return i.div(G.costDivisor).pow10().mul(baseCost)
+}
+
+export const getMulTarget = (amt: Decimal): Decimal => {
+  const baseCost = new Decimal(1e4)
+  if (amt.lt(baseCost)) { return new Decimal(0) }
+  let i = Decimal.mul(amt.div(baseCost).log10(), G.costDivisor)
+
+  const scaling = getMulScaling()
+  if (i.gte(scaling[0])) {
+      i = i.div(scaling[0]).root(1.35).mul(scaling[0])
+      i = i.sub(scaling[0]).div(2).add(scaling[0])
+  }
+
+  if (i.gte(scaling[1])) {
+      i = i.div(scaling[1]).root(2).mul(scaling[1])   
+  }
+
+  if (player.currentChallenge.transcension === 4) {
+    i = i.root(2)
+  }
+
+  if (player.currentChallenge.reincarnation === 8) {
+    i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
   }
 
   return i
 }
 
+export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
+  let i = new Decimal(bought)
+  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
+
+  if (i.gte(1e15)) {
+      i = i.div(1e15).pow(7/3).mul(1e15)
+  }
+
+  if (i.gte(scaling)) {
+      i = i.div(scaling).pow(3).mul(scaling)
+  }
+
+  return i.pow(2).mul(0.5).add(i.mul(10.5)).add(3).pow10()
+}
+
+export const getAccelBoostTarget = (amt: Decimal): Decimal => {
+  if (amt.lt(1000)) { return new Decimal(0) }
+  let i = Decimal.mul(8, amt.log10()).add(417).sqrt().mul(0.5).sub(10.5)
+  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
+
+  if (i.gte(scaling)) {
+      i = i.div(scaling).root(3).mul(scaling)
+  }
+
+  if (i.gte(1e15)) {
+    i = i.div(1e15).root(7/3).mul(1e15)
+}
+
+  return i
+}
+
+export const getParticleCostq = (bought: number | Decimal, baseCost: number | Decimal): Decimal => {
+  let i = new Decimal(bought)
+  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
+
+  if (i.gte(scaling)) {
+      i = i.div(scaling).pow(2).mul(scaling)
+  }
+
+  return Decimal.pow(2, i.sub(1)).mul(baseCost)
+}
+
+export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
+  if (amt.lt(baseCost)) { return new Decimal(0) }
+  let i = amt.div(baseCost).log(2).add(1)
+  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
+
+  if (Decimal.gte(i, scaling)) {
+      i = Decimal.div(i, scaling).root(2).mul(scaling)
+  }
+
+  return i
+}
+
+export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
+  let i = new Decimal(bought)
+
+  if (type === 'Coin' || type === 'Diamond') {
+    if (player.currentChallenge.reincarnation === 8) {
+      i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
+    }
+  
+    if (player.currentChallenge.transcension === 4) {
+      i = i.pow(2)
+    }
+  }
+
+  i = i.div(getReductionValue())
+  i = i.pow(2).mul(Decimal.log10(1 + 0.001 * index)).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
+  return i
+}
+
+export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
+  if (amt.lt(baseCost)) { return new Decimal(0) }
+  let i = amt
+  i = inverseQuad(i.log10(), Decimal.log10(1 + 0.001 * index), Decimal.pow(1.25, index).log10(), baseCost.log10())
+
+  i = i.mul(getReductionValue())
+
+  if (type === 'Coin' || type === 'Diamond') {
+    if (player.currentChallenge.transcension === 4) {
+      i = i.root(2)
+    }
+  
+    if (player.currentChallenge.reincarnation === 8) {
+      i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
+    }
+  }
+
+  return i
+}
+
+export const inverseQuad = (x: Decimal, a: Decimal, b: Decimal, c: Decimal): Decimal => {
+  return a.eq(0)
+          ? x.sub(c).div(b)
+          : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
+}
+
 export const buyMaxAccels = () => {
   if (getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
-    let boughtAccel = getAccelTarget(player.coins).sub(10).floor().max(player.acceleratorBought)
+    let boughtAccel = getAccelTarget(player.coins).sub(9).floor().max(player.acceleratorBought)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.acceleratorCost)) {
         return
@@ -633,7 +792,7 @@ export const buyMaxAccels = () => {
 
 export const buyMaxMuls = () => {
   if (getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
-    let boughtMul = getMulTarget(player.coins).sub(10).floor().max(player.multiplierBought)
+    let boughtMul = getMulTarget(player.coins).sub(9).floor().max(player.multiplierBought)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.multiplierCost)) {
         return
@@ -680,7 +839,7 @@ export const buyMaxMuls = () => {
 
 export const buyMaxBoostAccel = () => {
   if (getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER)) {
-    let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).sub(10).floor().max(player.acceleratorBoostBought)
+    let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).sub(9).floor().max(player.acceleratorBoostBought)
     for (let i = 0; i < 10; i++) {
       if (player.prestigePoints.lt(player.acceleratorBoostCost)) {
         return
@@ -699,132 +858,26 @@ export const buyMaxBoostAccel = () => {
   }
   player.transcendnoaccelerator = false
   player.reincarnatenoaccelerator = false
-}
 
-export const getMulScaling = (): Array<Decimal> => {
-  const scaling = [new Decimal(75), new Decimal(2000)]
-  scaling[0] = scaling[0].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
-  scaling[1] = scaling[1].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
-
-  return scaling
-}
-
-export const getMulCost = (bought: number | Decimal): Decimal => {
-  let i = new Decimal(bought)
-  const scaling = getMulScaling()
-
-  if (player.currentChallenge.transcension === 4) {
-      i = i.pow(2)
+  if (player.acceleratorBoostBought.gte(2) && player.achievements[162] === 0) {
+    achievementaward(162)
   }
-
-  if (player.currentChallenge.reincarnation === 8) {
-      i = Decimal.pow(i.min(2).pow(10/3).log10(), 1.2).pow10()
+  if (player.acceleratorBoostBought.gte(10) && player.achievements[163] === 0) {
+    achievementaward(163)
   }
-
-  if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).pow(2).mul(scaling[1])   
+  if (player.acceleratorBoostBought.gte(50) && player.achievements[164] === 0) {
+    achievementaward(164)
   }
-
-  if (i.gte(scaling[0])) {
-      i = i.sub(scaling[0]).mul(2).add(scaling[0])
-      i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
+  if (player.acceleratorBoostBought.gte(200) && player.achievements[165] === 0) {
+    achievementaward(165)
   }
-
-  const baseCost = new Decimal(1e4)
-  return i.div(G.costDivisor).pow10().mul(baseCost)
-}
-
-export const getMulTarget = (amt: Decimal): Decimal => {
-  const baseCost = new Decimal(1e4)
-  let i = Decimal.mul(amt.div(baseCost).log10(), G.costDivisor)
-
-  const scaling = getMulScaling()
-  if (i.gte(scaling[0])) {
-      i = i.div(scaling[0]).root(1.35).mul(scaling[0])
-      i = i.sub(scaling[0]).div(2).add(scaling[0])
+  if (player.acceleratorBoostBought.gte(1000) && player.achievements[166] === 0) {
+    achievementaward(166)
   }
-
-  if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).root(2).mul(scaling[1])   
+  if (player.acceleratorBoostBought.gte(5000) && player.achievements[167] === 0) {
+    achievementaward(167)
   }
-
-  if (player.currentChallenge.reincarnation === 8) {
-      i = i.log10().root(1.2).pow10().root(10/3)
+  if (player.acceleratorBoostBought.gte(15000) && player.achievements[168] === 0) {
+    achievementaward(168)
   }
-
-  if (player.currentChallenge.transcension === 4) {
-      i = i.root(2)
-  }
-
-  return i
-}
-
-export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
-  let i = new Decimal(bought)
-  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
-
-  if (i.gte(1e15)) {
-      i = i.div(1e15).pow(7/3).mul(1e15)
-  }
-
-  if (i.gte(scaling)) {
-      i = i.div(scaling).pow(3).mul(scaling)
-  }
-
-  return i.pow(2).mul(0.5).add(i.mul(10.5)).add(3).pow10()
-}
-
-export const getAccelBoostTarget = (amt: Decimal): Decimal => {
-  let i = Decimal.mul(8, amt.log10()).add(417).sqrt().mul(0.5).sub(10.5)
-  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
-
-  if (i.gte(scaling)) {
-      i = i.div(scaling).root(3).mul(scaling)
-  }
-
-  if (i.gte(1e15)) {
-    i = i.div(1e15).root(7/3).mul(1e15)
-}
-
-  return i
-}
-
-export const getParticleCostq = (bought: number | Decimal, baseCost: number | Decimal): Decimal => {
-  let i = new Decimal(bought)
-  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
-
-  if (i.gte(scaling)) {
-      i = i.div(scaling).pow(2).mul(scaling)
-  }
-
-  return Decimal.pow(2, i).mul(baseCost)
-}
-
-export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
-  let i = new Decimal(amt.div(baseCost).log(2))
-  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
-
-  if (Decimal.gte(i, scaling)) {
-      i = Decimal.div(i, scaling).root(2).mul(scaling)
-  }
-
-  return i
-}
-
-export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal, index: number): Decimal => {
-  let i = new Decimal(bought)
-  i = i.pow(2).mul(Decimal.log10(1 + 0.001 * index)).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
-  return i
-}
-
-export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: number): Decimal => {
-  let i = amt
-  i = inverseQuad(i.log10(), Decimal.log10(1 + 0.001 * index), Decimal.pow(1.25, index).log10(), baseCost.log10())
-  return i
-}
-
-export const inverseQuad = (x: Decimal, a: Decimal, b: Decimal, c: Decimal): Decimal => {
-  return a.eq(0)
-          ? x.sub(c).div(b)
-          : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
 }

@@ -1642,19 +1642,19 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       )
     case 'antSpeed':
       return (
-        player.highestchallengecompletions[8].gt(0)
+        Decimal.gt(player.highestchallengecompletions[8], 0)
         || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
     case 'cashGrab':
       return (
-        player.highestchallengecompletions[8].gt(0)
+        Decimal.gt(player.highestchallengecompletions[8], 0)
         || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
     case 'shopTalisman':
       return (
-        player.highestchallengecompletions[9].gt(0)
+        Decimal.gt(player.highestchallengecompletions[9], 0)
         || player.ascensionCount.gt(0)
         || player.highestSingularityCount > 0
       )
@@ -1668,44 +1668,44 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'tesseractToQuark':
       return (
-        player.highestchallengecompletions[11].gt(0)
+        Decimal.gt(player.highestchallengecompletions[11], 0)
         || player.highestSingularityCount > 0
       )
     case 'hypercubeToQuark':
       return (
-        player.highestchallengecompletions[13].gt(0)
+        Decimal.gt(player.highestchallengecompletions[13], 0)
         || player.highestSingularityCount > 0
       )
     case 'seasonPass2':
       return (
-        player.highestchallengecompletions[14].gt(0)
+        Decimal.gt(player.highestchallengecompletions[14], 0)
         || player.highestSingularityCount > 0
       )
     case 'seasonPass3':
       return (
-        player.highestchallengecompletions[14].gt(0)
+        Decimal.gt(player.highestchallengecompletions[14], 0)
         || player.highestSingularityCount > 0
       )
     case 'chronometer':
       return (
-        player.highestchallengecompletions[12].gt(0)
+        Decimal.gt(player.highestchallengecompletions[12], 0)
         || player.highestSingularityCount > 0
       )
     case 'infiniteAscent':
       return (
-        player.highestchallengecompletions[14].gt(0)
+        Decimal.gt(player.highestchallengecompletions[14], 0)
         || player.highestSingularityCount > 0
       )
     case 'calculator':
       return player.ascensionCount.gt(0) || player.highestSingularityCount > 0
     case 'calculator2':
       return (
-        player.highestchallengecompletions[11].gt(0)
+        Decimal.gt(player.highestchallengecompletions[11], 0)
         || player.highestSingularityCount > 0
       )
     case 'calculator3':
       return (
-        player.highestchallengecompletions[13].gt(0)
+        Decimal.gt(player.highestchallengecompletions[13], 0)
         || player.highestSingularityCount > 0
       )
     case 'calculator4':
@@ -1720,7 +1720,7 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       )
     case 'constantEX':
       return (
-        player.highestchallengecompletions[14].gt(0)
+        Decimal.gt(player.highestchallengecompletions[14], 0)
         || player.highestSingularityCount > 0
       )
     case 'powderEX':
@@ -1775,7 +1775,7 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return Boolean(player.singularityUpgrades.wowPass3.getEffect().bonus)
     case 'shopImprovedDaily':
       return (
-        player.highestchallengecompletions[14].gt(0)
+        Decimal.gt(player.highestchallengecompletions[14], 0)
         || player.highestSingularityCount > 0
       )
     case 'shopImprovedDaily2':

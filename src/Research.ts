@@ -183,7 +183,7 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
     y: format(Decimal.sub(metaData.levelCanBuy, player.researches[i]), 0, true)
   })
 
-  if (player.researches[i] === (G.researchMaxLevels[i])) {
+  if (Decimal.eq(player.researches[i], G.researchMaxLevels[i])) {
     DOMCacheGetOrSet('researchcost').style.color = 'Gold'
     DOMCacheGetOrSet('researchinfo3').style.color = 'plum'
     updateClassList(p, ['researchMaxed'], ['researchAvailable', 'researchPurchased', 'researchPurchasedAvailable'])
@@ -202,7 +202,7 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
     }
   }
 
-  if (player.researchPoints < metaData.cost && player.researches[i] < (G.researchMaxLevels[i])) {
+  if (Decimal.lt(player.researchPoints, metaData.cost) && Decimal.lt(player.researches[i], G.researchMaxLevels[i])) {
     DOMCacheGetOrSet('researchcost').style.color = 'var(--crimson-text-color)'
     updateClassList(p, [], ['researchMaxed', 'researchAvailable', 'researchPurchasedAvailable'])
   }
@@ -217,14 +217,14 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
 
 export const updateResearchBG = (j: number) => {
   if (player.researches[j] > G.researchMaxLevels[j]) {
-    player.researchPoints = player.researchPoints.add((player.researches[j] - G.researchMaxLevels[j]) * G.researchBaseCosts[j])
+    player.researchPoints = Decimal.add(player.researchPoints, Decimal.sub(player.researches[j], G.researchMaxLevels[j]).mul(G.researchBaseCosts[j]))
     player.researches[j] = G.researchMaxLevels[j]
   }
 
   const k = `res${j}`
-  if (player.researches[j] > 0.5 && player.researches[j] < G.researchMaxLevels[j]) {
+  if (Decimal.gt(player.researches[j], 0.5) && Decimal.lt(player.researches[j], G.researchMaxLevels[j])) {
     updateClassList(k, ['researchPurchased'], ['researchUnpurchased', 'researchMaxed'])
-  } else if (player.researches[j] > 0.5 && player.researches[j] >= G.researchMaxLevels[j]) {
+  } else if (Decimal.gt(player.researches[j], 0.5) && Decimal.gte(player.researches[j], G.researchMaxLevels[j])) {
     updateClassList(k, ['researchMaxed'], ['researchUnpurchased', 'researchPurchased'])
   } else {
     updateClassList(k, ['researchUnpurchased'], ['researchPurchased', 'researchMaxed'])

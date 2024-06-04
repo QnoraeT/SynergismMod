@@ -62,7 +62,13 @@ const upgradetexts = [
     ),
   () => format(Decimal.pow(1.15, G.freeAccelerator), 2),
   () => format(Decimal.pow(1.15, G.freeAccelerator), 2),
-  () => format(Decimal.pow(G.acceleratorEffect, 1 / 3), 2),
+  () => {
+    let i = G.acceleratorEffect.root(3)
+    if (i.gte("e1000")) {
+      i = i.log10().log10().div(3).pow(0.75).mul(3).pow10().pow10()
+    }
+    return format(i, 2)
+  },
   () => null,
   () => format(Decimal.min(1e125, player.transcendShards.add(1))),
   () => format(Decimal.min(1e200, player.transcendPoints.times(1e30).add(1))),
@@ -160,7 +166,9 @@ const upgradetexts = [
     ),
   () => format(G.taxdivisor.log10().div(1000).floor().min(2500)),
   () => {
-    const a = G.reincarnationPointGain.add(10).log10().sqrt()
+    let a = player.upgrades[69] > 0
+              ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().pow(0.06).sub(1).pow10())
+              : G.reincarnationPointGain.max(10).log10().log10().add(1)
     const b = G.reincarnationPointGain.add(10).log10().sqrt()
     return {
       x: format(a.min(10), 2),
@@ -170,11 +178,11 @@ const upgradetexts = [
   () => format(Decimal.add(player.maxobtainium, 1).log10().div(3), 2, true),
   () => null,
   () =>
-    Decimal.min(
+    format(Decimal.min(
       50,
       new Decimal(0.5).add(player.challengecompletions[6]).add(player.challengecompletions[7]).add(player.challengecompletions[8])
-       .add(player.challengecompletions[9]).add(player.challengecompletions[10]).mul(2)
-    ),
+      .add(player.challengecompletions[9]).add(player.challengecompletions[10]).mul(2)
+    )),
   () => null,
   () => format(player.maxofferings.div(1e5).sqrt().min(1).mul(4).add(1), 2),
   () => format(player.maxobtainium.div(3e7).sqrt().min(1).mul(2).add(1), 2),
@@ -402,9 +410,9 @@ const returnCrystalUpgEffect = (i: number) =>
 
 export const crystalupgradedescriptions = (i: number) => {
   const p = player.crystalUpgrades[i - 1]
-  const c = Decimal.mul(G.rune3level, G.effectiveLevelMult).floor().div(16).add(player.upgrades[73] > 0.5 && player.currentChallenge.reincarnation !== 0 ? 10 : 0)
-
-  const q = Decimal.add(G.crystalUpgradesCost[i - 1], Decimal.mul(G.crystalUpgradeCostIncrement[i - 1], Decimal.sub(player.crystalUpgrades[i - 1], c).add(0.5).pow(2).div(2).floor())).pow10()
+  const c = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor().add(player.upgrades[73] > 0.5 && player.currentChallenge.reincarnation !== 0 ? 10 : 0)
+  const q = Decimal.sub(player.crystalUpgrades[i - 1], c).add(0.5).pow(2).div(2).floor().mul(G.crystalUpgradeCostIncrement[i - 1]).add(G.crystalUpgradesCost[i - 1]).pow10()
+  
   DOMCacheGetOrSet('crystalupgradedescription').textContent = returnCrystalUpgDesc(i)
   DOMCacheGetOrSet('crystalupgradeslevel1').innerHTML = i18next.t('buildings.crystalUpgrades.currentLevel', {
     amount: format(p, 0, true)

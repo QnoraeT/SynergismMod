@@ -27,6 +27,11 @@ const EX_ULTRA_OFFERING = 0.125
 const EX_ULTRA_OBTAINIUM = 0.125
 const EX_ULTRA_CUBES = 0.125
 
+export const thriftRuneEffect = () => {
+  let i = Decimal.mul(G.rune4level, G.effectiveLevelMult)
+  return i.div(1000).add(1).ln()
+}
+
 export const calculateTotalCoinOwned = () => {
   G.totalCoinOwned = Decimal.add(player.firstOwnedCoin
     , player.secondOwnedCoin)
@@ -170,7 +175,7 @@ export function calculateRuneExpGiven (
   if (all) {
     allRuneExpAdditiveMultiplier = sumContentsDecimal([
       // Challenge 3 completions
-      player.highestchallengecompletions[3].mul(0.01),
+      Decimal.mul(player.highestchallengecompletions[3], 0.01),
       // Reincarnation 2x1
       1 * player.upgrades[66]
     ])
@@ -262,7 +267,7 @@ export function calculateRuneExpGiven (
     runeExpMultiplier[runeIndex]
   ]
 
-  return returnFactors ? fact : Decimal.min(1e200, productContentsDecimal(fact))
+  return returnFactors ? fact : Decimal.min(1e200, productContentsDecimal(fact)) // cap :3
 }
 
 export const getRuneXPReq = (runeLevel: number | Decimal): Decimal => {
@@ -392,9 +397,9 @@ export function calculateOfferings (
     }
     b = b.add(0.2 * player.researches[24])
     b = b.add(Decimal.mul(G.rune5level, G.effectiveLevelMult).mul(1 + player.researches[85] / 200).div(200))
-    b = b.mul(Decimal.pow(player.transcendShards.add(1).log10(), 1 / 2).div(5).add(1))
+    b = b.mul(player.transcendShards.add(1).log10().sqrt().div(5).add(1))
     b = b.mul(CalcECC('reincarnation', player.challengecompletions[8]).div(25).add(1))
-    b = b.mul(Decimal.min(Decimal.pow(player.transcendcounter.div(10), 2), 1))
+    b = b.mul(player.transcendcounter.div(10).pow(2).min(1))
     if (player.transcendCount.gte(5)) {
       b = b.mul(player.transcendcounter.div(10).max(1))
     }
@@ -506,9 +511,12 @@ export function calculateOfferings (
 
 export const calculateObtainium = () => {
   G.obtainiumGain = new Decimal(1)
-  if (player.upgrades[69] > 0) {
-    G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(10, G.reincarnationPointGain.add(10).log10().sqrt()))
-  }
+  G.obtainiumGain = G.obtainiumGain.mul(
+    player.upgrades[69] > 0
+      ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().pow(0.06).sub(1).pow10())
+      : G.reincarnationPointGain.max(10).log10().log10().add(1)
+  )
+
   if (player.upgrades[72] > 0) {
     G.obtainiumGain = G.obtainiumGain.mul(Decimal.min(
       50,
@@ -2476,21 +2484,21 @@ export const calculateAscensionScore = () => {
   for (let i = 1; i <= 10; i++) {
     baseScore = baseScore.add(Decimal.mul(challengeScoreArrays1[i], player.highestchallengecompletions[i]))
     if (i <= 5 && Decimal.gte(player.highestchallengecompletions[i], 75)) {
-      baseScore = baseScore.add(challengeScoreArrays2[i].mul(player.highestchallengecompletions[i].sub(75)))
-      if (player.highestchallengecompletions[i].gte(750)) {
+      baseScore = baseScore.add(challengeScoreArrays2[i].mul(Decimal.sub(player.highestchallengecompletions[i], 75)))
+      if (Decimal.gte(player.highestchallengecompletions[i], 750)) {
         baseScore = baseScore.add(challengeScoreArrays3[i]
-          .mul(player.highestchallengecompletions[i].sub(750)))
+          .mul(Decimal.sub(player.highestchallengecompletions[i], 750)))
       }
-      if (player.highestchallengecompletions[i].gte(9000)) {
+      if (Decimal.gte(player.highestchallengecompletions[i], 9000)) {
         baseScore = baseScore.add(challengeScoreArrays4[i]
-          .mul(player.highestchallengecompletions[i].sub(9000)))
+          .mul(Decimal.sub(player.highestchallengecompletions[i], 9000)))
       }
     }
     if (i <= 10 && i > 5 && Decimal.gte(player.highestchallengecompletions[i], 25)) {
-      baseScore = baseScore.add(challengeScoreArrays2[i].mul(player.highestchallengecompletions[i].sub(25)))
-      if (player.highestchallengecompletions[i].gte(60)) {
+      baseScore = baseScore.add(challengeScoreArrays2[i].mul(Decimal.sub(player.highestchallengecompletions[i], 25)))
+      if (Decimal.gte(player.highestchallengecompletions[i], 60)) {
         baseScore = baseScore.add(challengeScoreArrays3[i]
-          .mul(player.highestchallengecompletions[i].sub(60)))
+          .mul(Decimal.sub(player.highestchallengecompletions[i], 60)))
       }
     }
   }
@@ -2983,13 +2991,13 @@ export const dailyResetCheck = () => {
     player.dailyCodeUsed = false
 
     DOMCacheGetOrSet('cubeQuarksOpenRequirement').style.display = 'block'
-    if (player.challengecompletions[11].gt(0)) {
+    if (Decimal.gt(player.challengecompletions[11], 0)) {
       DOMCacheGetOrSet('tesseractQuarksOpenRequirement').style.display = 'block'
     }
-    if (player.challengecompletions[13].gt(0)) {
+    if (Decimal.gt(player.challengecompletions[13], 0)) {
       DOMCacheGetOrSet('hypercubeQuarksOpenRequirement').style.display = 'block'
     }
-    if (player.challengecompletions[14].gt(0)) {
+    if (Decimal.gt(player.challengecompletions[14], 0)) {
       DOMCacheGetOrSet('platonicCubeQuarksOpenRequirement').style.display = 'block'
     }
   }

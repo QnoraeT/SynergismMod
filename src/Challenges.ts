@@ -166,12 +166,13 @@ export const challengeDisplay = (i: number, changefocus = true) => {
       }
       case 2: {
         current1 = current2 = format(CalcECC('transcend', player.challengecompletions[2]).mul(5))
+        current3 = format(CalcECC('transcend', player.challengecompletions[2]).mul(0.25), 2)
         break
       }
       case 3: {
         current1 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.04), 2, true)
-        current2 = format(CalcECC('transcend', player.challengecompletions[3]), 2, true)
-        current3 = format(CalcECC('transcend', player.challengecompletions[3]), 2, true)
+        current2 = `${format(CalcECC('transcend', player.challengecompletions[3]).mul(0.5), 2, true)}%, (${format(G.challengeThreeMultiplier, 2, true)}x Grandmaster production total)`
+        current3 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.01), 2, true)
         break
       }
       case 4: {
@@ -197,7 +198,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
         break
       }
       case 8: {
-        current1 = format(CalcECC('reincarnation', player.challengecompletions[8]).div(4), 2, true)
+        current1 = format(CalcECC('reincarnation', player.challengecompletions[8]).mul(0.25), 2, true)
         current2 = format(CalcECC('reincarnation', player.challengecompletions[8]).mul(20), 2, true)
         current3 = format(CalcECC('reincarnation', player.challengecompletions[8]).mul(4), 2, true)
         break
@@ -281,7 +282,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
   if (i > 5 && i <= 10) {
     if (Decimal.gte(player.highestchallengecompletions[i], 60)) {
       scoreDisplay = scoreArray3[i]
-    } else if (player.highestchallengecompletions[i].mul(25)) {
+    } else if (Decimal.gte(player.highestchallengecompletions[i], 25)) {
       scoreDisplay = scoreArray2[i]
     } else {
       scoreDisplay = scoreArray1[i]
@@ -417,80 +418,114 @@ export const calculateChallengeRequirementMultiplier = (
     // Normalize back to 1 if looking at ascension challenges in particular.
     requirementMultiplier = new Decimal(1)
   }
+  let i
   switch (type) {
     case 'transcend':
-      requirementMultiplier = requirementMultiplier.mul(G.challenge15Rewards.transcendChallengeReduction)
-      ;(completions.gte(75))
-        ? requirementMultiplier = requirementMultiplier.mul(completions.add(1).div(75).pow(12).mul(75))
-        : requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(2))
+      i = completions
 
-      if (completions.gte(1000)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.div(1000).pow(3).mul(10))
+      if (Decimal.gte(i, 9000)) {
+        i = Decimal.div(i, 9000).pow_base(9000)
       }
-      if (completions.gte(9000)) {
-        requirementMultiplier = requirementMultiplier.mul(1337)
+
+      if (Decimal.gte(i, 1000)) {
+        i = Decimal.div(i, 1000).pow(1.25).mul(1000)
       }
-      if (completions.gte(9001)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.sub(8999))
+
+      if (Decimal.gte(i, 75)) {
+        i = Decimal.div(i, 75).pow(6).mul(75)
       }
+
+      requirementMultiplier = requirementMultiplier.mul(i.add(1).pow(2))
+      requirementMultiplier = requirementMultiplier.mul(G.challenge15Rewards.transcendChallengeReduction)
+      // ;(completions.gte(75))
+      //   ? requirementMultiplier = requirementMultiplier.mul(completions.add(1).div(75).pow(12).mul(75))
+      //   : requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(2))
+
+      // if (completions.gte(1000)) {
+      //   requirementMultiplier = requirementMultiplier.mul(completions.div(1000).pow(3).mul(10))
+      // }
+      // if (completions.gte(9000)) {
+      //   requirementMultiplier = requirementMultiplier.mul(1337)
+      // }
+      // if (completions.gte(9001)) {
+      //   requirementMultiplier = requirementMultiplier.mul(completions.sub(8999))
+      // }
       return requirementMultiplier
     case 'reincarnation':
-      if (completions.gte(100) && (special === 9 || special === 10)) {
-        requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.05, Decimal.mul(completions.sub(100), completions.sub(100).mul(0.05).add(1))))
+      i = completions
+
+      if (Decimal.gte(i, 100) && (special === 9 || special === 10)) {
+        i = i.div(100).pow(2).mul(100)
       }
-      if (completions.gte(90)) {
-        if (special === 6) {
-          requirementMultiplier = requirementMultiplier.mul(100)
-        } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(50)
-        } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(10)
-        } else {
-          requirementMultiplier = requirementMultiplier.mul(4)
-        }
+
+      if (Decimal.gte(i, 60) && (special === 9 || special === 10)) {
+        i = Decimal.pow(60, i.div(60).mul(1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).pow(0.25 + 0.025 * (special - 6))).min(i)
       }
-      if (completions.gte(80)) {
-        if (special === 6) {
-          requirementMultiplier = requirementMultiplier.mul(50)
-        } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(20)
-        } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(4)
-        } else {
-          requirementMultiplier = requirementMultiplier.mul(2)
-        }
+
+      if (Decimal.gte(i, 25)) {
+        i = Decimal.div(i, 25).pow(2.5).mul(25)
       }
-      if (completions.gte(70)) {
-        if (special === 6) {
-          // Multiplier is reduced significantly for challenges requiring mythos shards
-          requirementMultiplier = requirementMultiplier.mul(20)
-        } else if (special === 7) {
-          requirementMultiplier = requirementMultiplier.mul(10)
-        } else if (special === 8) {
-          requirementMultiplier = requirementMultiplier.mul(2)
-        } else {
-          requirementMultiplier = requirementMultiplier.mul(1)
-        }
-      }
-      if (completions.gte(60)) {
-        if (special === 9 || special === 10) {
-          requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1000, Decimal.mul(completions.sub(60), 1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).div(10)
-          ))
-        }
-      }
-      if (completions.gte(25)) {
-        requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(5).div(625))
-      }
-      if (completions.lt(25)) {
-        requirementMultiplier = requirementMultiplier.mul(Decimal.min(completions.add(1).pow(2), Decimal.pow(1.3797, completions)))
-      }
+
+      requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.5, i.pow(0.75)))
+      // if (completions.gte(100) && (special === 9 || special === 10)) {
+      //   requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.05, Decimal.mul(completions.sub(100), completions.sub(100).mul(0.05).add(1))))
+      // }
+      // if (completions.gte(90)) {
+      //   if (special === 6) {
+      //     requirementMultiplier = requirementMultiplier.mul(100)
+      //   } else if (special === 7) {
+      //     requirementMultiplier = requirementMultiplier.mul(50)
+      //   } else if (special === 8) {
+      //     requirementMultiplier = requirementMultiplier.mul(10)
+      //   } else {
+      //     requirementMultiplier = requirementMultiplier.mul(4)
+      //   }
+      // }
+      // if (completions.gte(80)) {
+      //   if (special === 6) {
+      //     requirementMultiplier = requirementMultiplier.mul(50)
+      //   } else if (special === 7) {
+      //     requirementMultiplier = requirementMultiplier.mul(20)
+      //   } else if (special === 8) {
+      //     requirementMultiplier = requirementMultiplier.mul(4)
+      //   } else {
+      //     requirementMultiplier = requirementMultiplier.mul(2)
+      //   }
+      // }
+      // if (completions.gte(70)) {
+      //   if (special === 6) {
+      //     // Multiplier is reduced significantly for challenges requiring mythos shards
+      //     requirementMultiplier = requirementMultiplier.mul(20)
+      //   } else if (special === 7) {
+      //     requirementMultiplier = requirementMultiplier.mul(10)
+      //   } else if (special === 8) {
+      //     requirementMultiplier = requirementMultiplier.mul(2)
+      //   } else {
+      //     requirementMultiplier = requirementMultiplier.mul(1)
+      //   }
+      // }
+      // if (completions.gte(60)) {
+      //   if (special === 9 || special === 10) {
+      //     requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1000, Decimal.mul(completions.sub(60), 1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).div(10)))
+      //   }
+      // }
+      // if (completions.gte(25)) {
+      //   requirementMultiplier = requirementMultiplier.mul(completions.add(1).pow(5).div(625))
+      // }
+      // if (completions.lt(25)) {
+      //   requirementMultiplier = requirementMultiplier.mul(Decimal.min(completions.add(1).pow(2), Decimal.pow(1.3797, completions)))
+      // }
       requirementMultiplier = requirementMultiplier.mul(G.challenge15Rewards.reincarnationChallengeReduction)
       return requirementMultiplier
     case 'ascension':
       if (special !== 15) {
-        ;(completions.gte(10))
-          ? requirementMultiplier = requirementMultiplier.mul(completions.add(1).mul(2).sub(10))
-          : requirementMultiplier = requirementMultiplier.mul(completions.add(1))
+        let i = completions
+
+        if (Decimal.gte(i, 10)) {
+          i = Decimal.sub(i, 10).mul(2).add(10)
+        }  
+
+        requirementMultiplier = requirementMultiplier.mul(i.add(1))
       } else {
         requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1000, completions))
       }
@@ -502,23 +537,25 @@ export const calculateChallengeRequirementMultiplier = (
  * Works to mitigate the difficulty of calculating challenge reward multipliers when considering softcapping
  */
 export const CalcECC = (type: 'transcend' | 'reincarnation' | 'ascension', completions: Decimal) => { // ECC stands for "Effective Challenge Completions"
-  let effective = new Decimal(0)
-  switch (type) {
-    case 'transcend':
-      effective = effective.add(Decimal.min(100, completions))
-      effective = effective.add(Decimal.min(1000, Decimal.max(100, completions)).sub(100).div(20))
-      effective = effective.add(Decimal.max(1000, completions).sub(1000).div(100))
-      return effective
-    case 'reincarnation':
-      effective = effective.add(Decimal.min(25, completions))
-      effective = effective.add(Decimal.min(75, Decimal.max(25, completions)).sub(25).div(2))
-      effective = effective.add(Decimal.max(75, completions).sub(75).div(10))
-      return effective
-    case 'ascension':
-      effective = effective.add(Decimal.min(10, completions))
-      effective = effective.add(Decimal.max(10, completions).sub(10).div(2))
-      return effective
-  }
+    // * tearonq modifications:
+  let effective = new Decimal(completions)
+  return effective
+  // switch (type) {
+  //   case 'transcend':
+  //     effective = effective.add(Decimal.min(100, completions))
+  //     effective = effective.add(Decimal.min(1000, Decimal.max(100, completions)).sub(100).div(20))
+  //     effective = effective.add(Decimal.max(1000, completions).sub(1000).div(100))
+  //     return effective
+  //   case 'reincarnation':
+  //     effective = effective.add(Decimal.min(25, completions))
+  //     effective = effective.add(Decimal.min(75, Decimal.max(25, completions)).sub(25).div(2))
+  //     effective = effective.add(Decimal.max(75, completions).sub(75).div(10))
+  //     return effective
+  //   case 'ascension':
+  //     effective = effective.add(Decimal.min(10, completions))
+  //     effective = effective.add(Decimal.max(10, completions).sub(10).div(2))
+  //     return effective
+  // }
 }
 
 export const challengeRequirement = (challenge: number, completion: number | Decimal, special = 0) => {

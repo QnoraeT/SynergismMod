@@ -5,7 +5,8 @@ import {
   calculateOfferings,
   calculateRuneExpGiven,
   calculateRuneExpToLevel,
-  calculateRuneLevels
+  calculateRuneLevels,
+  thriftRuneEffect
 } from './Calculate'
 import { format, player } from './Synergism'
 import { Globals as G } from './Variables'
@@ -41,7 +42,7 @@ export const displayRuneInformation = (i: number, updatelevelup = true) => {
     }
   } else if (i === 4) {
     options = {
-      delay: Decimal.mul(G.rune4level, m).div(8).toNumber().toPrecision(3),
+      delay: format(thriftRuneEffect().mul(100), 3),
       chance: Decimal.min(25, Decimal.div(G.rune4level, 16)),
       tax: Decimal.sub(1, Decimal.sub(400, G.rune4level).div(1100).min(0).pow_base(4)).mul(99).toNumber().toPrecision(4)
     }
@@ -163,7 +164,7 @@ export const redeemShards = (runeIndexPlusOne: number, auto = false, cubeUpgrade
     for (let runeToUpdate = 0; runeToUpdate < 5; ++runeToUpdate) {
       if (unlockedRune(runeToUpdate + 1)) {
         if (runeToUpdate !== runeIndex) {
-          player.runeexp[runeToUpdate] = player.runeexp[runeToUpdate].add(Decimal.mul(all, calculateRuneExpGiven(runeToUpdate, true)))
+          player.runeexp[runeToUpdate] = Decimal.add(player.runeexp[runeToUpdate], Decimal.mul(all, calculateRuneExpGiven(runeToUpdate, true)))
         }
         while (
           Decimal.gte(player.runeexp[runeToUpdate], calculateRuneExpToLevel(runeToUpdate))

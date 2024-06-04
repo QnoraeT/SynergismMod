@@ -840,11 +840,6 @@ export const buttoncolorchange = () => {
     const c = DOMCacheGetOrSet('buydiamond3')
     const d = DOMCacheGetOrSet('buydiamond4')
     const e = DOMCacheGetOrSet('buydiamond5')
-    const f = DOMCacheGetOrSet('buycrystalupgrade1')
-    const g = DOMCacheGetOrSet('buycrystalupgrade2')
-    const h = DOMCacheGetOrSet('buycrystalupgrade3')
-    const i = DOMCacheGetOrSet('buycrystalupgrade4')
-    const j = DOMCacheGetOrSet('buycrystalupgrade5')
     ;((!player.toggles[10] || player.achievements[78] === 0) && player.prestigePoints.gte(player.firstCostDiamonds))
       ? a.classList.add('buildingPurchaseBtnAvailable')
       : a.classList.remove('buildingPurchaseBtnAvailable')
@@ -860,46 +855,22 @@ export const buttoncolorchange = () => {
     ;((!player.toggles[14] || player.achievements[106] === 0) && player.prestigePoints.gte(player.fifthCostDiamonds))
       ? e.classList.add('buildingPurchaseBtnAvailable')
       : e.classList.remove('buildingPurchaseBtnAvailable')
+      
     let k = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor()
     if (player.upgrades[73] === 1 && player.currentChallenge.reincarnation !== 0) {
       k = k.add(10)
     }
 
-    player.achievements[79] < 1
+    for (let i = 0; i < 5; i++) {
+      const htmlThing = DOMCacheGetOrSet(`buycrystalupgrade${i + 1}`)
+      player.achievements[79 + 7 * i] < 1
       ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[0], Decimal.mul(G.crystalUpgradeCostIncrement[0], Decimal.sub(player.crystalUpgrades[0], k).add(0.5).pow(2).div(2).floor())).pow10()
+          Decimal.sub(player.crystalUpgrades[i], k).add(0.5).pow(2).div(2).floor().mul(G.crystalUpgradeCostIncrement[i]).add(G.crystalUpgradesCost[i]).pow10()
         )
-        ? f.style.backgroundColor = 'purple'
-        : f.style.backgroundColor = '')
-      : f.style.backgroundColor = 'green'
-    player.achievements[86] < 1
-      ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[1], Decimal.mul(G.crystalUpgradeCostIncrement[1], Decimal.sub(player.crystalUpgrades[1], k).add(0.5).pow(2).div(2).floor())).pow10()
-        )
-        ? g.style.backgroundColor = 'purple'
-        : g.style.backgroundColor = '')
-      : g.style.backgroundColor = 'green'
-    player.achievements[93] < 1
-      ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[2], Decimal.mul(G.crystalUpgradeCostIncrement[2], Decimal.sub(player.crystalUpgrades[2], k).add(0.5).pow(2).div(2).floor())).pow10()
-        )
-        ? h.style.backgroundColor = 'purple'
-        : h.style.backgroundColor = '')
-      : h.style.backgroundColor = 'green'
-    player.achievements[100] < 1
-      ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[3], Decimal.mul(G.crystalUpgradeCostIncrement[3], Decimal.sub(player.crystalUpgrades[3], k).add(0.5).pow(2).div(2).floor())).pow10()
-        )
-        ? i.style.backgroundColor = 'purple'
-        : i.style.backgroundColor = '')
-      : i.style.backgroundColor = 'green'
-    player.achievements[107] < 1
-      ? (player.prestigeShards.gte(
-          Decimal.add(G.crystalUpgradesCost[4], Decimal.mul(G.crystalUpgradeCostIncrement[4], Decimal.sub(player.crystalUpgrades[4], k).add(0.5).pow(2).div(2).floor())).pow10()
-        )
-        ? j.style.backgroundColor = 'purple'
-        : j.style.backgroundColor = '')
-      : j.style.backgroundColor = 'green'
+        ? htmlThing.style.backgroundColor = 'purple'
+        : htmlThing.style.backgroundColor = '')
+      : htmlThing.style.backgroundColor = 'green'
+    }
   }
 
   if (G.currentTab === Tabs.Runes) {

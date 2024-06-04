@@ -231,7 +231,7 @@ export const player: Player = {
 
   fifthOwnedDiamonds: new Decimal(0),
   fifthGeneratedDiamonds: new Decimal(0),
-  fifthCostDiamonds: new Decimal('1e100'),
+  fifthCostDiamonds: new Decimal(1e100),
   fifthProduceDiamonds: 0.000005,
 
   firstOwnedMythos: new Decimal(0),
@@ -251,12 +251,12 @@ export const player: Player = {
 
   fourthOwnedMythos: new Decimal(0),
   fourthGeneratedMythos: new Decimal(0),
-  fourthCostMythos: new Decimal('1e8'),
+  fourthCostMythos: new Decimal(1e8),
   fourthProduceMythos: 0.0002,
 
   fifthOwnedMythos: new Decimal(0),
   fifthGeneratedMythos: new Decimal(0),
-  fifthCostMythos: new Decimal('1e16'),
+  fifthCostMythos: new Decimal(1e16),
   fifthProduceMythos: 0.00004,
 
   firstOwnedParticles: new Decimal(0),
@@ -276,12 +276,12 @@ export const player: Player = {
 
   fourthOwnedParticles: new Decimal(0),
   fourthGeneratedParticles: new Decimal(0),
-  fourthCostParticles: new Decimal('1e8'),
+  fourthCostParticles: new Decimal(1e8),
   fourthProduceParticles: 0.1,
 
   fifthOwnedParticles: new Decimal(0),
   fifthGeneratedParticles: new Decimal(0),
-  fifthCostParticles: new Decimal('1e16'),
+  fifthCostParticles: new Decimal(1e16),
   fifthProduceParticles: 0.5,
 
   firstOwnedAnts: 0,
@@ -306,22 +306,22 @@ export const player: Player = {
 
   fifthOwnedAnts: 0,
   fifthGeneratedAnts: new Decimal(0),
-  fifthCostAnts: new Decimal('1e12'),
+  fifthCostAnts: new Decimal(1e12),
   fifthProduceAnts: 0.000005,
 
   sixthOwnedAnts: 0,
   sixthGeneratedAnts: new Decimal(0),
-  sixthCostAnts: new Decimal('1e36'),
+  sixthCostAnts: new Decimal(1e36),
   sixthProduceAnts: 0.000002,
 
   seventhOwnedAnts: 0,
   seventhGeneratedAnts: new Decimal(0),
-  seventhCostAnts: new Decimal('1e100'),
+  seventhCostAnts: new Decimal(1e100),
   seventhProduceAnts: 0.000001,
 
   eighthOwnedAnts: 0,
   eighthGeneratedAnts: new Decimal(0),
-  eighthCostAnts: new Decimal('1e300'),
+  eighthCostAnts: new Decimal(1e300),
   eighthProduceAnts: 0.00000001,
 
   ascendBuilding1: {
@@ -1829,8 +1829,8 @@ const loadSynergy = async () => {
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
-      player.fourthCostParticles = new Decimal('1e8')
-      player.fifthCostParticles = new Decimal('1e16')
+      player.fourthCostParticles = new Decimal(1e8)
+      player.fifthCostParticles = new Decimal(1e16)
       player.autoSacrificeToggle = false
       player.autoResearchToggle = false
       player.autoResearchMode = 'manual'
@@ -1851,8 +1851,8 @@ const loadSynergy = async () => {
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
-      player.fourthCostParticles = new Decimal('1e8')
-      player.fifthCostParticles = new Decimal('1e16')
+      player.fourthCostParticles = new Decimal(1e8)
+      player.fifthCostParticles = new Decimal(1e16)
     }
     if (
       data.loaded10091 === undefined
@@ -1919,22 +1919,22 @@ const loadSynergy = async () => {
 
       player.fifthOwnedAnts = 0
       player.fifthGeneratedAnts = new Decimal(0)
-      player.fifthCostAnts = new Decimal('1e12')
+      player.fifthCostAnts = new Decimal(1e12)
       player.fifthProduceAnts = 0.000005
 
       player.sixthOwnedAnts = 0
       player.sixthGeneratedAnts = new Decimal(0)
-      player.sixthCostAnts = new Decimal('1e36')
+      player.sixthCostAnts = new Decimal(1e36)
       player.sixthProduceAnts = 0.000002
 
       player.seventhOwnedAnts = 0
       player.seventhGeneratedAnts = new Decimal(0)
-      player.seventhCostAnts = new Decimal('1e100')
+      player.seventhCostAnts = new Decimal(1e100)
       player.seventhProduceAnts = 0.000001
 
       player.eighthOwnedAnts = 0
       player.eighthGeneratedAnts = new Decimal(0)
-      player.eighthCostAnts = new Decimal('1e300')
+      player.eighthCostAnts = new Decimal(1e300)
       player.eighthProduceAnts = 0.00000001
 
       player.achievements.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
@@ -3572,7 +3572,7 @@ export const updateAllTick = (): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     if (player.currentChallenge.transcension === 1) {
-      G.acceleratorPower = G.acceleratorPower.mul(Decimal.div(25, player.challengecompletions[1].add(50)))
+      G.acceleratorPower = G.acceleratorPower.mul(Decimal.div(25, Decimal.add(player.challengecompletions[1], 50)))
       G.acceleratorPower = G.acceleratorPower.add(0.55)
       G.acceleratorPower = Decimal.max(1, G.acceleratorPower)
     }
@@ -3818,7 +3818,7 @@ export const multipliers = (): void => {
   let s = new Decimal(1)
   let c = new Decimal(1)
   let crystalExponent = new Decimal(1/3)
-  crystalExponent = crystalExponent.add(Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.05).add(10).add(Decimal.mul((Decimal.mul(20, calculateCorruptionPoints()).div(400)), G.effectiveRuneSpiritPower[3])).min(Decimal.mul(0.05, player.crystalUpgrades[3])))
+  crystalExponent = crystalExponent.add(Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.05).add(10).add(Decimal.mul((calculateCorruptionPoints().div(20)), G.effectiveRuneSpiritPower[3])).min(Decimal.mul(0.05, player.crystalUpgrades[3])))
   crystalExponent = crystalExponent.add(Decimal.mul(0.04, CalcECC('transcend', player.challengecompletions[3])))
   crystalExponent = crystalExponent.add(Decimal.mul(0.08, player.researches[28]))
   crystalExponent = crystalExponent.add(Decimal.mul(0.08, player.researches[29]))
@@ -3834,7 +3834,27 @@ export const multipliers = (): void => {
     c7 = 0
   }
 
-  G.buildingPower = Decimal.mul(c7, player.reincarnationShards.add(1).log10()).mul(1 - Math.pow(2, -1 / 160)).mul(Decimal.add(Decimal.mul(player.researches[36], 0.05), Decimal.mul(player.researches[37], 0.025)).add(Decimal.mul(player.researches[38], 0.025)).add(1)).add(Decimal.add(c7, 0.2).div(4.8).mul(CalcECC('reincarnation', player.challengecompletions[8]))).add(1)
+  G.buildingPower = 
+  Decimal.mul(
+    c7, player.reincarnationShards.add(1).log10()
+  ).mul(
+    1 - Math.pow(2, -1 / 160)
+  ).mul(
+    Decimal.add(
+      Decimal.mul(
+        player.researches[36], 
+        0.05
+      ), 
+      Decimal.mul(
+        player.researches[37], 
+        0.025)
+      ).add(
+        Decimal.mul(
+          player.researches[38], 
+          0.025)
+        ).add(1)
+      ).add(
+        Decimal.add(c7, 0.2).div(4.8).mul(CalcECC('reincarnation', player.challengecompletions[8]))).add(1)
 
   G.buildingPower = Decimal.pow(
     G.buildingPower,
@@ -4427,22 +4447,35 @@ export const resourceGain = (dt: Decimal): void => {
   for (let i = 1; i <= 5; i++) {
     if (
       player.researches[70 + i] > 0.5
-      && player.challengecompletions[i]
-        .lt(Decimal.min(
-          player.highestchallengecompletions[i], 25 + 5 * player.researches[65 + i] + 925 * player.researches[105]
-        ))
-      && player.coins.gte(
-        Decimal.pow(
-          10,
-          Decimal.mul(G.challengeBaseRequirements[i - 1], player.challengecompletions[i].add(1).pow(2)).mul([1.25, 1.6, 1.7, 1.45, 2][i - 1])
-        )
-      )
+      && Decimal.lt(player.challengecompletions[i], Decimal.min(player.highestchallengecompletions[i], 25 + 5 * player.researches[65 + i] + 925 * player.researches[105]))
+      && player.coins.gte(Decimal.mul(G.challengeBaseRequirements[i - 1], player.challengecompletions[i].add(1).pow(2)).mul([1.25, 1.6, 1.7, 1.45, 2][i - 1]).pow10())
     ) {
       player.challengecompletions[i] = player.challengecompletions[i].add(1)
       challengeachievementcheck(i, true)
       updateChallengeLevel(i)
     }
   }
+
+  // if (
+  //   player.researches[72] > 0.5
+  //   && player.challengecompletions[2]
+  //     < Math.min(
+  //       player.highestchallengecompletions[2],
+  //       25 + 5 * player.researches[67] + 925 * player.researches[105]
+  //     )
+  //   && player.coins.gte(
+  //     Decimal.pow(
+  //       10,
+  //       1.6
+  //         * G.challengeBaseRequirements[1]
+  //         * Math.pow(1 + player.challengecompletions[2], 2)
+  //     )
+  //   )
+  // ) {
+  //   player.challengecompletions[2] += 1
+  //   challengeachievementcheck(2, true)
+  //   updateChallengeLevel(2)
+  // }
 
   // if (
   //   player.researches[71] > 0.5
@@ -4588,8 +4621,8 @@ export const resourceGain = (dt: Decimal): void => {
   }
   if (ascendchal !== 0 && ascendchal < 15) {
     if (
-      player.challengecompletions[10]
-        .gte(challengeRequirement(
+      Decimal.gte(player.challengecompletions[10]
+        , challengeRequirement(
           ascendchal,
           player.challengecompletions[ascendchal],
           ascendchal
@@ -4842,41 +4875,37 @@ export const createAnts = (dt: Decimal): void => {
 export const resetCurrency = (): void => {
   let prestigePow = CalcECC('transcend', player.challengecompletions[5]).div(100).add(0.5)
   let transcendPow = new Decimal(0.03)
+  let reincarnatePow = new Decimal(0.01)
 
   // Calculates the conversion exponent for resets (Challenges 5 and 10 reduce the exponent accordingly).
   if (player.currentChallenge.transcension === 5) {
-    prestigePow = player.challengecompletions[5].add(1).recip().mul(0.01)
+    prestigePow = Decimal.add(player.challengecompletions[5], 1).recip().mul(0.01)
     transcendPow = new Decimal(0.001)
   }
   if (player.currentChallenge.reincarnation === 10) {
-    prestigePow = player.challengecompletions[10].add(1).recip().mul(0.0001)
+    prestigePow = Decimal.add(player.challengecompletions[10], 1).recip().mul(0.0001)
     transcendPow = new Decimal(0.001)
   }
-  prestigePow = prestigePow.mul(G.deflationMultiplier[player.usedCorruptions[6]])
+
   // Prestige Point Formulae
-  G.prestigePointGain = Decimal.floor(
-    Decimal.pow(player.coinsThisPrestige.dividedBy(1e12), prestigePow)
-  )
+  G.prestigePointGain = Decimal.floor(Decimal.pow(player.coinsThisPrestige.div(1e12), prestigePow))
+
   if (
     player.upgrades[16] > 0.5
     && player.currentChallenge.transcension !== 5
     && player.currentChallenge.reincarnation !== 10
   ) {
-    G.prestigePointGain = G.prestigePointGain.times(
-      Decimal.min(
-        Decimal.pow(10, 1e33),
-        Decimal.pow(
-          G.acceleratorEffect,
-          (1 / 3) * G.deflationMultiplier[player.usedCorruptions[6]]
-        )
-      )
-    )
+    let mult = G.acceleratorEffect.root(3)
+    if (mult.gte("e1000")) {
+      mult = mult.log10().log10().div(3).pow(0.75).mul(3).pow10().pow10()
+    }
+    G.prestigePointGain = G.prestigePointGain.times(mult)
   }
 
+  G.prestigePointGain = G.prestigePointGain.pow(G.deflationMultiplier[player.usedCorruptions[6]])
   // Transcend Point Formulae
-  G.transcendPointGain = Decimal.floor(
-    Decimal.pow(player.coinsThisTranscension.dividedBy(1e100), transcendPow)
-  )
+  G.transcendPointGain = Decimal.floor(Decimal.pow(player.coinsThisTranscension.div(1e100), transcendPow))
+
   if (
     player.upgrades[44] > 0.5
     && player.currentChallenge.transcension !== 5
@@ -4888,9 +4917,8 @@ export const resetCurrency = (): void => {
   }
 
   // Reincarnation Point Formulae
-  G.reincarnationPointGain = Decimal.floor(
-    Decimal.pow(player.transcendShards.dividedBy(1e300), 0.01)
-  )
+  G.reincarnationPointGain = Decimal.floor(Decimal.pow(player.transcendShards.div(1e300), reincarnatePow))
+
   if (player.currentChallenge.reincarnation !== 0) {
     G.reincarnationPointGain = Decimal.pow(G.reincarnationPointGain, 0.01)
   }
@@ -4960,7 +4988,7 @@ export const resetCheck = async (
       let comp = player.challengecompletions[q]
       while (counter < maxInc) {
         if (reqCheck(comp) && Decimal.lt(comp, maxCompletions)) {
-          comp = comp.add(1)
+          comp = Decimal.add(comp, 1)
         }
         counter++
       }
@@ -4969,12 +4997,12 @@ export const resetCheck = async (
       updateChallengeLevel(q)
     }
     if (
-      player.challengecompletions[q] > player.highestchallengecompletions[q]
+      Decimal.gt(player.challengecompletions[q], player.highestchallengecompletions[q])
     ) {
       while (
-        player.challengecompletions[q] > player.highestchallengecompletions[q]
+        Decimal.gt(player.challengecompletions[q], player.highestchallengecompletions[q])
       ) {
-        player.highestchallengecompletions[q] = player.highestchallengecompletions[q].add(1)
+        player.highestchallengecompletions[q] = Decimal.add(player.highestchallengecompletions[q], 1)
         highestChallengeRewards(q, player.highestchallengecompletions[q])
       }
       calculateCubeBlessings()
@@ -5043,7 +5071,7 @@ export const resetCheck = async (
       let comp = player.challengecompletions[q]
       while (counter < maxInc) {
         if (reqCheck(comp) && Decimal.lt(comp, maxCompletions)) {
-          comp = comp.add(1)
+          comp = Decimal.add(comp, 1)
         }
         counter++
       }
@@ -5052,12 +5080,12 @@ export const resetCheck = async (
       updateChallengeLevel(q)
     }
     if (
-      player.challengecompletions[q] > player.highestchallengecompletions[q]
+      Decimal.gt(player.challengecompletions[q], player.highestchallengecompletions[q])
     ) {
       while (
-        player.challengecompletions[q] > player.highestchallengecompletions[q]
+        Decimal.gt(player.challengecompletions[q], player.highestchallengecompletions[q])
       ) {
-        player.highestchallengecompletions[q] = player.highestchallengecompletions[q].add(1)
+        player.highestchallengecompletions[q] = Decimal.add(player.highestchallengecompletions[q], 1)
         highestChallengeRewards(q, player.highestchallengecompletions[q])
       }
       calculateHypercubeBlessings()
@@ -5476,6 +5504,7 @@ export const updateAll = (): void => {
   ) {
     c = c.add(10)
   }
+
   if (
     player.achievements[79] > 0.5
     && player.prestigeShards.gte(
@@ -5799,10 +5828,10 @@ export const updateAll = (): void => {
     )
   }
 
-  if (player.runeshards > player.maxofferings) {
+  if (Decimal.gt(player.runeshards, player.maxofferings)) {
     player.maxofferings = player.runeshards
   }
-  if (player.researchPoints > player.maxobtainium) {
+  if (Decimal.gt(player.researchPoints, player.maxobtainium)) {
     player.maxobtainium = player.researchPoints
   }
 
@@ -6136,7 +6165,7 @@ const tack = (dt: Decimal) => {
       if (
         player.toggles[27]
         && player.researches[46] > 0.5
-        && player.transcendShards.gte('1e300')
+        && player.transcendShards.gte(1e300)
         && G.autoResetTimers.reincarnation.gte(time)
         && player.currentChallenge.transcension === 0
         && player.currentChallenge.reincarnation === 0
