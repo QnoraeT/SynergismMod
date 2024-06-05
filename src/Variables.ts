@@ -448,7 +448,7 @@ export const Globals: GlobalVariables = {
   globalConstantMult: new Decimal(1),
   autoTalismanTimer: 0,
 
-  autoChallengeTimerIncrement: 0,
+  autoChallengeTimerIncrement: new Decimal(0),
   corruptionTrigger: 1,
 
   challenge15Rewards: {
@@ -511,3 +511,4 @@ export const Globals: GlobalVariables = {
 }
 
 export const blankGlobals = { ...Globals }
+

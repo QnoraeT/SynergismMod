@@ -125,42 +125,42 @@ export interface Player {
   fifthCostParticles: Decimal
   fifthProduceParticles: number
 
-  firstOwnedAnts: number
+  firstOwnedAnts: Decimal
   firstGeneratedAnts: Decimal
   firstCostAnts: Decimal
   firstProduceAnts: number
 
-  secondOwnedAnts: number
+  secondOwnedAnts: Decimal
   secondGeneratedAnts: Decimal
   secondCostAnts: Decimal
   secondProduceAnts: number
 
-  thirdOwnedAnts: number
+  thirdOwnedAnts: Decimal
   thirdGeneratedAnts: Decimal
   thirdCostAnts: Decimal
   thirdProduceAnts: number
 
-  fourthOwnedAnts: number
+  fourthOwnedAnts: Decimal
   fourthGeneratedAnts: Decimal
   fourthCostAnts: Decimal
   fourthProduceAnts: number
 
-  fifthOwnedAnts: number
+  fifthOwnedAnts: Decimal
   fifthGeneratedAnts: Decimal
   fifthCostAnts: Decimal
   fifthProduceAnts: number
 
-  sixthOwnedAnts: number
+  sixthOwnedAnts: Decimal
   sixthGeneratedAnts: Decimal
   sixthCostAnts: Decimal
   sixthProduceAnts: number
 
-  seventhOwnedAnts: number
+  seventhOwnedAnts: Decimal
   seventhGeneratedAnts: Decimal
   seventhCostAnts: Decimal
   seventhProduceAnts: number
 
-  eighthOwnedAnts: number
+  eighthOwnedAnts: Decimal
   eighthGeneratedAnts: Decimal
   eighthCostAnts: Decimal
   eighthProduceAnts: number
@@ -938,7 +938,7 @@ export interface GlobalVariables {
   globalConstantMult: Decimal
   autoTalismanTimer: number
 
-  autoChallengeTimerIncrement: number
+  autoChallengeTimerIncrement: Decimal
   corruptionTrigger: number
 
   challenge15Rewards: {

@@ -1213,7 +1213,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.shopUpgrades.powderEX = 0
     void Alert(i18next.t('general.updateAlerts.july22021'))
     player.firstCostAnts = new Decimal('1e700')
-    player.firstOwnedAnts = 0
+    player.firstOwnedAnts = new Decimal(0)
   }
 
   if (data.autoResearchMode === undefined) {

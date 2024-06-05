@@ -408,7 +408,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.fourthOwnedDiamonds = new Decimal(0)
     player.fourthCostDiamonds = new Decimal('1e40')
     player.fifthOwnedDiamonds = new Decimal(0)
-    player.fifthCostDiamonds = new Decimal('1e100')
+    player.fifthCostDiamonds = new Decimal(1e100)
     player.firstGeneratedMythos = new Decimal(0)
     player.secondGeneratedMythos = new Decimal(0)
     player.thirdGeneratedMythos = new Decimal(0)
@@ -577,7 +577,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     }
     toggleAutoChallengeModeText('START')
 
-    G.autoChallengeTimerIncrement = 0
+    G.autoChallengeTimerIncrement = new Decimal(0)
     // reset rest
     resetResearches()
     resetAnts()
@@ -995,7 +995,7 @@ export const updateSingularityMilestoneAwards = (singularityReset = true): void 
     player.highestchallengecompletions[7] = new Decimal(1)
     achievementaward(120)
     if (player.currentChallenge.ascension !== 12) {
-      player.reincarnationPoints = new Decimal('1e100')
+      player.reincarnationPoints = new Decimal(1e100)
     }
   }
   if (player.achievements[280] > 0) { // Singularity 10
@@ -1007,7 +1007,7 @@ export const updateSingularityMilestoneAwards = (singularityReset = true): void 
     player.cubeUpgrades[4] = new Decimal(1) // Adding these ones,
     player.cubeUpgrades[5] = new Decimal(1) // so they wont reset
     player.cubeUpgrades[6] = new Decimal(1) // on first Ascension
-    player.firstOwnedAnts = 1
+    player.firstOwnedAnts = new Decimal(1)
     for (let i = 0; i < 7; i++) {
       achievementaward(176 + i)
     }
@@ -1021,7 +1021,7 @@ export const updateSingularityMilestoneAwards = (singularityReset = true): void 
     if (player.currentChallenge.ascension !== 12) {
       player.reincarnationPoints = new Decimal('2.22e2222')
     }
-    player.fifthOwnedAnts = 1
+    player.fifthOwnedAnts = new Decimal(1)
     player.cubeUpgrades[20] = new Decimal(1)
   }
   const perk_20 = player.highestSingularityCount >= 20
@@ -1037,14 +1037,14 @@ export const updateSingularityMilestoneAwards = (singularityReset = true): void 
     player.challengecompletions[9] = new Decimal(1)
     player.highestchallengecompletions[9] = new Decimal(1)
     achievementaward(134)
-    player.antPoints = new Decimal('1e100')
+    player.antPoints = new Decimal(1e100)
     player.antUpgrades[11] = 1
     for (const key of shopItemPerk_20) {
       player.shopUpgrades[key] = shopData[key].maxLevel
     }
   }
   if (player.highestSingularityCount >= 25) {
-    player.eighthOwnedAnts = 1
+    player.eighthOwnedAnts = new Decimal(1)
   }
   if (player.highestSingularityCount >= 30) {
     player.researches[130] = 1
@@ -1488,14 +1488,14 @@ const resetUpgrades = (i: number) => {
 }
 
 export const resetAnts = () => {
-  player.firstOwnedAnts = 0
-  player.secondOwnedAnts = 0
-  player.thirdOwnedAnts = 0
-  player.fourthOwnedAnts = 0
-  player.fifthOwnedAnts = 0
-  player.sixthOwnedAnts = 0
-  player.seventhOwnedAnts = 0
-  player.eighthOwnedAnts = 0
+  player.firstOwnedAnts = new Decimal(0)
+  player.secondOwnedAnts = new Decimal(0)
+  player.thirdOwnedAnts = new Decimal(0)
+  player.fourthOwnedAnts = new Decimal(0)
+  player.fifthOwnedAnts = new Decimal(0)
+  player.sixthOwnedAnts = new Decimal(0)
+  player.seventhOwnedAnts = new Decimal(0)
+  player.eighthOwnedAnts = new Decimal(0)
 
   player.firstGeneratedAnts = new Decimal(0)
   player.secondGeneratedAnts = new Decimal(0)
@@ -1507,16 +1507,16 @@ export const resetAnts = () => {
   player.eighthGeneratedAnts = new Decimal(0)
 
   player.firstCostAnts = new Decimal('1e700')
-  player.secondCostAnts = new Decimal('3')
+  player.secondCostAnts = new Decimal(3)
   player.thirdCostAnts = new Decimal(100)
   player.fourthCostAnts = new Decimal(1e4)
-  player.fifthCostAnts = new Decimal('1e12')
-  player.sixthCostAnts = new Decimal('1e36')
-  player.seventhCostAnts = new Decimal('1e100')
-  player.eighthCostAnts = new Decimal('1e300')
+  player.fifthCostAnts = new Decimal(1e12)
+  player.sixthCostAnts = new Decimal(1e36)
+  player.seventhCostAnts = new Decimal(1e100)
+  player.eighthCostAnts = new Decimal(1e300)
 
   if (player.cubeUpgrades[48].gt(0)) {
-    player.firstOwnedAnts = 1
+    player.firstOwnedAnts = new Decimal(1)
     player.firstCostAnts = new Decimal('1e741')
   }
 

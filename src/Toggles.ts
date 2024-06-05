@@ -12,6 +12,7 @@ import type { BuildingSubtab, Player } from './types/Synergism'
 import { Alert, Prompt, showCorruptionStatsLoadouts, updateChallengeDisplay } from './UpdateHTML'
 import { visualUpdateAmbrosia, visualUpdateCubes, visualUpdateOcteracts } from './UpdateVisuals'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export const toggleSettings = (toggle: HTMLElement) => {
   const toggleId = toggle.getAttribute('toggleId') ?? 1
@@ -780,13 +781,13 @@ export const toggleAutoChallengeRun = () => {
   if (player.autoChallengeRunning) {
     el.style.border = '2px solid red'
     el.textContent = i18next.t('challenges.autoChallengeSweepOff')
-    G.autoChallengeTimerIncrement = 0
+    G.autoChallengeTimerIncrement = new Decimal(0)
     toggleAutoChallengeModeText('OFF')
   } else {
     el.style.border = '2px solid gold'
     el.textContent = i18next.t('challenges.autoChallengeSweepOn')
     toggleAutoChallengeModeText('START')
-    G.autoChallengeTimerIncrement = 0
+    G.autoChallengeTimerIncrement = new Decimal(0)
   }
 
   player.autoChallengeRunning = !player.autoChallengeRunning

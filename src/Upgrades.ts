@@ -166,12 +166,12 @@ const upgradetexts = [
     ),
   () => format(G.taxdivisor.log10().div(1000).floor().min(2500)),
   () => {
-    let a = player.upgrades[69] > 0
+    const a = player.upgrades[69] > 0
               ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().pow(0.06).sub(1).pow10())
               : G.reincarnationPointGain.max(10).log10().log10().add(1)
     const b = G.reincarnationPointGain.add(10).log10().sqrt()
     return {
-      x: format(a.min(10), 2),
+      x: format(a, 2),
       y: format(b.min(3), 2)
     }
   },
@@ -190,10 +190,10 @@ const upgradetexts = [
   () =>
     format(
       Decimal.pow(
-        1.004 + 4 / 100000 * player.researches[96],
-        player.firstOwnedAnts + player.secondOwnedAnts + player.thirdOwnedAnts + player.fourthOwnedAnts
-          + player.fifthOwnedAnts + player.sixthOwnedAnts + player.seventhOwnedAnts + player.eighthOwnedAnts
-      ),
+        Decimal.mul(player.researches[96], 0.00004).add(1.004),
+        Decimal.add(player.firstOwnedAnts, player.secondOwnedAnts).add(player.thirdOwnedAnts).add(player.fourthOwnedAnts).add(player.fifthOwnedAnts).add(player.sixthOwnedAnts).add(player.seventhOwnedAnts).add(player.eighthOwnedAnts)
+      )
+      ,
       3
     ),
   () => format(player.maxofferings.add(1).log10().pow(2).mul(0.005).add(1), 2, true),

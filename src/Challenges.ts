@@ -171,7 +171,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
       }
       case 3: {
         current1 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.04), 2, true)
-        current2 = `${format(CalcECC('transcend', player.challengecompletions[3]).mul(0.5), 2, true)}%, (${format(G.challengeThreeMultiplier, 2, true)}x Grandmaster production total)`
+        current2 = `${format(CalcECC('transcend', player.challengecompletions[3]), 2, true)}%, (${format(G.challengeThreeMultiplier, 2, true)}x Grandmaster production total)`
         current3 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.01), 2, true)
         break
       }
@@ -235,7 +235,7 @@ export const challengeDisplay = (i: number, changefocus = true) => {
       }
       case 14: {
         current1 = format(CalcECC('ascension', player.challengecompletions[14]).mul(50))
-        current2 = format(player.challengecompletions[14])
+        current2 = format(CalcECC('ascension', player.challengecompletions[14]))
         current3 = format(CalcECC('ascension', player.challengecompletions[14]).mul(200))
         break
       }
@@ -418,11 +418,9 @@ export const calculateChallengeRequirementMultiplier = (
     // Normalize back to 1 if looking at ascension challenges in particular.
     requirementMultiplier = new Decimal(1)
   }
-  let i
+  let i = completions
   switch (type) {
     case 'transcend':
-      i = completions
-
       if (Decimal.gte(i, 9000)) {
         i = Decimal.div(i, 9000).pow_base(9000)
       }
@@ -452,8 +450,6 @@ export const calculateChallengeRequirementMultiplier = (
       // }
       return requirementMultiplier
     case 'reincarnation':
-      i = completions
-
       if (Decimal.gte(i, 100) && (special === 9 || special === 10)) {
         i = i.div(100).pow(2).mul(100)
       }
@@ -519,8 +515,6 @@ export const calculateChallengeRequirementMultiplier = (
       return requirementMultiplier
     case 'ascension':
       if (special !== 15) {
-        let i = completions
-
         if (Decimal.gte(i, 10)) {
           i = Decimal.sub(i, 10).mul(2).add(10)
         }  
@@ -539,6 +533,10 @@ export const calculateChallengeRequirementMultiplier = (
 export const CalcECC = (type: 'transcend' | 'reincarnation' | 'ascension', completions: Decimal) => { // ECC stands for "Effective Challenge Completions"
     // * tearonq modifications:
   let effective = new Decimal(completions)
+  if (type === 'transcend') {
+    effective = effective.sub(0)
+    // idk what i'll use this for but i don't want it to keep giving out warnings
+  }
   return effective
   // switch (type) {
   //   case 'transcend':
@@ -592,7 +590,7 @@ export const challengeRequirement = (challenge: number, completion: number | Dec
  * @param dt
  * @returns none
  */
-export const runChallengeSweep = (dt: number) => {
+export const runChallengeSweep = (dt: Decimal) => {
   // Do not run if any of these conditions hold
   if (
     player.researches[150] === 0 // Research 6x25 is 0
@@ -602,7 +600,7 @@ export const runChallengeSweep = (dt: number) => {
   }
 
   // Increment auto challenge timer
-  G.autoChallengeTimerIncrement += dt
+  G.autoChallengeTimerIncrement = Decimal.add(G.autoChallengeTimerIncrement, dt)
 
   // Determine what Action you can take with the current state of the savefile
   let action = 'none'
@@ -636,12 +634,12 @@ export const runChallengeSweep = (dt: number) => {
   }
 
   // Action: Exit challenge
-  if (G.autoChallengeTimerIncrement >= player.autoChallengeTimer.exit && action === 'exit') {
+  if (Decimal.gte(G.autoChallengeTimerIncrement, player.autoChallengeTimer.exit) && action === 'exit') {
     // Determine if you're in a reincarnation or transcension challenge
     const challengeType = player.currentChallenge.reincarnation !== 0 ? 'reincarnation' : 'transcension'
 
     // Reset our autochallenge timer
-    G.autoChallengeTimerIncrement = 0
+    G.autoChallengeTimerIncrement = new Decimal(0)
 
     // Increment our challenge index for when we enter (or start) next challenge
     const nowChallenge = player.autoChallengeIndex
@@ -672,11 +670,11 @@ export const runChallengeSweep = (dt: number) => {
 
   // Action: Enter a challenge (not inside one)
   if (
-    (G.autoChallengeTimerIncrement >= player.autoChallengeTimer.start && action === 'start')
-    || (G.autoChallengeTimerIncrement >= player.autoChallengeTimer.enter && action === 'enter')
+    (Decimal.gte(G.autoChallengeTimerIncrement, player.autoChallengeTimer.start) && action === 'start')
+    || (Decimal.gte(G.autoChallengeTimerIncrement, player.autoChallengeTimer.enter) && action === 'enter')
   ) {
     // Reset our autochallenge timer
-    G.autoChallengeTimerIncrement = 0
+    G.autoChallengeTimerIncrement = new Decimal(0)
 
     // This calculates which challenge this algorithm will run first, based on
     // the first challenge which has automation toggled ON

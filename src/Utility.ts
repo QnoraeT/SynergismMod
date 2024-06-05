@@ -88,11 +88,19 @@ export const isDecimal = (o: unknown): o is Decimal =>
  * Since ceil(log2(x)-53) was 53 until 2^53+23, I changed it to floor(log2(x)-52)
  * This is incremented to 53 at 2^53-21 and is probably guaranteed thereafter. from by httpsnet
  */
-export const smallestInc = (x = 0): number => {
+export const smallestIncNumber = (x = 0): number => {
   if (x <= Number.MAX_SAFE_INTEGER) {
     return 1
   } else {
     return 2 ** Math.floor(Math.log2(x) - 52)
+  }
+}
+
+export const smallestIncDecimal = (x = new Decimal(0)): Decimal => {
+  if (Decimal.lte(x, Number.MAX_SAFE_INTEGER)) {
+    return new Decimal(1)
+  } else {
+    return Decimal.pow(2, Decimal.floor(Decimal.log2(x).sub(52)))
   }
 }
 

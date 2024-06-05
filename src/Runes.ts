@@ -5,8 +5,7 @@ import {
   calculateOfferings,
   calculateRuneExpGiven,
   calculateRuneExpToLevel,
-  calculateRuneLevels,
-  thriftRuneEffect
+  calculateRuneLevels
 } from './Calculate'
 import { format, player } from './Synergism'
 import { Globals as G } from './Variables'
@@ -14,31 +13,50 @@ import { Globals as G } from './Variables'
 import Decimal from 'break_eternity.js'
 import i18next, { type StringMap } from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import type { resetNames } from './types/Synergism'
+import type { OneToFive, resetNames } from './types/Synergism'
+
+export const thriftRuneEffect = () => {
+  let i = getRuneEffective(4)
+  i = i.div(800).add(1).ln()
+  return i
+}
+
+export const siEffective = () => {
+  let i = Decimal.mul(player.researches[84], Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1))
+  i = i.div(200).add(1)
+  return i
+}
+
+export const getRuneEffective = (id: OneToFive) => {
+  let i = G[`rune${id}level`]
+  i = Decimal.mul(i, G.effectiveLevelMult)
+  if (id === 5) {
+    i = i.mul(siEffective())
+  }
+  return i
+}
 
 export const displayRuneInformation = (i: number, updatelevelup = true) => {
-  const m = G.effectiveLevelMult
-  const SILevelMult = Decimal.mul(player.researches[84], Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1)).div(200).add(1) 
   const amountPerOffering = calculateRuneExpGiven(i - 1, false, player.runelevels[i - 1])
 
   let options: StringMap
 
   if (i === 1) {
     options = {
-      bonus: format(Decimal.floor(Decimal.pow(Decimal.mul(G.rune1level, m).div(4), 1.25))),
-      percent: format(Decimal.mul(G.rune1level, m).div(4), 2, true),
-      boost: format(Decimal.floor(Decimal.mul(G.rune1level, m).div(20)))
+      bonus: format(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.25))),
+      percent: format(getRuneEffective(1).div(4), 2, true),
+      boost: format(Decimal.floor(getRuneEffective(1).div(20)))
     }
   } else if (i === 2) {
     options = {
-      mult1: format(Decimal.floor(Decimal.mul(G.rune2level, m).div(10)).mul(Decimal.floor(Decimal.mul(G.rune2level, m).div(10).add(1))).div(2)),
-      mult2: format(Decimal.mul(m, G.rune2level).div(4), 1, true),
-      tax: Decimal.sub(1, Decimal.mul(G.rune2level, m).div(-1000).pow_base(6)).mul(99.9).toNumber().toPrecision(4)
+      mult1: format(Decimal.floor(getRuneEffective(2).div(10)).mul(Decimal.floor(getRuneEffective(2).div(10).add(1))).div(2)),
+      mult2: format(getRuneEffective(2).div(4), 1, true),
+      tax: Decimal.sub(1, getRuneEffective(2).div(-1000).pow_base(6)).mul(99.9).toNumber().toPrecision(4)
     }
   } else if (i === 3) {
     options = {
-      mult: format(Decimal.pow(Decimal.mul(G.rune3level, m).div(2), 2).times(Decimal.pow(2, Decimal.mul(G.rune3level, m).div(2).sub(8))).add(1), 3),
-      gain: format(Decimal.floor(Decimal.mul(G.rune3level, m).div(16)))
+      mult: format(Decimal.pow(getRuneEffective(3).div(2), 2).times(Decimal.pow(2, getRuneEffective(3).div(2).sub(8))).add(1), 3),
+      gain: format(Decimal.floor(getRuneEffective(3).div(16)))
     }
   } else if (i === 4) {
     options = {
@@ -48,9 +66,9 @@ export const displayRuneInformation = (i: number, updatelevelup = true) => {
     }
   } else if (i === 5) {
     options = {
-      gain: format(Decimal.mul(G.rune5level, m).mul(SILevelMult).div(200).add(1), 2, true),
-      speed: format(Decimal.pow(Decimal.mul(G.rune5level, m).mul(SILevelMult), 2).div(2500).add(1)),
-      offerings: format(Decimal.mul(G.rune5level, m).mul(SILevelMult).div(200), 3, true)
+      gain: format(getRuneEffective(5).div(200).add(1), 2, true),
+      speed: format(Decimal.pow(getRuneEffective(5), 2).div(2500).add(1)),
+      offerings: format(getRuneEffective(5).div(200), 3, true)
     }
   } else if (i === 6) {
     options = {

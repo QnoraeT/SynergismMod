@@ -1651,7 +1651,7 @@ export const gameStages = (): Stage[] => {
       stage: 4,
       tier: 4,
       name: 'reincarnate-ant',
-      unlocked: player.firstOwnedAnts !== 0,
+      unlocked: Decimal.neq(player.firstOwnedAnts, 0),
       reset: player.unlocks.reincarnate
     },
     {

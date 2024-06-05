@@ -27,11 +27,6 @@ const EX_ULTRA_OFFERING = 0.125
 const EX_ULTRA_OBTAINIUM = 0.125
 const EX_ULTRA_CUBES = 0.125
 
-export const thriftRuneEffect = () => {
-  let i = Decimal.mul(G.rune4level, G.effectiveLevelMult)
-  return i.div(1000).add(1).ln()
-}
-
 export const calculateTotalCoinOwned = () => {
   G.totalCoinOwned = Decimal.add(player.firstOwnedCoin
     , player.secondOwnedCoin)
@@ -272,14 +267,14 @@ export function calculateRuneExpGiven (
 
 export const getRuneXPReq = (runeLevel: number | Decimal): Decimal => {
   let i = new Decimal(runeLevel)
-  i = Decimal.pow(4, i.div(200).pow(0.75).sub(1)).mul(i)
+  i = Decimal.pow(3, i.div(200).pow(0.75).sub(1)).mul(i)
   i = smoothPoly(i, new Decimal(4), new Decimal(6.5), false)
   return i
 }
 
 export const getRuneXPTarget = (xp: number | Decimal): Decimal => {
   let i = smoothPoly(new Decimal(xp), new Decimal(4), new Decimal(6.5), true)
-  i = i.pow(0.75).mul(0.0552954).lambertw().root(0.75).mul(189.878)
+  i = i.pow(0.75).mul(0.0353162).lambertw().root(0.75).mul(258.914)
   return i
 }
 
@@ -916,14 +911,14 @@ export const calculateAntSacrificeELO = () => {
   if (player.antPoints.gte('1e40')) {
     G.antELO = G.antELO.add(Decimal.log(player.antPoints, 10))
     G.antELO = G.antELO.add((1 / 2) * antUpgradeSum)
-    G.antELO = G.antELO.add((1 / 10) * player.firstOwnedAnts)
-    G.antELO = G.antELO.add((1 / 5) * player.secondOwnedAnts)
-    G.antELO = G.antELO.add((1 / 3) * player.thirdOwnedAnts)
-    G.antELO = G.antELO.add((1 / 2) * player.fourthOwnedAnts)
+    G.antELO = G.antELO.add(Decimal.div(player.firstOwnedAnts, 10))
+    G.antELO = G.antELO.add(Decimal.div(player.secondOwnedAnts, 5))
+    G.antELO = G.antELO.add(Decimal.div(player.thirdOwnedAnts, 3))
+    G.antELO = G.antELO.add(Decimal.div(player.fourthOwnedAnts, 2))
     G.antELO = G.antELO.add(player.fifthOwnedAnts)
-    G.antELO = G.antELO.add(2 * player.sixthOwnedAnts)
-    G.antELO = G.antELO.add(4 * player.seventhOwnedAnts)
-    G.antELO = G.antELO.add(8 * player.eighthOwnedAnts)
+    G.antELO = G.antELO.add(Decimal.mul(2, player.sixthOwnedAnts))
+    G.antELO = G.antELO.add(Decimal.mul(4, player.seventhOwnedAnts))
+    G.antELO = G.antELO.add(Decimal.mul(8, player.eighthOwnedAnts))
     G.antELO = G.antELO.add(666 * player.researches[178])
     G.antELO = G.antELO.mul(1
       + 0.01 * player.achievements[180]
@@ -2013,7 +2008,7 @@ export const calculateAscensionSpeedMultiplier = () => {
       1
         + player.singularityChallenges.limitedAscensions.rewards
           .ascensionSpeedMult,
-      Decimal.max(0, Decimal.floor(Decimal.log10(player.ascensionCount))).add(1)
+      player.ascensionCount.add(1).log10().floor().max(0).add(1)
     ) // EXALT Buff                                                                                                 // EXALT Buff
   ]
 

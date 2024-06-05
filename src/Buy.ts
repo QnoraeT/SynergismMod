@@ -2,13 +2,14 @@ import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal, thriftRuneEffect } from './Calculate'
+import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal } from './Calculate'
 import { CalcECC } from './Challenges'
 import { format, player, updateAllMultiplier, updateAllTick } from './Synergism'
 import type { FirstToFifth, OneToFive, ZeroToFour } from './types/Synergism'
 import { crystalupgradedescriptions, upgradeupdate } from './Upgrades'
 import { Globals as G, Upgrade } from './Variables'
 import { ant7Effect } from './Ants'
+import { thriftRuneEffect } from './Runes'
 
 export const getReductionValue = () => {
   let reduction = new Decimal(1)
@@ -549,7 +550,7 @@ export const getAccelCost = (bought: number | Decimal): Decimal => {
   const scaling = getAccelScaling()
 
   if (player.currentChallenge.reincarnation === 8) {
-    i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
+    i = i.add(2.512).pow(2.5).log10().pow(1.2).pow10().sub(10.001356440896176)
   }
 
   if (player.currentChallenge.transcension === 4) {
@@ -589,8 +590,9 @@ export const getAccelTarget = (amt: Decimal): Decimal => {
   }
 
   if (player.currentChallenge.reincarnation === 8) {
-    i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
+    i = i.add(10.001356440896176).log10().root(1.2).pow10().root(2.5).sub(2.512)
   }
+  
   return i
 }
 
@@ -599,7 +601,7 @@ export const getMulCost = (bought: number | Decimal): Decimal => {
   const scaling = getMulScaling()
 
   if (player.currentChallenge.reincarnation === 8) {
-    i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
+    i = i.add(2.512).pow(2.5).log10().pow(1.2).pow10().sub(10.001356440896176)
   }
 
   if (player.currentChallenge.transcension === 4) {
@@ -639,7 +641,7 @@ export const getMulTarget = (amt: Decimal): Decimal => {
   }
 
   if (player.currentChallenge.reincarnation === 8) {
-    i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
+    i = i.add(10.001356440896176).log10().root(1.2).pow10().root(2.5).sub(2.512)
   }
 
   return i
@@ -702,11 +704,13 @@ export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Dec
 export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
   let i = new Decimal(bought)
 
-  if (type === 'Coin' || type === 'Diamond') {
+  if (type === 'Coin' || type === 'Diamonds' || type === 'Mythos') {
     if (player.currentChallenge.reincarnation === 8) {
-      i = i.add(2).pow(10/3).log10().pow(1.2).pow10().sub(10.09535037)
+      i = i.add(2.512).pow(2.5).log10().pow(1.2).pow10().sub(10.001356440896176)
     }
+  }
   
+  if (type === 'Coin' || type === 'Diamonds') {
     if (player.currentChallenge.transcension === 4) {
       i = i.pow(2)
     }
@@ -724,16 +728,17 @@ export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: nu
 
   i = i.mul(getReductionValue())
 
-  if (type === 'Coin' || type === 'Diamond') {
+  if (type === 'Coin' || type === 'Diamonds') {
     if (player.currentChallenge.transcension === 4) {
       i = i.root(2)
     }
-  
-    if (player.currentChallenge.reincarnation === 8) {
-      i = i.add(10.09535037).log10().root(1.2).pow10().root(10/3).sub(2)
-    }
   }
 
+  if (type === 'Coin' || type === 'Diamonds' || type === 'Mythos') {
+    if (player.currentChallenge.reincarnation === 8) {
+      i = i.add(10.001356440896176).log10().root(1.2).pow10().root(2.5).sub(2.512)
+    }
+  }
   return i
 }
 
