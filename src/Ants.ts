@@ -299,7 +299,7 @@ export const antSacrificePointsToMultiplier = (points: Decimal) => {
   if (player.achievements[174] > 0) {
     multiplier = multiplier.mul(points.add(1).log10().mul(0.4).add(1))
   }
-  return Decimal.min(1e300, multiplier) // cappp
+  return multiplier
 }
 
 export const showSacrifice = () => {
@@ -391,14 +391,13 @@ export const sacrificeAnts = async (auto = false) => {
       }
 
       if (player.challengecompletions[9].gt(0)) {
-        // CAPPPP
-        player.talismanShards = Decimal.min(1e300, Decimal.add(player.talismanShards, sacRewards.talismanShards))
-        player.commonFragments = Decimal.min(1e300, Decimal.add(player.commonFragments, sacRewards.commonFragments))
-        player.uncommonFragments = Decimal.min(1e300, Decimal.add(player.uncommonFragments, sacRewards.uncommonFragments))
-        player.rareFragments = Decimal.min(1e300, Decimal.add(player.rareFragments, sacRewards.rareFragments))
-        player.epicFragments = Decimal.min(1e300, Decimal.add(player.epicFragments, sacRewards.epicFragments))
-        player.legendaryFragments = Decimal.min(1e300, Decimal.add(player.legendaryFragments, sacRewards.legendaryFragments))
-        player.mythicalFragments = Decimal.min(1e300, Decimal.add(player.mythicalFragments, sacRewards.mythicalFragments))
+        player.talismanShards = Decimal.add(player.talismanShards, sacRewards.talismanShards)
+        player.commonFragments = Decimal.add(player.commonFragments, sacRewards.commonFragments)
+        player.uncommonFragments = Decimal.add(player.uncommonFragments, sacRewards.uncommonFragments)
+        player.rareFragments = Decimal.add(player.rareFragments, sacRewards.rareFragments)
+        player.epicFragments = Decimal.add(player.epicFragments, sacRewards.epicFragments)
+        player.legendaryFragments = Decimal.add(player.legendaryFragments, sacRewards.legendaryFragments)
+        player.mythicalFragments = Decimal.add(player.mythicalFragments, sacRewards.mythicalFragments)
       }
 
       // Now we're safe to reset the ants.

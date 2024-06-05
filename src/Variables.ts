@@ -359,9 +359,9 @@ export const Globals: GlobalVariables = {
   platonicDRPower: [1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 16, 1 / 16, 1 / 4, 1 / 8],
 
   cubeBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
-  tesseractBonusMultiplier: [null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  hypercubeBonusMultiplier: [null, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-  platonicBonusMultiplier: [1, 1, 1, 1, 1, 1, 1, 1],
+  tesseractBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
+  hypercubeBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
+  platonicBonusMultiplier: [new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
 
   autoOfferingCounter: new Decimal(0),
   researchOrderByCost: [],

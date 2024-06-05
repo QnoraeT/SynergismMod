@@ -20,7 +20,7 @@ import { calculateEffectiveSingularities } from './singularity'
 import { format, formatTime, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert } from './UpdateHTML'
-import { sumContentsNumber } from './Utility'
+import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
 import Decimal from 'break_eternity.js'
 
@@ -106,10 +106,10 @@ export const generateExportSummary = async (): Promise<void> => {
       player.platonicBlessings.scoreBonus,
       player.platonicBlessings.globalSpeed
     ]
-    const cubeSum = format(sumContentsNumber(cubeArray.slice(1) as number[]), 0, true)
-    const tesseractSum = format(sumContentsNumber(tesseractArray.slice(1) as number[]), 0, true)
-    const hypercubeSum = format(sumContentsNumber(hypercubeArray.slice(1) as number[]), 0, true)
-    const platonicSum = format(sumContentsNumber(platonicArray), 0, true)
+    const cubeSum = format(sumContentsDecimal(cubeArray.slice(1) as Decimal[]), 0, true)
+    const tesseractSum = format(sumContentsDecimal(tesseractArray.slice(1) as Decimal[]), 0, true)
+    const hypercubeSum = format(sumContentsDecimal(hypercubeArray.slice(1) as Decimal[]), 0, true)
+    const platonicSum = format(sumContentsDecimal(platonicArray), 0, true)
 
     resources = resources + subCategoryDivisor
     resources = `${resources}Wow! Cubes: ${format(Number(player.wowCubes), 0, true)} -+- Total Tributes: ${cubeSum}\n`

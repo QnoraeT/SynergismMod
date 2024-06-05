@@ -2474,11 +2474,11 @@ export async function buyGoldenQuarks (): Promise<void> {
 
   if (buyAmount === -1) {
     cost = Decimal.mul(maxBuy, goldenQuarkCost.cost)
-    player.worlds.sub(cost.toNumber())
+    player.worlds.sub(cost)
     player.goldenQuarks = player.goldenQuarks.add(maxBuy)
   } else {
     cost = Decimal.mul(buyAmount, goldenQuarkCost.cost)
-    player.worlds.sub(cost.toNumber())
+    player.worlds.sub(cost)
     player.goldenQuarks = player.goldenQuarks.add(buyAmount)
   }
 

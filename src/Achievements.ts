@@ -430,12 +430,12 @@ export const getAchievementQuarks = (i: number) => {
   }
 
   const globalQuarkMultiplier = player.worlds.applyBonus(1)
-  let actualMultiplier = multiplier * globalQuarkMultiplier
-  if (actualMultiplier > 100) {
-    actualMultiplier = Math.pow(100, 0.6) * Math.pow(actualMultiplier, 0.4)
+  let actualMultiplier = Decimal.mul(multiplier, globalQuarkMultiplier)
+  if (actualMultiplier.gte(100)) {
+    actualMultiplier = actualMultiplier.div(100).pow(0.4).mul(100)
   }
 
-  return Math.floor(achievementpointvalues[i] * actualMultiplier)
+  return Decimal.floor(Decimal.mul(achievementpointvalues[i], actualMultiplier))
 }
 
 export const achievementdescriptions = (i: number) => {

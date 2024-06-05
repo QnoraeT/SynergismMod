@@ -82,7 +82,7 @@ export const calculateTotalAcceleratorBoost = () => {
   ) {
     b = b.mul(2)
   }
-  b = Decimal.min(1e100, Decimal.floor(b)) // cap :c
+  b = Decimal.floor(b)
   G.freeAcceleratorBoost = b
 
   G.totalAcceleratorBoost = Decimal.add(player.acceleratorBoostBought, G.freeAcceleratorBoost).floor()
@@ -262,7 +262,7 @@ export function calculateRuneExpGiven (
     runeExpMultiplier[runeIndex]
   ]
 
-  return returnFactors ? fact : Decimal.min(1e200, productContentsDecimal(fact)) // cap :3
+  return returnFactors ? fact : productContentsDecimal(fact)
 }
 
 export const getRuneXPReq = (runeLevel: number | Decimal): Decimal => {
@@ -485,7 +485,6 @@ export function calculateOfferings (
   q = q.mul(1 + (1 / 100) * player.shopUpgrades.offeringEX2 * player.singularityCount)
   q = q.mul(Decimal.pow(1.02, player.shopUpgrades.offeringEX3))
   q = q.mul(calculateTotalOcteractOfferingBonus())
-  q = Decimal.min(1e300, q) // cap lol
 
   let persecond = new Decimal(0)
   if (input === 'prestige') {
@@ -638,7 +637,6 @@ export const calculateObtainium = () => {
   G.obtainiumGain = G.obtainiumGain.mul(calculateEXUltraObtainiumBonus())
   G.obtainiumGain = G.obtainiumGain.mul(calculateEXALTBonusMult())
 
-  G.obtainiumGain = Decimal.min(1e300, G.obtainiumGain) // capppp
   G.obtainiumGain = G.obtainiumGain.div(calculateSingularityDebuff('Obtainium'))
 
   if (player.usedCorruptions[5] >= 15) {
@@ -989,7 +987,6 @@ const calculateAntSacrificeMultipliers = () => {
   G.upgradeMultiplier = G.upgradeMultiplier.mul(1 + (1 / 4) * player.upgrades[40])
   G.upgradeMultiplier = G.upgradeMultiplier.mul(G.cubeBonusMultiplier[7])
   G.upgradeMultiplier = G.upgradeMultiplier.mul(1 + calculateEventBuff(BuffType.AntSacrifice))
-  G.upgradeMultiplier = Decimal.min(1e300, G.upgradeMultiplier) // cap :3
 }
 
 interface IAntSacRewards {
@@ -1009,7 +1006,7 @@ export const calculateAntSacrificeRewards = (): IAntSacRewards => {
   calculateAntSacrificeELO()
   calculateAntSacrificeMultipliers()
 
-  const maxCap = 1e300 // cap :3
+  const maxCap = new Decimal("Infinity")
   const rewardsMult = Decimal.min(maxCap, Decimal.mul(G.timeMultiplier, G.upgradeMultiplier))
   const rewards: IAntSacRewards = {
     antSacrificePoints: Decimal.mul(G.effectiveELO, rewardsMult).div(85),
@@ -1397,7 +1394,7 @@ export const calculateCubeBlessings = () => {
   for (let i = 1; i <= 10; i++) {
     let power = 1
     let mult = new Decimal(1)
-    if (cubeArray[i - 1] >= 1000) {
+    if (Decimal.gte(cubeArray[i - 1], 1000)) {
       power = G.blessingDRPower[i]!
       mult = mult.mul(Decimal.pow(
         1000,
@@ -1801,9 +1798,7 @@ export const getOcteractValueMultipliers = () => {
     player.singularityUpgrades.singOcteractGain4.getEffect().bonus,
     player.singularityUpgrades.singOcteractGain5.getEffect().bonus,
     // Patreon bonus
-    1
-    + (player.worlds.BONUS / 100)
-      * player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus,
+    Decimal.div(player.worlds.BONUS, 100).mul(player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus).add(1),
     // octeracts for dummies
     1 + 0.2 * player.octeractUpgrades.octeractStarter.getEffect().bonus,
     // cogenesis and trigenesis
@@ -2184,7 +2179,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
 
   const arr = [
     player.challenge15Exponent.add(1).log10().sub(20).max(0).div(2).add(1), // Challenge 15 Exponent
-    1 + player.worlds.BONUS / 100, // Patreon Bonus
+    Decimal.div(player.worlds.BONUS, 100).add(1), // Patreon Bonus
     player.singularityUpgrades.goldenQuarks1.getEffect().bonus, // Golden Quarks I
     player.cubeUpgrades[69].mul(0.12).add(1), // Cookie Upgrade 19
     player.singularityChallenges.noSingularityUpgrades.rewards.goldenQuarks, // No Singularity Upgrades
@@ -2200,7 +2195,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
   arr.push(
     computeMultiplier
       ? 1 / 1e5
-      : Decimal.div((Decimal.mul((base + player.quarksThisSingularity / 1e5), productContentsDecimal(arr)).add(bonus)), productContentsDecimal(arr))
+      : Decimal.div((Decimal.mul((Decimal.add(base, player.quarksThisSingularity.div(1e5))), productContentsDecimal(arr)).add(bonus)), productContentsDecimal(arr))
   )
 
   return {
@@ -2231,7 +2226,7 @@ export const calculateSummationLinearDecimal = (
   baseLevel: number | Decimal,
   baseCost: number | Decimal,
   resourceAvailable: number | Decimal,
-  differenceCap = 1e9
+  differenceCap: number | Decimal = 1e9
 ): [Decimal, Decimal] => {
   const subtractCost = Decimal.mul(baseLevel, Decimal.add(baseLevel, 1)).mul(baseCost).div(2)
   const buyToLevel = Decimal.min(
@@ -3002,14 +2997,14 @@ export const dailyResetCheck = () => {
  * Resets Cube Counts and stuff. NOTE: It is intentional it does not award powder or expire orbs.
  */
 export const forcedDailyReset = (rewards = false) => {
-  player.cubeQuarkDaily = 0
-  player.tesseractQuarkDaily = 0
-  player.hypercubeQuarkDaily = 0
-  player.platonicCubeQuarkDaily = 0
-  player.cubeOpenedDaily = 0
-  player.tesseractOpenedDaily = 0
-  player.hypercubeOpenedDaily = 0
-  player.platonicCubeOpenedDaily = 0
+  player.cubeQuarkDaily = new Decimal(0)
+  player.tesseractQuarkDaily = new Decimal(0)
+  player.hypercubeQuarkDaily = new Decimal(0)
+  player.platonicCubeQuarkDaily = new Decimal(0)
+  player.cubeOpenedDaily = new Decimal(0)
+  player.tesseractOpenedDaily = new Decimal(0)
+  player.hypercubeOpenedDaily = new Decimal(0)
+  player.platonicCubeOpenedDaily = new Decimal(0)
 
   if (rewards) {
     player.overfluxPowder = player.overfluxPowder.add(player.overfluxOrbs.mul(calculatePowderConversion().mult))

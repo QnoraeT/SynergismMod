@@ -120,11 +120,16 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
             }
           }
 
-          for (let i = 0; i < amountOfGiveaways.toNumber(); i++) {
-            const quarkFraction = player.quarksThisSingularity * frac * actualLevel
-            player.goldenQuarks = player.goldenQuarks.add(Decimal.mul(quarkFraction, calculateGoldenQuarkGain(true)))
-            player.quarksThisSingularity -= quarkFraction
-          }
+          // is this correct? ._.
+          const quarkFraction = Decimal.mul(player.quarksThisSingularity, frac).mul(actualLevel).mul(amountOfGiveaways)
+          player.goldenQuarks = player.goldenQuarks.add(Decimal.mul(quarkFraction, calculateGoldenQuarkGain(true)))
+          player.quarksThisSingularity = Decimal.sub(player.quarksThisSingularity, quarkFraction)
+
+          // for (let i = 0; i < amountOfGiveaways.toNumber(); i++) {
+          //   const quarkFraction = Decimal.mul(player.quarksThisSingularity, frac).mul(actualLevel)
+          //   player.goldenQuarks = player.goldenQuarks.add(Decimal.mul(quarkFraction, calculateGoldenQuarkGain(true)))
+          //   player.quarksThisSingularity = Decimal.sub(player.quarksThisSingularity, quarkFraction)
+          // }
         }
         visualUpdateOcteracts()
       }

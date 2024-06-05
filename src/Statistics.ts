@@ -179,7 +179,7 @@ export const loadStatisticsMiscellaneous = () => {
     true
   )
   DOMCacheGetOrSet('sMisc14').textContent = format(
-    player.totalQuarksEver + player.quarksThisSingularity,
+    Decimal.add(player.totalQuarksEver, player.quarksThisSingularity),
     0,
     true
   )
@@ -1222,18 +1222,18 @@ export const loadAddCodeModifiersAndEffects = () => {
   const qbr = player.worlds.applyBonus(1)
 
   DOMCacheGetOrSet('stat+eff1').childNodes[0].textContent = 'Quarks: '
-  if (Math.abs(addEffectStats.maxQuarks - addEffectStats.minQuarks) >= 0.5) {
+  if (Decimal.abs(Decimal.sub(addEffectStats.maxQuarks, addEffectStats.minQuarks)).lte(0.5)) {
     // b/c floating-point errors
     DOMCacheGetOrSet('s+eff1').textContent = `+${
       format(
-        qbr * addEffectStats.minQuarks,
+        Decimal.mul(qbr, addEffectStats.minQuarks),
         3
       )
-    } ~ ${format(qbr * addEffectStats.maxQuarks, 3)}`
+    } ~ ${format(Decimal.mul(qbr, addEffectStats.maxQuarks), 3)}`
   } else {
     DOMCacheGetOrSet('s+eff1').textContent = `+${
       format(
-        qbr * addEffectStats.quarks,
+        Decimal.mul(qbr, addEffectStats.quarks),
         3
       )
     }`
@@ -1302,9 +1302,7 @@ export const loadStatisticsAmbrosiaLuck = () => {
     )
   }`
 
-  const totalVal = Math.floor(
-    arr[arr.length - 1] * player.caches.ambrosiaLuckAdditiveMult.totalVal
-  )
+  const totalVal = Decimal.mul(arr[arr.length - 1], player.caches.ambrosiaLuckAdditiveMult.totalVal).floor()
   DOMCacheGetOrSet('sALuckMT').innerHTML = `&#9752 ${format(totalVal, 0)}`
 }
 

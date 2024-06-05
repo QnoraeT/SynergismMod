@@ -109,11 +109,7 @@ export const calculatetax = () => {
   if (Decimal.gt(player.upgrades[121], 0)) {
     exponent = exponent.mul(0.5)
   }
-  // Cap the calculation overflow bug || httpsnet
-  // cap ._.
-  // if (exponent < 1e-300) {
-  //   exponent = 1e-300
-  // }
+
   G.maxexponent = Decimal.div(275, (Decimal.log(1.01, 10).mul(exponent))).floor().sub(1)
   const a2 = G.maxexponent.min(G.produceTotal.add(1).log10().floor())
 

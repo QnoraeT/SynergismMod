@@ -239,11 +239,11 @@ export const exportSynergism = async (
 
     const quarkData = quarkHandler()
 
-    let bonusGQMultiplier = 1
-    bonusGQMultiplier *= 1 + player.worlds.BONUS / 100
-    bonusGQMultiplier *= player.highestSingularityCount >= 100
+    let bonusGQMultiplier = new Decimal(1)
+    bonusGQMultiplier = bonusGQMultiplier.mul(Decimal.div(player.worlds.BONUS, 100).add(1))
+    bonusGQMultiplier = bonusGQMultiplier.mul(player.highestSingularityCount >= 100
       ? 1 + player.highestSingularityCount / 50
-      : 1
+      : 1)
     if (player.singularityUpgrades.goldenQuarks3.getEffect().bonus > 0) {
       player.goldenQuarks = player.goldenQuarks.add(Decimal.floor(Decimal.div(player.goldenQuarksTimer, 3600 / player.singularityUpgrades.goldenQuarks3.getEffect().bonus))
       ).mul(bonusGQMultiplier)
@@ -252,7 +252,7 @@ export const exportSynergism = async (
     }
     if (quarkData.gain.gte(1)) {
       player.worlds.add(quarkData.gain.toNumber())
-      player.quarkstimer = player.quarkstimer.mod(3600 / quarkData.perHour)
+      player.quarkstimer = player.quarkstimer.mod(Decimal.div(3600, quarkData.perHour))
     }
   }
 
@@ -525,13 +525,13 @@ export const promocodes = async (input: string | null, amount?: number) => {
     let rewardMessage = i18next.t('importexport.promocodes.daily.message')
 
     const rewards = dailyCodeReward()
-    const quarkMultiplier = 1 + Math.min(49, player.highestSingularityCount)
+    const quarkMultiplier = Decimal.min(49, player.highestSingularityCount).add(1)
 
     let actualQuarkAward = player.worlds.applyBonus(
-      rewards.quarks * quarkMultiplier
+      Decimal.mul(rewards.quarks, quarkMultiplier)
     )
-    if (actualQuarkAward > 1e5) {
-      actualQuarkAward = Math.pow(1e5, 0.75) * Math.pow(actualQuarkAward, 0.25)
+    if (actualQuarkAward.gte(1e5)) {
+      actualQuarkAward = actualQuarkAward.div(1e5).pow(0.25).mul(1e5)
     }
     player.worlds.add(actualQuarkAward, false)
     player.goldenQuarks = player.goldenQuarks.add(rewards.goldenQuarks)
@@ -670,7 +670,7 @@ export const promocodes = async (input: string | null, amount?: number) => {
     const addEffects = addCodeBonuses()
 
     const realAttemptsUsed = toUse > 0 ? Math.min(availableUses, toUse) : availableUses + toUse
-    const actualQuarks = Math.floor(addEffects.quarks * realAttemptsUsed)
+    const actualQuarks = Decimal.floor(Decimal.mul(addEffects.quarks, realAttemptsUsed))
     const [first, second] = window.crypto.getRandomValues(new Uint8Array(2))
 
     // Allows storage of up to (24 + 2 * calc2 levels) Add Codes, lol!
@@ -908,18 +908,18 @@ export const promocodes = async (input: string | null, amount?: number) => {
         )
         let actualQuarkAward = player.worlds.applyBonus(reward)
         let blueberryTime = 0
-        if (actualQuarkAward > 66666) {
-          actualQuarkAward = Math.pow(actualQuarkAward, 0.35) * Math.pow(66666, 0.65)
+        if (actualQuarkAward.gte(66666)) {
+          actualQuarkAward = actualQuarkAward.div(66666).pow(0.35).mul(66666)
         }
 
         if (player.visitedAmbrosiaSubtab) {
           blueberryTime = 1800 * rewardMult
         }
 
-        player.worlds.add(actualQuarkAward * rewardMult, false)
+        player.worlds.add(Decimal.mul(actualQuarkAward, rewardMult), false)
         G.ambrosiaTimer = G.ambrosiaTimer.add(blueberryTime)
         const winText = i18next.t('importexport.promocodes.time.won', {
-          x: format(actualQuarkAward * rewardMult, 0, true)
+          x: format(Decimal.mul(actualQuarkAward, rewardMult), 0, true)
         })
         const ambrosiaText = blueberryTime > 0
           ? i18next.t('importexport.promocodes.time.ambrosia', {
@@ -1080,7 +1080,7 @@ export const addCodeBonuses = () => {
   const minMult = 0.4 + 0.02 * player.shopUpgrades.calculator3
   const maxMult = 0.6
 
-  const quarkBase = commonQuarkMult * quarkHandler().perHour
+  const quarkBase = Decimal.mul(commonQuarkMult, quarkHandler().perHour)
 
   // Calculator 3: Adds ascension timer.  Also includes Expert Pack multiplier.
   const ascMult = player.singularityUpgrades.expertPack.level > 0 ? 1.2 : 1
@@ -1096,9 +1096,9 @@ export const addCodeBonuses = () => {
   const blueberryTime = player.shopUpgrades.calculator7 / perkRewardDivisor
 
   return {
-    quarks: sampledMult * quarkBase, // The quarks to actually reward (if not for stats)
-    minQuarks: minMult * quarkBase,
-    maxQuarks: maxMult * quarkBase,
+    quarks: Decimal.mul(sampledMult, quarkBase), // The quarks to actually reward (if not for stats)
+    minQuarks: Decimal.mul(minMult, quarkBase),
+    maxQuarks: Decimal.mul(maxMult, quarkBase),
     ascensionTimer,
     gqTimer,
     octeractTime,

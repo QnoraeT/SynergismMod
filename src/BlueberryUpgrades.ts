@@ -401,9 +401,7 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.0005 * n
-      const val = 1
-        + baseVal
-          * Math.floor(Math.pow(Math.log10(Number(player.worlds) + 1) + 1, 2))
+      const val = new Decimal(player.worlds).add(1).log10().add(1).pow(2).floor().mul(baseVal).add(1).toNumber()
       return {
         cubes: val,
         desc: String(
@@ -452,10 +450,10 @@ export const blueberryUpgradeData: Record<
     rewards: (n: number) => {
       const baseVal = 0.0001 * n
       const val = Decimal.mul(baseVal
-          , Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowCubes), 1)))
-            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowTesseracts), 1))))
-            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowHypercubes), 1))))
-            .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowPlatonicCubes), 1))))
+          , Decimal.floor(Decimal.log10(Decimal.add(player.wowCubes, 1)))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowTesseracts, 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowHypercubes, 1))))
+            .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowPlatonicCubes, 1))))
             .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowAbyssals, 1))))
             .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowOcteracts, 1))))
             .add(6)).add(1).toNumber()
@@ -512,10 +510,10 @@ export const blueberryUpgradeData: Record<
     rewards: (n: number) => {
       const baseVal = 0.02 * n
       const val = Decimal.mul(baseVal
-        , Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowCubes), 1)))
-          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowTesseracts), 1))))
-          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowHypercubes), 1))))
-          .add(Decimal.floor(Decimal.log10(Decimal.add(Number(player.wowPlatonicCubes), 1))))
+        , Decimal.floor(Decimal.log10(Decimal.add(player.wowCubes, 1)))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowTesseracts, 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowHypercubes, 1))))
+          .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowPlatonicCubes, 1))))
           .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowAbyssals, 1))))
           .add(Decimal.floor(Decimal.log10(Decimal.add(player.wowOcteracts, 1))))
           .add(6)).toNumber()
@@ -545,8 +543,7 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.02 * n
-      const val = baseVal
-        * Math.floor(Math.pow(Math.log10(Number(player.worlds) + 1) + 1, 2))
+      const val = new Decimal(player.worlds).add(1).log10().add(1).pow(2).floor().mul(baseVal).toNumber()
       return {
         ambrosiaLuck: val,
         desc: String(
@@ -654,7 +651,7 @@ export const blueberryUpgradeData: Record<
       return baseCost * (Math.pow(level + 1, 2) - Math.pow(level, 2))
     },
     rewards: (n: number) => {
-      const val = 1 + (n * player.worlds.BONUS) / 100
+      const val = Decimal.mul(n, player.worlds.BONUS).div(100).add(1).toNumber()
       return {
         blueberryGeneration: val,
         desc: String(

@@ -50,7 +50,7 @@ import { Alert, revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { upgradeupdate } from './Upgrades'
 import { getElementById } from './Utility'
 import { updateClassList } from './Utility'
-import { sumContentsNumber } from './Utility'
+import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
 
 let repeatreset: ReturnType<typeof setTimeout>
@@ -869,10 +869,10 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
 
     player.constantUpgrades = [null, new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
 
-    player.wowCubes = new WowCubes(0)
-    player.wowTesseracts = new WowCubes(0)
-    player.wowHypercubes = new WowCubes(0)
-    player.wowTesseracts = new WowCubes(0)
+    player.wowCubes = new WowCubes()
+    player.wowTesseracts = new WowCubes()
+    player.wowHypercubes = new WowCubes()
+    player.wowTesseracts = new WowCubes()
     player.wowAbyssals = new Decimal(0)
 
     for (let index = 1; index <= 50; index++) {
@@ -1139,10 +1139,10 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
       quarks: player.quarksThisSingularity,
       c15Score: player.challenge15Exponent,
       goldenQuarks: calculateGoldenQuarkGain(),
-      wowTribs: sumContentsNumber(cubeArray),
-      tessTribs: sumContentsNumber(tesseractArray),
-      hyperTribs: sumContentsNumber(hypercubeArray),
-      platTribs: sumContentsNumber(platonicArray),
+      wowTribs: sumContentsDecimal(cubeArray),
+      tessTribs: sumContentsDecimal(tesseractArray),
+      hyperTribs: sumContentsDecimal(hypercubeArray),
+      platTribs: sumContentsDecimal(platonicArray),
       octeracts: player.totalWowOcteracts,
       quarkHept: player.hepteractCrafts.quark.BAL,
       kind: 'singularity'
@@ -1171,7 +1171,7 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
     player.singularityCount = setSingNumber
   }
 
-  player.totalQuarksEver += player.quarksThisSingularity
+  player.totalQuarksEver = Decimal.add(player.totalQuarksEver, player.quarksThisSingularity)
   await resetShopUpgrades(true)
   const hold = Object.assign({}, blankSave, {
     codes: Array.from(blankSave.codes)
@@ -1525,7 +1525,7 @@ export const resetAnts = () => {
   player.antPoints = new Decimal(1)
 
   if (player.currentChallenge.ascension === 12) {
-    player.antPoints = new Decimal('7')
+    player.antPoints = new Decimal(7)
   }
 
   calculateAnts()
