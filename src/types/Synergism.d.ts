@@ -477,50 +477,50 @@ export interface Player {
   wowOcteracts: Decimal
   totalWowOcteracts: Decimal
   cubeBlessings: {
-    accelerator: Decimal
-    multiplier: Decimal
-    offering: Decimal
-    runeExp: Decimal
-    obtainium: Decimal
-    antSpeed: Decimal
-    antSacrifice: Decimal
-    antELO: Decimal
-    talismanBonus: Decimal
-    globalSpeed: Decimal
+    accelerator: number
+    multiplier: number
+    offering: number
+    runeExp: number
+    obtainium: number
+    antSpeed: number
+    antSacrifice: number
+    antELO: number
+    talismanBonus: number
+    globalSpeed: 0
   }
   tesseractBlessings: {
-    accelerator: Decimal
-    multiplier: Decimal
-    offering: Decimal
-    runeExp: Decimal
-    obtainium: Decimal
-    antSpeed: Decimal
-    antSacrifice: Decimal
-    antELO: Decimal
-    talismanBonus: Decimal
-    globalSpeed: Decimal
+    accelerator: number
+    multiplier: number
+    offering: number
+    runeExp: number
+    obtainium: number
+    antSpeed: number
+    antSacrifice: number
+    antELO: number
+    talismanBonus: number
+    globalSpeed: number
   }
   hypercubeBlessings: {
-    accelerator: Decimal
-    multiplier: Decimal
-    offering: Decimal
-    runeExp: Decimal
-    obtainium: Decimal
-    antSpeed: Decimal
-    antSacrifice: Decimal
-    antELO: Decimal
-    talismanBonus: Decimal
-    globalSpeed: Decimal
+    accelerator: number
+    multiplier: number
+    offering: number
+    runeExp: number
+    obtainium: number
+    antSpeed: number
+    antSacrifice: number
+    antELO: number
+    talismanBonus: number
+    globalSpeed: number
   }
   platonicBlessings: {
-    cubes: Decimal
-    tesseracts: Decimal
-    hypercubes: Decimal
-    platonics: Decimal
-    hypercubeBonus: Decimal
-    taxes: Decimal
-    scoreBonus: Decimal
-    globalSpeed: Decimal
+    cubes: number
+    tesseracts: number
+    hypercubes: number
+    platonics: number
+    hypercubeBonus: number
+    taxes: number
+    scoreBonus: number
+    globalSpeed: number
   }
   ascendShards: Decimal
   autoAscend: boolean
@@ -557,14 +557,14 @@ export interface Player {
 
   dayCheck: Date | null
   dayTimer: number
-  cubeOpenedDaily: Decimal
-  cubeQuarkDaily: Decimal
-  tesseractOpenedDaily: Decimal
-  tesseractQuarkDaily: Decimal
-  hypercubeOpenedDaily: Decimal
-  hypercubeQuarkDaily: Decimal
-  platonicCubeOpenedDaily: Decimal
-  platonicCubeQuarkDaily: Decimal
+  cubeOpenedDaily: number
+  cubeQuarkDaily: number
+  tesseractOpenedDaily: number
+  tesseractQuarkDaily: number
+  hypercubeOpenedDaily: number
+  hypercubeQuarkDaily: number
+  platonicCubeOpenedDaily: number
+  platonicCubeQuarkDaily: number
   loadedOct4Hotfix: boolean
   loadedNov13Vers: boolean
   loadedDec16Vers: boolean
@@ -604,8 +604,8 @@ export interface Player {
   highestSingularityCount: number
   singularityCounter: Decimal
   goldenQuarks: Decimal
-  quarksThisSingularity: Decimal
-  totalQuarksEver: Decimal
+  quarksThisSingularity: number
+  totalQuarksEver: number
   hotkeys: Record<number, string[]>
   theme: string
   iconSet: number
@@ -901,9 +901,9 @@ export interface GlobalVariables {
   platonicDRPower: number[]
 
   cubeBonusMultiplier: [null, ...Decimal[]]
-  tesseractBonusMultiplier: [null, ...Decimal[]]
-  hypercubeBonusMultiplier: [null, ...Decimal[]]
-  platonicBonusMultiplier: Decimal[]
+  tesseractBonusMultiplier: [null, ...number[]]
+  hypercubeBonusMultiplier: [null, ...number[]]
+  platonicBonusMultiplier: number[]
 
   autoOfferingCounter: Decimal
 

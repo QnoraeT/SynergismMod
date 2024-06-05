@@ -496,7 +496,7 @@ export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100,
       if (Decimal.isFinite(player.runeshards) && player.runeshards.gt(0)) {
         let baseCost: number
         let baseLevels: Decimal
-        const levelCap = new Decimal("Infinity")
+        const levelCap = 1e300
         if (type === 'Spirits') {
           baseCost = G.spiritBaseCost
           baseLevels = player.runeSpiritLevels[index]
@@ -592,7 +592,7 @@ export const getAccelTarget = (amt: Decimal): Decimal => {
   if (player.currentChallenge.reincarnation === 8) {
     i = i.add(10.001356440896176).log10().root(1.2).pow10().root(2.5).sub(2.512)
   }
-
+  
   return i
 }
 

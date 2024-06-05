@@ -1242,7 +1242,7 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
     case 'shopAmbrosiaAccelerator':
       lol.innerHTML = i18next.t('shop.upgradeEffects.shopAmbrosiaAccelerator', {
         amount: format(0.2 * player.shopUpgrades.shopAmbrosiaAccelerator, 1, true),
-        amount2: format(Decimal.mul(player.shopUpgrades.shopAmbrosiaAccelerator, player.caches.ambrosiaGeneration.totalVal).mul(0.2), 0, true)
+        amount2: format(player.shopUpgrades.shopAmbrosiaAccelerator * 0.2 * player.caches.ambrosiaGeneration.totalVal, 0, true)
       })
       break
     case 'shopEXUltra': {
@@ -1533,6 +1533,7 @@ export const useConsumable = async (
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
+        player.runeshards = Decimal.min(1e300, player.runeshards) // cap :c
       }
     } else if (input === 'obtainiumPotion') {
       if (player.shopUpgrades.obtainiumPotion >= used || !spend) {
@@ -1542,6 +1543,7 @@ export const useConsumable = async (
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
+        player.researchPoints = Decimal.min(1e300, player.researchPoints) // cap :c
       }
     }
   }

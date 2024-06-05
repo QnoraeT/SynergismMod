@@ -15,12 +15,11 @@ import {
 } from './Calculate'
 import { BuffType } from './Event'
 import { player } from './Synergism'
-import { productContentsDecimal } from './Utility'
+import { productContentsNumber } from './Utility'
 import { Globals } from './Variables'
-import Decimal from 'break_eternity.js'
 
 interface StatCache<T> {
-  totalVal: Decimal
+  totalVal: number
 
   /**
    * Updates the cache value for a statistic
@@ -36,8 +35,8 @@ interface StatCache<T> {
 }
 
 abstract class AdditionCache<T extends string> implements StatCache<T> {
-  public totalVal = new Decimal(0)
-  abstract vals: Record<T, number | Decimal>
+  public totalVal = 0
+  abstract vals: Record<T, number>
 
   /**
    * Updates a particular statistic 'key' and updates total accordingly
@@ -49,7 +48,7 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
    * Initialize all statistics of interest and compute a total value as sum of all statistics
    */
   initialize (): void {
-    this.totalVal = new Decimal(0)
+    this.totalVal = 0
     for (const val of Object.keys(this.vals) as T[]) {
       this.updateVal(val, true)
     }
@@ -60,11 +59,11 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
    * @param oldVal: Value present in values[key] before update
    * @param newVal: Value present in values[key] after update
    */
-  updateTotal (oldVal: number | Decimal, newVal: number | Decimal, init = false): void {
+  updateTotal (oldVal: number, newVal: number, init = false): void {
     if (init) {
-      this.totalVal = Decimal.add(this.totalVal, newVal)
+      this.totalVal += newVal
     } else {
-      this.totalVal = Decimal.add(this.totalVal, Decimal.sub(newVal, oldVal))
+      this.totalVal += newVal - oldVal
     }
   }
 
@@ -72,16 +71,16 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
    * Flattens the value object into an array, for use in statistics.
    * @returns Array consisting of all additive values as well as sum of elements
    */
-  flatten (): Decimal[] {
-    const arr: Decimal[] = Object.values(this.vals)
+  flatten (): number[] {
+    const arr: number[] = Object.values(this.vals)
     arr.push(this.totalVal)
     return arr
   }
 }
 
 abstract class MultiplicationCache<T extends string> implements StatCache<T> {
-  public totalVal = new Decimal(1)
-  abstract vals: Record<T, number | Decimal>
+  public totalVal = 1
+  abstract vals: Record<T, number>
 
   /**
    * Updates a particular statistic 'key' and updates total accordingly
@@ -92,26 +91,26 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
    * Initialize all statistics of interest and compute a total value as product of all statistics
    */
   initialize (): void {
-    this.totalVal = new Decimal(1)
+    this.totalVal = 1
     for (const val of Object.keys(this.vals) as T[]) {
       this.updateVal(val, true)
     }
   }
 
-  updateTotal (oldVal: number | Decimal, newVal: number | Decimal, init = false): void {
+  updateTotal (oldVal: number, newVal: number, init = false): void {
     if (init) {
-      this.totalVal = Decimal.mul(this.totalVal, newVal)
+      this.totalVal *= newVal
     } else {
       // Optimization: if neither old total or new val is 0 then we can safely just compute factor
-      if (this.totalVal.neq(0) && Decimal.neq(newVal, 0)) this.totalVal = Decimal.mul(this.totalVal, Decimal.div(newVal, oldVal))
+      if (this.totalVal !== 0 && newVal !== 0) this.totalVal *= newVal / oldVal
       // Optimization: if newVal is 0 we don't have to care about computing
-      else if (Decimal.eq(newVal, 0)) this.totalVal = new Decimal(0)
+      else if (newVal === 0) this.totalVal = 0
       // Else: Brute force compute total val (TODO: Optimize)
       else {
         const arr = this.flatten()
         // remove last elm
         arr.pop()
-        this.totalVal = productContentsDecimal(arr)
+        this.totalVal = productContentsNumber(arr)
       }
     }
   }
@@ -120,8 +119,8 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
    * Flattens the value object into an array, for use in statistics.
    * @returns Array consisting of all additive values as well as sum of elements
    */
-  flatten (): Decimal[] {
-    const arr: Decimal[] = Object.values(this.vals)
+  flatten (): number[] {
+    const arr: number[] = Object.values(this.vals)
     arr.push(this.totalVal)
     return arr
   }
@@ -169,8 +168,8 @@ type AmbrosiaLuckAdditiveMult =
   | 'Event'
 
 export class AmbrosiaLuckAdditiveMultCache extends AdditionCache<AmbrosiaLuckAdditiveMult> {
-  vals: Record<AmbrosiaLuckAdditiveMult, number | Decimal>
-  public totalVal: Decimal
+  vals: Record<AmbrosiaLuckAdditiveMult, number>
+  public totalVal: number
 
   constructor () {
     super()
@@ -182,7 +181,7 @@ export class AmbrosiaLuckAdditiveMultCache extends AdditionCache<AmbrosiaLuckAdd
       Exalt5: 0,
       Event: 0,
     }
-    this.totalVal = new Decimal(1)
+    this.totalVal = 1
   }
 
   updateVal (key: AmbrosiaLuckAdditiveMult, init = false): void {
@@ -222,9 +221,9 @@ export class AmbrosiaLuckAdditiveMultCache extends AdditionCache<AmbrosiaLuckAdd
 }
 
 export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
-  vals: Record<AmbrosialLuck, number | Decimal>
-  public totalVal: Decimal
-  public usedTotal: Decimal
+  vals: Record<AmbrosialLuck, number>
+  public totalVal: number
+  public usedTotal: number
 
   constructor () {
     super()
@@ -243,8 +242,8 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
       ShopOcteractAmbrosiaLuck: 0,
       Exalt5: 0,
     }
-    this.totalVal = new Decimal(0)
-    this.usedTotal = new Decimal(0)
+    this.totalVal = 0
+    this.usedTotal = 0
   }
 
   updateVal (key: AmbrosialLuck, init = false): void {
@@ -295,7 +294,7 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
         break
       }
       case 'ShopOcteractAmbrosiaLuck': {
-        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck)
+        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck).toNumber()
         break
       }
       case 'Exalt5': {
@@ -305,13 +304,15 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
     }
     const newVal = this.vals[key]
     this.updateTotal(oldVal, newVal, init)
-    this.usedTotal = Decimal.mul(this.totalVal, player.caches.ambrosiaLuckAdditiveMult.totalVal).floor()
+    this.usedTotal = Math.floor(
+      this.totalVal * player.caches.ambrosiaLuckAdditiveMult.totalVal
+    )
   }
 }
 
 export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGeneration> {
-  vals: Record<AmbrosiaGeneration, number | Decimal>
-  public totalVal: Decimal
+  vals: Record<AmbrosiaGeneration, number>
+  public totalVal: number
 
   constructor () {
     super()
@@ -327,7 +328,7 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
       CashGrabUltra: 1,
       Event: 1
     }
-    this.totalVal = new Decimal(0)
+    this.totalVal = 0
   }
 
   updateVal (key: AmbrosiaGeneration, init = false): void {
@@ -372,7 +373,7 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
         break
       }
       case 'CashGrabUltra': {
-        this.vals[key] = calculateCashGrabBlueberryBonus()
+        this.vals[key] = calculateCashGrabBlueberryBonus().toNumber()
         break
       }
     }
@@ -383,7 +384,7 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
 
 export class BlueberryInventoryCache extends AdditionCache<BlueberryInventory> {
   vals: Record<BlueberryInventory, number>
-  public totalVal: Decimal
+  public totalVal: number
 
   constructor () {
     super()
@@ -393,7 +394,7 @@ export class BlueberryInventoryCache extends AdditionCache<BlueberryInventory> {
       SingularityPerk: 0,
       Exalt5: 0,
     }
-    this.totalVal = new Decimal(0)
+    this.totalVal = 0
   }
 
   updateVal (key: BlueberryInventory, init = false): void {

@@ -163,7 +163,7 @@ export const redeemShards = (runeIndexPlusOne: number, auto = false, cubeUpgrade
     const mult = fact.slice(1, fact.length).reduce((x, y) => x * y, 1)
     while (toSpendTotal.gt(0) && Decimal.lt(levelsAdded, levelsToAdd) && Decimal.lt(player.runelevels[runeIndex], maxLevel)) {
       const exp = Decimal.sub(calculateRuneExpToLevel(runeIndex, player.runelevels[runeIndex]), player.runeexp[runeIndex])
-      const expPerOff = Decimal.mul(player.runelevels[runeIndex], a).add(add).mul(mult)
+      const expPerOff = Decimal.min(1e300, Decimal.mul(player.runelevels[runeIndex], a).add(add).mul(mult)) // cap :3
       let toSpend = Decimal.min(toSpendTotal, Decimal.ceil(Decimal.div(exp, expPerOff)))
       if (Decimal.isNaN(toSpend)) {
         toSpend = toSpendTotal

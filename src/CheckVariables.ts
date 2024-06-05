@@ -91,8 +91,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
 
   if (data.wowCubes === undefined) {
     player.wowCubes = new WowCubes()
-    player.wowTesseracts = new WowTesseracts()
-    player.wowHypercubes = new WowHypercubes()
+    player.wowTesseracts = new WowTesseracts(0)
+    player.wowHypercubes = new WowHypercubes(0)
     // dprint-ignore
     player.cubeUpgrades = [
       null,
@@ -188,28 +188,28 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
   if (data.tesseractBlessings === undefined) {
     player.tesseractBlessings = {
-      accelerator: new Decimal(0),
-      multiplier: new Decimal(0),
-      offering: new Decimal(0),
-      runeExp: new Decimal(0),
-      obtainium: new Decimal(0),
-      antSpeed: new Decimal(0),
-      antSacrifice: new Decimal(0),
-      antELO: new Decimal(0),
-      talismanBonus: new Decimal(0),
-      globalSpeed: new Decimal(0)
+      accelerator: 0,
+      multiplier: 0,
+      offering: 0,
+      runeExp: 0,
+      obtainium: 0,
+      antSpeed: 0,
+      antSacrifice: 0,
+      antELO: 0,
+      talismanBonus: 0,
+      globalSpeed: 0
     }
     player.hypercubeBlessings = {
-      accelerator: new Decimal(0),
-      multiplier: new Decimal(0),
-      offering: new Decimal(0),
-      runeExp: new Decimal(0),
-      obtainium: new Decimal(0),
-      antSpeed: new Decimal(0),
-      antSacrifice: new Decimal(0),
-      antELO: new Decimal(0),
-      talismanBonus: new Decimal(0),
-      globalSpeed: new Decimal(0)
+      accelerator: 0,
+      multiplier: 0,
+      offering: 0,
+      runeExp: 0,
+      obtainium: 0,
+      antSpeed: 0,
+      antSacrifice: 0,
+      antELO: 0,
+      talismanBonus: 0,
+      globalSpeed: 0
     }
   }
   if (data.prototypeCorruptions === undefined) {
@@ -366,12 +366,12 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   if (data.dayCheck === undefined) {
     player.dayCheck = null
     player.dayTimer = 0
-    player.cubeQuarkDaily = new Decimal(0)
-    player.tesseractQuarkDaily = new Decimal(0)
-    player.hypercubeQuarkDaily = new Decimal(0)
-    player.cubeOpenedDaily = new Decimal(0)
-    player.tesseractOpenedDaily = new Decimal(0)
-    player.hypercubeOpenedDaily = new Decimal(0)
+    player.cubeQuarkDaily = 0
+    player.tesseractQuarkDaily = 0
+    player.hypercubeQuarkDaily = 0
+    player.cubeOpenedDaily = 0
+    player.tesseractOpenedDaily = 0
+    player.hypercubeOpenedDaily = 0
   }
 
   player.singularityUpgrades = {
@@ -916,7 +916,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.subtabNumber = 0
   }
   if (data.wowPlatonicCubes === undefined) {
-    player.wowPlatonicCubes = new WowPlatonicCubes()
+    player.wowPlatonicCubes = new WowPlatonicCubes(0)
     player.wowAbyssals = new Decimal(0)
   }
   if (data.platonicBlessings === undefined) {
@@ -936,14 +936,14 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.challengecompletions[15] = new Decimal(0)
     player.highestchallengecompletions[15] = new Decimal(0)
     player.platonicBlessings = {
-      cubes: new Decimal(0),
-      tesseracts: new Decimal(0),
-      hypercubes: new Decimal(0),
-      platonics: new Decimal(0),
-      hypercubeBonus: new Decimal(0),
-      taxes: new Decimal(0),
-      scoreBonus: new Decimal(0),
-      globalSpeed: new Decimal(0)
+      cubes: 0,
+      tesseracts: 0,
+      hypercubes: 0,
+      platonics: 0,
+      hypercubeBonus: 0,
+      taxes: 0,
+      scoreBonus: 0,
+      globalSpeed: 0
     }
     player.platonicUpgrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     player.challenge15Exponent = new Decimal(0)
@@ -1136,8 +1136,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.platonicCubeOpenedDaily === undefined) {
-    player.platonicCubeOpenedDaily = new Decimal(0)
-    player.platonicCubeQuarkDaily = new Decimal(0)
+    player.platonicCubeOpenedDaily = 0
+    player.platonicCubeQuarkDaily = 0
   }
 
   if (data.shopUpgrades.calculator === undefined) {
@@ -1224,18 +1224,18 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.singularityCount = 0
     player.goldenQuarks = new Decimal(0)
 
-    player.quarksThisSingularity = new Decimal(0)
-    player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, +player.worlds)
+    player.quarksThisSingularity = 0
+    player.quarksThisSingularity += +player.worlds
     const keys = Object.keys(
       player.shopUpgrades
     ) as (keyof Player['shopUpgrades'])[]
     for (const key of keys) {
-      player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, getQuarkInvestment(key))
+      player.quarksThisSingularity += getQuarkInvestment(key)
     }
   }
 
   if (data.totalQuarksEver === undefined) {
-    player.totalQuarksEver = new Decimal(0)
+    player.totalQuarksEver = 0
   }
 
   if (data.hotkeys === undefined) {

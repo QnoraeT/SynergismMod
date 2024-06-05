@@ -941,7 +941,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 1, 4, 3]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (cubeArray[i]!.gte(1000) && i !== 6) {
+        if (cubeArray[i]! >= 1000 && i !== 6) {
           augmentAccuracy += 2
         }
         const aestheticMultiplier = i === 1 || i === 8 || i === 9 ? 1 : 100
@@ -960,7 +960,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('cubeBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.cubes.total',
         {
-          amount: format(sumContentsDecimal(cubeArray.slice(1) as Decimal[]), 0, true)
+          amount: format(sumContentsNumber(cubeArray.slice(1) as number[]), 0, true)
         }
       )
       break
@@ -996,7 +996,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (tesseractArray[i]!.gte(1000) && i !== 6) {
+        if (tesseractArray[i]! >= 1000 && i !== 6) {
           augmentAccuracy += 2
         }
         DOMCacheGetOrSet(`tesseract${i}Bonus`).innerHTML = i18next.t(
@@ -1004,7 +1004,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(tesseractArray[i], 0, true),
             bonus: format(
-              G.tesseractBonusMultiplier[i]!.sub(1).mul(100),
+              100 * (G.tesseractBonusMultiplier[i]! - 1),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1015,7 +1015,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.tesseracts.total',
         {
           amount: format(
-            sumContentsDecimal(tesseractArray.slice(1) as Decimal[]),
+            sumContentsNumber(tesseractArray.slice(1) as number[]),
             0,
             true
           )
@@ -1054,7 +1054,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (hypercubeArray[i]!.gte(1000)) {
+        if (hypercubeArray[i]! >= 1000) {
           augmentAccuracy += 2
         }
         DOMCacheGetOrSet(`hypercube${i}Bonus`).innerHTML = i18next.t(
@@ -1062,7 +1062,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(hypercubeArray[i], 0, true),
             bonus: format(
-              G.hypercubeBonusMultiplier[i]!.sub(1).mul(100),
+              100 * (G.hypercubeBonusMultiplier[i]! - 1),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1073,7 +1073,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.hypercubes.total',
         {
           amount: format(
-            sumContentsDecimal(hypercubeArray.slice(1) as Decimal[]),
+            sumContentsNumber(hypercubeArray.slice(1) as number[]),
             0,
             true
           )
@@ -1110,7 +1110,7 @@ export const visualUpdateCubes = () => {
       accuracy = [5, 5, 5, 5, 2, 3, 3, 2]
       for (let i = 0; i < platonicArray.length; i++) {
         let augmentAccuracy = 0
-        if (Decimal.gte(platonicArray[i], DRThreshold[i])) {
+        if (platonicArray[i] >= DRThreshold[i]) {
           augmentAccuracy += 1
         }
         DOMCacheGetOrSet(`platonicCube${i + 1}Bonus`).innerHTML = i18next.t(
@@ -1118,7 +1118,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(platonicArray[i], 0, true),
             bonus: format(
-              G.platonicBonusMultiplier[i].sub(1).mul(100),
+              100 * (G.platonicBonusMultiplier[i] - 1),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1128,7 +1128,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('platonicBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.platonics.total',
         {
-          amount: format(sumContentsDecimal(platonicArray), 0, true)
+          amount: format(sumContentsNumber(platonicArray), 0, true)
         }
       )
       break
@@ -1323,17 +1323,17 @@ export const visualUpdateSettings = () => {
     const onExportQuarks = quarkData.gain
     const maxExportQuarks = quarkData.capacity
 
-    let goldenQuarkMultiplier = new Decimal(1)
-    goldenQuarkMultiplier = goldenQuarkMultiplier.mul(Decimal.div(player.worlds.BONUS, 100).add(1))
-    goldenQuarkMultiplier = goldenQuarkMultiplier.mul(player.highestSingularityCount >= 100
+    let goldenQuarkMultiplier = 1
+    goldenQuarkMultiplier *= 1 + player.worlds.BONUS / 100
+    goldenQuarkMultiplier *= player.highestSingularityCount >= 100
       ? 1 + player.highestSingularityCount / 50
-      : 1)
+      : 1
 
     DOMCacheGetOrSet('quarktimerdisplay').textContent = i18next.t(
       'settings.exportQuark',
       {
         x: format(
-          Decimal.div(3600, quarkData.perHour).sub(player.quarkstimer.mod(Decimal.div(3600.00001, quarkData.perHour)))
+          Decimal.div(3600, quarkData.perHour).sub(player.quarkstimer.mod(3600.00001 / quarkData.perHour))
             , 2
         ),
         y: player.worlds.toString(1)
@@ -1368,7 +1368,11 @@ export const visualUpdateSettings = () => {
           2
         ),
         y: format(
-          Decimal.mul(player.singularityUpgrades.goldenQuarks3.getEffect().bonus, goldenQuarkMultiplier).mul(168).floor()
+          Math.floor(
+            168
+              * +player.singularityUpgrades.goldenQuarks3.getEffect().bonus
+              * goldenQuarkMultiplier
+          )
         )
       }
     )

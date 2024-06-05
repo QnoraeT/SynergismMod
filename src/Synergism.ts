@@ -769,59 +769,59 @@ export const player: Player = {
     0,
     0
   ],
-  wowCubes: new WowCubes(),
-  wowTesseracts: new WowTesseracts(),
-  wowHypercubes: new WowHypercubes(),
-  wowPlatonicCubes: new WowPlatonicCubes(),
+  wowCubes: new WowCubes(0),
+  wowTesseracts: new WowTesseracts(0),
+  wowHypercubes: new WowHypercubes(0),
+  wowPlatonicCubes: new WowPlatonicCubes(0),
   saveOfferingToggle: false,
   wowAbyssals: new Decimal(0),
   wowOcteracts: new Decimal(0),
   totalWowOcteracts: new Decimal(0),
   cubeBlessings: {
-    accelerator: new Decimal(0),
-    multiplier: new Decimal(0),
-    offering: new Decimal(0),
-    runeExp: new Decimal(0),
-    obtainium: new Decimal(0),
-    antSpeed: new Decimal(0),
-    antSacrifice: new Decimal(0),
-    antELO: new Decimal(0),
-    talismanBonus: new Decimal(0),
-    globalSpeed: new Decimal(0)
+    accelerator: 0,
+    multiplier: 0,
+    offering: 0,
+    runeExp: 0,
+    obtainium: 0,
+    antSpeed: 0,
+    antSacrifice: 0,
+    antELO: 0,
+    talismanBonus: 0,
+    globalSpeed: 0
   },
   tesseractBlessings: {
-    accelerator: new Decimal(0),
-    multiplier: new Decimal(0),
-    offering: new Decimal(0),
-    runeExp: new Decimal(0),
-    obtainium: new Decimal(0),
-    antSpeed: new Decimal(0),
-    antSacrifice: new Decimal(0),
-    antELO: new Decimal(0),
-    talismanBonus: new Decimal(0),
-    globalSpeed: new Decimal(0)
+    accelerator: 0,
+    multiplier: 0,
+    offering: 0,
+    runeExp: 0,
+    obtainium: 0,
+    antSpeed: 0,
+    antSacrifice: 0,
+    antELO: 0,
+    talismanBonus: 0,
+    globalSpeed: 0
   },
   hypercubeBlessings: {
-    accelerator: new Decimal(0),
-    multiplier: new Decimal(0),
-    offering: new Decimal(0),
-    runeExp: new Decimal(0),
-    obtainium: new Decimal(0),
-    antSpeed: new Decimal(0),
-    antSacrifice: new Decimal(0),
-    antELO: new Decimal(0),
-    talismanBonus: new Decimal(0),
-    globalSpeed: new Decimal(0)
+    accelerator: 0,
+    multiplier: 0,
+    offering: 0,
+    runeExp: 0,
+    obtainium: 0,
+    antSpeed: 0,
+    antSacrifice: 0,
+    antELO: 0,
+    talismanBonus: 0,
+    globalSpeed: 0
   },
   platonicBlessings: {
-    cubes: new Decimal(0),
-    tesseracts: new Decimal(0),
-    hypercubes: new Decimal(0),
-    platonics: new Decimal(0),
-    hypercubeBonus: new Decimal(0),
-    taxes: new Decimal(0),
-    scoreBonus: new Decimal(0),
-    globalSpeed: new Decimal(0)
+    cubes: 0,
+    tesseracts: 0,
+    hypercubes: 0,
+    platonics: 0,
+    hypercubeBonus: 0,
+    taxes: 0,
+    scoreBonus: 0,
+    globalSpeed: 0
   },
 
   hepteractCrafts: {
@@ -926,14 +926,14 @@ export const player: Player = {
 
   dayCheck: null,
   dayTimer: 0,
-  cubeOpenedDaily: new Decimal(0),
-  cubeQuarkDaily: new Decimal(0),
-  tesseractOpenedDaily: new Decimal(0),
-  tesseractQuarkDaily: new Decimal(0),
-  hypercubeOpenedDaily: new Decimal(0),
-  hypercubeQuarkDaily: new Decimal(0),
-  platonicCubeOpenedDaily: new Decimal(0),
-  platonicCubeQuarkDaily: new Decimal(0),
+  cubeOpenedDaily: 0,
+  cubeQuarkDaily: 0,
+  tesseractOpenedDaily: 0,
+  tesseractQuarkDaily: 0,
+  hypercubeOpenedDaily: 0,
+  hypercubeQuarkDaily: 0,
+  platonicCubeOpenedDaily: 0,
+  platonicCubeQuarkDaily: 0,
   overfluxOrbs: new Decimal(0),
   overfluxOrbsAutoBuy: false,
   overfluxPowder: new Decimal(0),
@@ -959,8 +959,8 @@ export const player: Player = {
   highestSingularityCount: 0,
   singularityCounter: new Decimal(0),
   goldenQuarks: new Decimal(0),
-  quarksThisSingularity: new Decimal(0),
-  totalQuarksEver: new Decimal(0),
+  quarksThisSingularity: 0,
+  totalQuarksEver: 0,
   hotkeys: {},
   theme: 'Dark Mode',
   iconSet: 0,
@@ -1516,11 +1516,11 @@ export const saveSynergy = async (button?: boolean): Promise<boolean> => {
   // shallow hold, doesn't modify OG object nor is affected by modifications to OG
   const p = Object.assign({}, player, {
     codes: Array.from(player.codes),
-    worlds: player.worlds,
-    wowCubes: player.wowCubes,
-    wowTesseracts: player.wowTesseracts,
-    wowHypercubes: player.wowHypercubes,
-    wowPlatonicCubes: player.wowPlatonicCubes,
+    worlds: Number(player.worlds),
+    wowCubes: Number(player.wowCubes),
+    wowTesseracts: Number(player.wowTesseracts),
+    wowHypercubes: Number(player.wowHypercubes),
+    wowPlatonicCubes: Number(player.wowPlatonicCubes),
     singularityUpgrades: Object.fromEntries(
       Object.entries(player.singularityUpgrades).map(([key, value]) => {
         return [
@@ -1608,22 +1608,22 @@ const toAdapt = new Map<keyof Player, (data: PlayerSave) => unknown>([
     'worlds',
     (data) =>
       new QuarkHandler({
-        quarks: new Decimal(Number(data.worlds) || 0),
+        quarks: Number(data.worlds) || 0,
         bonus: player.worlds.BONUS
       })
   ],
-  ['wowCubes', (data) => new WowCubes(data.wowCubes!)],
+  ['wowCubes', (data) => new WowCubes(Number(data.wowCubes) || 0)],
   [
     'wowTesseracts',
-    (data) => new WowTesseracts(data.wowTesseracts!)
+    (data) => new WowTesseracts(Number(data.wowTesseracts) || 0)
   ],
   [
     'wowHypercubes',
-    (data) => new WowHypercubes(data.wowHypercubes!)
+    (data) => new WowHypercubes(Number(data.wowHypercubes) || 0)
   ],
   [
     'wowPlatonicCubes',
-    (data) => new WowPlatonicCubes(data.wowPlatonicCubes!)
+    (data) => new WowPlatonicCubes(Number(data.wowPlatonicCubes) || 0)
   ]
 ])
 
@@ -1758,8 +1758,56 @@ const loadSynergy = async () => {
 
     if (typeof player.researches[76] === 'undefined') {
       player.codes.set(13, false)
-      player.researches.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
-      player.achievements.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      player.researches.push(
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      )
+      player.achievements.push(
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      )
       player.maxofferings = player.runeshards
       player.maxobtainium = player.researchPoints
       player.researchPoints = player.researchPoints.add(51200 * player.researches[50])
@@ -1919,7 +1967,33 @@ const loadSynergy = async () => {
       player.researches[96] = 0
       player.researches[97] = 0
       player.researches[98] = 0
-      player.researches.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+      player.researches.push(
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      )
 
       player.talismanLevels = [0, 0, 0, 0, 0, 0, 0]
       player.talismanRarity = [1, 1, 1, 1, 1, 1, 1]
@@ -1994,20 +2068,20 @@ const loadSynergy = async () => {
         player.cubeUpgrades = [...blankSave.cubeUpgrades]
       }
       player.wowCubes = new WowCubes(0)
-      player.wowTesseracts = new WowTesseracts()
-      player.wowHypercubes = new WowHypercubes()
-      player.wowPlatonicCubes = new WowPlatonicCubes()
+      player.wowTesseracts = new WowTesseracts(0)
+      player.wowHypercubes = new WowHypercubes(0)
+      player.wowPlatonicCubes = new WowPlatonicCubes(0)
       player.cubeBlessings = {
-        accelerator: new Decimal(0),
-        multiplier: new Decimal(0),
-        offering: new Decimal(0),
-        runeExp: new Decimal(0),
-        obtainium: new Decimal(0),
-        antSpeed: new Decimal(0),
-        antSacrifice: new Decimal(0),
-        antELO: new Decimal(0),
-        talismanBonus: new Decimal(0),
-        globalSpeed: new Decimal(0)
+        accelerator: 0,
+        multiplier: 0,
+        offering: 0,
+        runeExp: 0,
+        obtainium: 0,
+        antSpeed: 0,
+        antSacrifice: 0,
+        antELO: 0,
+        talismanBonus: 0,
+        globalSpeed: 0
       }
     }
     if (data.autoAntSacTimer == null) {
@@ -2878,6 +2952,7 @@ const abbExp = 1e66;
 export const format = (number: 
     | Decimal
     | number
+    | { [Symbol.toPrimitive]: unknown }
     | string
     | null
     | undefined,
@@ -2892,7 +2967,7 @@ export const format = (number:
       return "null"
     }
     if (typeof number === 'object' && Symbol.toPrimitive in number) {
-      // number = Number(number)
+      number = Number(number)
     }
     const n = new Decimal(number);
     if (n.lt(0)) return `-${format(n.negate(), dec, long, expdec)}`;
@@ -3463,7 +3538,7 @@ export const updateAllTick = (): void => {
   a = a.add(Decimal.mul(2000, hepteractEffective('accelerator')))
   a = a.mul(G.challenge15Rewards.accelerator)
   a = a.mul(Decimal.mul(hepteractEffective('accelerator'), 0.0003).add(1))
-  a = Decimal.floor(a)
+  a = Decimal.floor(Decimal.min(1e100, a)) // cap -_-
 
   if (player.usedCorruptions[2] >= 15) {
     a = a.pow(0.2)
@@ -3514,7 +3589,7 @@ export const updateAllTick = (): void => {
           .mul(CalcECC('transcend', player.challengecompletions[2]).div(20).add(1)))
     }
   }
-
+  G.acceleratorPower = Decimal.min(1e300, G.acceleratorPower) // cap aaaa
   if (player.currentChallenge.reincarnation === 7) {
     G.acceleratorPower = new Decimal(1)
   }
@@ -3621,6 +3696,8 @@ export const updateAllMultiplier = (): void => {
     ).mul(player.researches[94]).mul(20)
   )
 
+  G.freeUpgradeMultiplier = Decimal.min(1e100, a) // cap
+
   if (player.achievements[38] > 0.5) {
     a = a.add(
       Decimal.floor(
@@ -3681,7 +3758,7 @@ export const updateAllMultiplier = (): void => {
   a = a.add(Decimal.mul(1000, hepteractEffective('multiplier')))
   a = a.mul(G.challenge15Rewards.multiplier)
   a = a.mul(Decimal.mul(hepteractEffective('multiplier'), 0.0003).add(1))
-  a = Decimal.floor(a)
+  a = Decimal.floor(Decimal.min(1e100, a)) // cap :c
 
   if (player.usedCorruptions[2] >= 15) {
     a = a.pow(0.2)
@@ -3728,6 +3805,7 @@ export const updateAllMultiplier = (): void => {
       G.multiplierPower = Decimal.add(b, c).mul(c7).mul(0.0012).add(1.25)
     }
   }
+  G.multiplierPower = Decimal.min(1e300, G.multiplierPower) // cap :c
 
   if (player.currentChallenge.reincarnation === 7) {
     G.multiplierPower = new Decimal(1)
@@ -3751,7 +3829,7 @@ export const multipliers = (): void => {
   crystalExponent = crystalExponent.add(Decimal.mul(8, player.cubeUpgrades[17]))
   G.prestigeMultiplier = player.prestigeShards.pow(crystalExponent).add(1)
 
-  // let c7 = 1
+  let c7 = 1
   // dude nothing is said about this and it trolls progress, ew, get out of here
   // if (player.currentChallenge.reincarnation === 7) {
   //   c7 = 0.05
@@ -3760,11 +3838,30 @@ export const multipliers = (): void => {
   //   c7 = 0
   // }
 
-  G.buildingPower = player.reincarnationShards.add(1).log10().mul(1 - Math.pow(2, -1 / 160)).add(1)
-  G.buildingPower = G.buildingPower.mul(Decimal.mul(player.researches[36], 0.05).add(1))
-  G.buildingPower = G.buildingPower.mul(Decimal.mul(player.researches[37], 0.025).add(1))
-  G.buildingPower = G.buildingPower.mul(Decimal.mul(player.researches[38], 0.025).add(1))
-  G.buildingPower = G.buildingPower.add(CalcECC('reincarnation', player.challengecompletions[8]).mul(0.25))
+  G.buildingPower = 
+  Decimal.mul(
+    c7, player.reincarnationShards.add(1).log10()
+  ).mul(
+    1 - Math.pow(2, -1 / 160)
+  ).mul(
+    Decimal.add(
+      Decimal.mul(
+        player.researches[36], 
+        0.05
+      ), 
+      Decimal.mul(
+        player.researches[37], 
+        0.025
+      )
+    ).add(
+      Decimal.mul(
+        player.researches[38], 
+        0.025
+      )
+    ).add(1)
+  ).add(
+    Decimal.add(c7, 0.2).div(4.8).mul(CalcECC('reincarnation', player.challengecompletions[8]))
+  ).add(1)
 
   G.buildingPower = Decimal.pow(
     G.buildingPower,
@@ -4560,8 +4657,7 @@ export const resourceGain = (dt: Decimal): void => {
 export const updateAntMultipliers = (): void => {
   // Update 2.5.0: Updated to have a base of 10 instead of 1x
   // Update 2.9.0: Updated to give a 5x multiplier no matter what
-  // tearonq made this 2x faster
-  G.globalAntMult = new Decimal(100)
+  G.globalAntMult = new Decimal(50)
   G.globalAntMult = G.globalAntMult.mul( 
     Decimal.pow(
       getRuneEffective(5)
@@ -5748,9 +5844,14 @@ export const updateAll = (): void => {
   if (Decimal.isNaN(player.runeshards)) {
     player.runeshards = new Decimal(0)
   }
-
+  if (player.runeshards.gt(1e300)) {
+    player.runeshards = new Decimal(1e300) // cap
+  }
   if (Decimal.isNaN(player.researchPoints)) {
     player.researchPoints = new Decimal(0)
+  }
+  if (player.researchPoints.gt(1e300)) {
+    player.researchPoints = new Decimal(1e300) // cap
   }
 
   G.optimalOfferingTimer = new Decimal(600)

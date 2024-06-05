@@ -49,14 +49,14 @@ export const quarkHandler = () => {
   }
 
   // Part 2: Calculate quark gain per hour
-  let baseQuarkPerHour = new Decimal(5)
+  let baseQuarkPerHour = 5
 
   const quarkResearches = [99, 100, 125, 180, 195]
   for (const el of quarkResearches) {
-    baseQuarkPerHour = baseQuarkPerHour.add(player.researches[el])
+    baseQuarkPerHour += player.researches[el]
   }
 
-  baseQuarkPerHour = baseQuarkPerHour.mul(player.octeractUpgrades.octeractExportQuarks.getEffect().bonus)
+  baseQuarkPerHour *= +player.octeractUpgrades.octeractExportQuarks.getEffect().bonus
 
   const quarkPerHour = baseQuarkPerHour
 
@@ -80,13 +80,13 @@ export const quarkHandler = () => {
 
 export class QuarkHandler {
   /** Global quark bonus */
-  public BONUS: number | Decimal = new Decimal(0)
+  public BONUS = 0
   /** Quark amount */
-  private QUARKS: number | Decimal = new Decimal(0)
+  private QUARKS = 0
 
   private interval: ReturnType<typeof setInterval> | null = null
 
-  constructor ({ bonus, quarks }: { bonus?: number | Decimal; quarks: number | Decimal }) {
+  constructor ({ bonus, quarks }: { bonus?: number; quarks: number }) {
     this.QUARKS = quarks
 
     if (bonus) {
@@ -104,21 +104,21 @@ export class QuarkHandler {
   /*** Calculates the number of quarks to give with the current bonus. */
   applyBonus (amount: number | Decimal) {
     const nonPatreon = calculateQuarkMultiplier()
-    return Decimal.mul(amount, Decimal.div(this.BONUS, 100).add(1)).mul(nonPatreon)
+    return Decimal.mul(amount, (1 + (this.BONUS / 100))).mul(nonPatreon).toNumber()
   }
 
   /** Subtracts quarks, as the name suggests. */
-  add (amount: number | Decimal, useBonus = true) {
-    this.QUARKS = Decimal.add(this.QUARKS, useBonus ? this.applyBonus(amount) : amount)
-    player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, useBonus ? this.applyBonus(amount) : amount)
+  add (amount: number, useBonus = true) {
+    this.QUARKS += useBonus ? this.applyBonus(amount) : amount
+    player.quarksThisSingularity += useBonus ? this.applyBonus(amount) : amount
     return this
   }
 
   /** Add quarks, as suggested by the function's name. */
-  sub (amount: number | Decimal) {
-    this.QUARKS = Decimal.sub(this.QUARKS, amount)
-    if (this.QUARKS.lt(0)) {
-      this.QUARKS = new Decimal(0)
+  sub (amount: number) {
+    this.QUARKS -= amount
+    if (this.QUARKS < 0) {
+      this.QUARKS = 0
     }
 
     return this
@@ -132,7 +132,7 @@ export class QuarkHandler {
     }
 
     if (localStorage.getItem('quarkBonus') !== null) { // is in cache
-      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: number | Decimal; fetched: number }
+      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: number; fetched: number }
       if (Date.now() - fetched < 60 * 1000 * 15) { // cache is younger than 15 minutes
         el.textContent = `Generous patrons give you a bonus of ${bonus}% more Quarks!`
         return this.BONUS = bonus
@@ -168,8 +168,8 @@ export class QuarkHandler {
    * Resets the amount of quarks saved but keeps the bonus amount.
    */
   public reset () {
-    this.QUARKS = new Decimal(0)
+    this.QUARKS = 0
   }
 
-  [Symbol.toPrimitive] = (t: string) => (t === 'Decimal' || t === 'number') ? this.QUARKS : null
+  [Symbol.toPrimitive] = (t: string) => t === 'number' ? this.QUARKS : null
 }
