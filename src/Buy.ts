@@ -52,20 +52,21 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
   const posCostType = `${pos}Cost${type}` as const
   if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER)) {
     let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).sub(9).floor().max(player[posOwnedType])
+    player[posCostType] = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     for (let i = 0; i < 10; i++) {
       if (player[tag].lt(player[posCostType])) {
         return
       }
       player[tag] = player[tag].sub(getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type))
       boughtBuild = boughtBuild.add(1)
-      const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
       player[posOwnedType] = boughtBuild
+      const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
       player[posCostType] = cost
     }
   } else {
     const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).floor().add(1)
-    const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     player[posOwnedType] = boughtBuild
+    const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     player[posCostType] = cost
   }
 }
@@ -171,20 +172,21 @@ export const buyParticleBuilding = (
 
   if (getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER)) {
     let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).sub(9).floor().max(player[key])
+    player[`${pos}CostParticles` as const] = getParticleCostq(boughtPartBuild, originalCost)
     for (let i = 0; i < 10; i++) {
       if (player.reincarnationPoints.lt(player[`${pos}CostParticles` as const])) {
         return
       }
       player.reincarnationPoints = player.reincarnationPoints.sub(getParticleCostq(boughtPartBuild, originalCost))
       boughtPartBuild = boughtPartBuild.add(1)
-      const cost = getParticleCostq(boughtPartBuild, originalCost)
       player[key] = boughtPartBuild
+      const cost = getParticleCostq(boughtPartBuild, originalCost)
       player[`${pos}CostParticles` as const] = cost
     }
   } else {
     const boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).floor().add(1)
-    const cost = getParticleCostq(boughtPartBuild, originalCost)
     player[key] = boughtPartBuild
+    const cost = getParticleCostq(boughtPartBuild, originalCost)
     player[`${pos}CostParticles` as const] = cost
   }
 }
@@ -751,20 +753,21 @@ export const inverseQuad = (x: Decimal, a: Decimal, b: Decimal, c: Decimal): Dec
 export const buyMaxAccels = () => {
   if (getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
     let boughtAccel = getAccelTarget(player.coins).sub(9).floor().max(player.acceleratorBought)
+    player.acceleratorCost = getAccelCost(boughtAccel)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.acceleratorCost)) {
         return
       }
       player.coins = player.coins.sub(getAccelCost(boughtAccel))
       boughtAccel = boughtAccel.add(1)
-      const cost = getAccelCost(boughtAccel)
       player.acceleratorBought = boughtAccel
+      const cost = getAccelCost(boughtAccel)
       player.acceleratorCost = cost
     }
   } else {
     const boughtAccel = getAccelTarget(player.coins).floor().add(1)
-    const cost = getAccelCost(boughtAccel)
     player.acceleratorBought = boughtAccel
+    const cost = getAccelCost(boughtAccel)
     player.acceleratorCost = cost
   }
 
@@ -798,20 +801,21 @@ export const buyMaxAccels = () => {
 export const buyMaxMuls = () => {
   if (getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
     let boughtMul = getMulTarget(player.coins).sub(9).floor().max(player.multiplierBought)
+    player.multiplierCost = getMulCost(boughtMul)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.multiplierCost)) {
         return
       }
       player.coins = player.coins.sub(getMulCost(boughtMul))
       boughtMul = boughtMul.add(1)
-      const cost = getMulCost(boughtMul)
       player.multiplierBought = boughtMul
+      const cost = getMulCost(boughtMul)
       player.multiplierCost = cost
     }
   } else {
     const boughtMul = getMulTarget(player.coins).floor().add(1)
-    const cost = getMulCost(boughtMul)
     player.multiplierBought = boughtMul
+    const cost = getMulCost(boughtMul)
     player.multiplierCost = cost
   }
 
@@ -845,20 +849,21 @@ export const buyMaxMuls = () => {
 export const buyMaxBoostAccel = () => {
   if (getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER)) {
     let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).sub(9).floor().max(player.acceleratorBoostBought)
+    player.acceleratorBoostCost = getAccelBoostCost(boughtAccelBoost)
     for (let i = 0; i < 10; i++) {
       if (player.prestigePoints.lt(player.acceleratorBoostCost)) {
         return
       }
       player.prestigePoints = player.prestigePoints.sub(getAccelBoostCost(boughtAccelBoost))
       boughtAccelBoost = boughtAccelBoost.add(1)
-      const cost = getAccelBoostCost(boughtAccelBoost)
       player.acceleratorBoostBought = boughtAccelBoost
+      const cost = getAccelBoostCost(boughtAccelBoost)
       player.acceleratorBoostCost = cost
     }
   } else {
     const boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).floor().add(1)
-    const cost = getAccelBoostCost(boughtAccelBoost)
     player.acceleratorBoostBought = boughtAccelBoost
+    const cost = getAccelBoostCost(boughtAccelBoost)
     player.acceleratorBoostCost = cost
   }
   player.transcendnoaccelerator = false

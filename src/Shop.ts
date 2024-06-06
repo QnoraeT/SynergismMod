@@ -1533,7 +1533,7 @@ export const useConsumable = async (
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
-        player.runeshards = Decimal.min(1e300, player.runeshards) // cap :c
+
       }
     } else if (input === 'obtainiumPotion') {
       if (player.shopUpgrades.obtainiumPotion >= used || !spend) {
@@ -1543,7 +1543,7 @@ export const useConsumable = async (
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
-        player.researchPoints = Decimal.min(1e300, player.researchPoints) // cap :c
+
       }
     }
   }

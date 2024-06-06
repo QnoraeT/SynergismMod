@@ -82,7 +82,7 @@ export const calculateTotalAcceleratorBoost = () => {
   ) {
     b = b.mul(2)
   }
-  b = Decimal.min(1e100, Decimal.floor(b)) // cap :c
+  b = Decimal.floor(b)
   G.freeAcceleratorBoost = b
 
   G.totalAcceleratorBoost = Decimal.add(player.acceleratorBoostBought, G.freeAcceleratorBoost).floor()
@@ -262,11 +262,14 @@ export function calculateRuneExpGiven (
     runeExpMultiplier[runeIndex]
   ]
 
-  return returnFactors ? fact : Decimal.min(1e200, productContentsDecimal(fact)) // cap :3
+  return returnFactors ? fact : productContentsDecimal(fact)
 }
 
 export const getRuneXPReq = (runeLevel: number | Decimal): Decimal => {
   let i = new Decimal(runeLevel)
+  if (i.gte(40000)) {
+    i = i.div(40000).sub(1).exp().mul(40000)
+  }
   i = Decimal.pow(3, i.div(200).pow(0.75).sub(1)).mul(i)
   i = smoothPoly(i, new Decimal(4), new Decimal(6.5), false)
   return i
@@ -275,6 +278,9 @@ export const getRuneXPReq = (runeLevel: number | Decimal): Decimal => {
 export const getRuneXPTarget = (xp: number | Decimal): Decimal => {
   let i = smoothPoly(new Decimal(xp), new Decimal(4), new Decimal(6.5), true)
   i = i.pow(0.75).mul(0.0353162).lambertw().root(0.75).mul(258.914)
+  if (i.gte(40000)) {
+    i = i.div(40000).ln().add(1).mul(40000)
+  }
   return i
 }
 
@@ -313,9 +319,10 @@ export const calculateMaxRunes = (i: number) => {
     -999
   ]
 
-  max = Decimal.gt(increaseMaxLevel[i]!, G.runeMaxLvl)
-    ? G.runeMaxLvl
-    : Decimal.add(max, increaseMaxLevel[i]!)
+  max = Decimal.add(max, increaseMaxLevel[i]!)
+  // max = Decimal.gt(increaseMaxLevel[i]!, G.runeMaxLvl)
+  //   ? G.runeMaxLvl
+  //   : Decimal.add(max, increaseMaxLevel[i]!)
   return max
 }
 
@@ -485,7 +492,6 @@ export function calculateOfferings (
   q = q.mul(1 + (1 / 100) * player.shopUpgrades.offeringEX2 * player.singularityCount)
   q = q.mul(Decimal.pow(1.02, player.shopUpgrades.offeringEX3))
   q = q.mul(calculateTotalOcteractOfferingBonus())
-  q = Decimal.min(1e300, q) // cap lol
 
   let persecond = new Decimal(0)
   if (input === 'prestige') {
@@ -508,7 +514,7 @@ export const calculateObtainium = () => {
   G.obtainiumGain = new Decimal(1)
   G.obtainiumGain = G.obtainiumGain.mul(
     player.upgrades[69] > 0
-      ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().pow(0.06).sub(1).pow10())
+      ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().mul(1.5).pow(0.06).sub(1).pow10())
       : G.reincarnationPointGain.max(10).log10().log10().add(1)
   )
 
@@ -989,7 +995,6 @@ const calculateAntSacrificeMultipliers = () => {
   G.upgradeMultiplier = G.upgradeMultiplier.mul(1 + (1 / 4) * player.upgrades[40])
   G.upgradeMultiplier = G.upgradeMultiplier.mul(G.cubeBonusMultiplier[7])
   G.upgradeMultiplier = G.upgradeMultiplier.mul(1 + calculateEventBuff(BuffType.AntSacrifice))
-  G.upgradeMultiplier = Decimal.min(1e300, G.upgradeMultiplier) // cap :3
 }
 
 interface IAntSacRewards {
@@ -1009,7 +1014,7 @@ export const calculateAntSacrificeRewards = (): IAntSacRewards => {
   calculateAntSacrificeELO()
   calculateAntSacrificeMultipliers()
 
-  const maxCap = 1e300 // cap :3
+  const maxCap = new Decimal(Infinity)
   const rewardsMult = Decimal.min(maxCap, Decimal.mul(G.timeMultiplier, G.upgradeMultiplier))
   const rewards: IAntSacRewards = {
     antSacrificePoints: Decimal.mul(G.effectiveELO, rewardsMult).div(85),

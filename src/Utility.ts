@@ -76,9 +76,10 @@ export const isDecimal = (o: unknown): o is Decimal =>
   o instanceof Decimal
   || (typeof o === 'object'
     && o !== null
-    && Object.keys(o).length === 2
-    && 'mantissa' in o
-    && 'exponent' in o)
+    && Object.keys(o).length === 3
+    && 'mag' in o
+    && 'layer' in o
+    && 'sign' in o)
 
 /**
  * This function calculates the smallest integer increment/decrement that can be applied to a number that is

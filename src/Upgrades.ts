@@ -167,8 +167,8 @@ const upgradetexts = [
   () => format(G.taxdivisor.log10().div(1000).floor().min(2500)),
   () => {
     const a = player.upgrades[69] > 0
-              ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().pow(0.06).sub(1).pow10())
-              : G.reincarnationPointGain.max(10).log10().log10().add(1)
+                ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().mul(1.5).pow(0.06).sub(1).pow10())
+                : G.reincarnationPointGain.max(10).log10().log10().add(1)
     const b = G.reincarnationPointGain.add(10).log10().sqrt()
     return {
       x: format(a, 2),

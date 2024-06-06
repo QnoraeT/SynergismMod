@@ -133,6 +133,9 @@ export const updateAntDescription = (i: number) => {
   })
 }
 
+// TODO: get work on an updated version of buying ants
+// should be simple as the cost formulas are simple, but current implementation will fail at much larger exponents
+
 const getAntCost = (originalCost: Decimal, buyTo: Decimal, index: number) => {
   buyTo = buyTo.sub(1)
 
