@@ -484,23 +484,23 @@ const constUpgEffect: Record<number, () => Record<string, string>> = {
     )
   }),
   3: () => ({
-    x: format(player.constantUpgrades[3].mul(0.02).add(1), 2, true)
+    x: format(Decimal.mul(player.constantUpgrades[3], 0.02).add(1), 2, true)
   }),
   4: () => ({
-    x: format(player.constantUpgrades[4].mul(0.04).add(1), 2, true)
+    x: format(Decimal.mul(player.constantUpgrades[4], 0.04).add(1), 2, true)
   }),
   5: () => ({
     x: format(Decimal.pow(player.ascendShards.add(1).log10().mul(0.1).add(1), player.constantUpgrades[5]), 2, true)
   }),
   6: () => ({
-    x: format(player.constantUpgrades[6].mul(2))
+    x: format(Decimal.mul(player.constantUpgrades[6], 2))
   }),
   7: () => ({
-    x: format(player.constantUpgrades[7].mul(7)),
-    y: format(player.constantUpgrades[7].mul(3))
+    x: format(Decimal.mul(player.constantUpgrades[7], 7)),
+    y: format(Decimal.mul(player.constantUpgrades[7], 3))
   }),
   8: () => ({
-    x: format(player.constantUpgrades[8].mul(0.1).add(1), 2, true)
+    x: format(Decimal.mul(player.constantUpgrades[8], 0.1).add(1), 2, true)
   }),
   9: () => ({
     x: format(
@@ -522,7 +522,7 @@ export const getConstUpgradeMetadata = (i: number): Array<Decimal> => {
   let cost: Decimal
 
   if (i >= 9) {
-    if (player.constantUpgrades[i]!.gte(1)) {
+    if (Decimal.gte(player.constantUpgrades[i]!, 1)) {
       toBuy = new Decimal(0)
     } else {
       toBuy = Decimal.min(
@@ -547,7 +547,7 @@ export const getConstUpgradeMetadata = (i: number): Array<Decimal> => {
   if (toBuy.gt(player.constantUpgrades[i]!)) {
     cost = Decimal.pow(10, toBuy.sub(1)).times(G.constUpgradeCosts[i]!)
   } else {
-    cost = i >= 9 && player.constantUpgrades[i]!.gte(1)
+    cost = i >= 9 && Decimal.gte(player.constantUpgrades[i]!, 1)
       ? new Decimal(0)
       : Decimal.pow(10, player.constantUpgrades[i]!).times(G.constUpgradeCosts[i]!)
   }

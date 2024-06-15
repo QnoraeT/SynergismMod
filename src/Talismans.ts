@@ -45,7 +45,7 @@ export const calculateMaxTalismanLevel = (i: number) => {
   maxLevel = maxLevel.add(CalcECC('ascension', player.challengecompletions[13]).mul(6))
   maxLevel = maxLevel.add(Math.floor(player.researches[200] / 400))
 
-  if (player.cubeUpgrades[67].gt(0) && i === 3) {
+  if (Decimal.gt(player.cubeUpgrades[67], 0) && i === 3) {
     maxLevel = maxLevel.add(1337)
   }
 

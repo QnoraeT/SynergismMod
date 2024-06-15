@@ -130,7 +130,7 @@ export const autoUpgrades = () => {
     }
   }
 
-  if (player.cubeUpgrades[8].gt(0)) {
+  if (Decimal.gt(player.cubeUpgrades[8], 0)) {
     for (let i = 61; i <= 80; i++) {
       if (
         player.upgrades[i] === 0 && player.reincarnationPoints.gte(Decimal.pow(10, G.upgradeCosts[i]))

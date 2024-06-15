@@ -292,7 +292,7 @@ const resetAddHistoryEntry = (input: resetNames, from = 'unknown') => {
     }
   } else if (input === 'ascension' || input === 'ascensionChallenge') {
     // Ascension entries will only be logged if C10 was completed.
-    if (player.challengecompletions[10].gt(0)) {
+    if (Decimal.gt(player.challengecompletions[10], 0)) {
       const corruptionMetaData = CalcCorruptionStuff()
       const historyEntry: ResetHistoryEntryAscend = {
         seconds: player.ascensionCounter,
@@ -559,7 +559,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
 
   if (input === 'ascension' || input === 'ascensionChallenge' || input === 'singularity') {
     const metaData = CalcCorruptionStuff()
-    if (player.challengecompletions[10].gt(0)) {
+    if (Decimal.gt(player.challengecompletions[10], 0)) {
       ascensionAchievementCheck(3, metaData[3])
     }
     // reset auto challenges
@@ -591,7 +591,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.antSacrificeTimer = new Decimal(0)
     player.antSacrificeTimerReal = new Decimal(0)
 
-    player.antUpgrades[12 - 1] = 0
+    player.antUpgrades[12 - 1] = new Decimal(0)
     for (let j = 61; j <= 80; j++) {
       player.upgrades[j] = 0
     }
@@ -628,7 +628,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     }
 
     // If challenge 10 is incomplete, you won't get a cube no matter what
-    if (player.challengecompletions[10].gt(0) && player.ascensionCounter.gt(0)) {
+    if (Decimal.gt(player.challengecompletions[10], 0) && player.ascensionCounter.gt(0)) {
       player.ascensionCount = player.ascensionCount.add(calcAscensionCount())
       // Metadata is defined up in the top of the (i > 3.5) case
       // Protect the cube from developer mistakes
@@ -733,7 +733,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.usedCorruptions = player.prototypeCorruptions.map((curr: number, index: number) => {
       if (index >= 2 && index <= 9) {
         return Math.min(
-          maxLevel * (player.challengecompletions[corrChallengeMinimum(index)].gt(0)
+          maxLevel * (Decimal.gt(player.challengecompletions[corrChallengeMinimum(index)], 0)
               || player.singularityUpgrades.platonicTau.getEffect().bonus
             ? 1
             : 0),
@@ -1038,7 +1038,7 @@ export const updateSingularityMilestoneAwards = (singularityReset = true): void 
     player.highestchallengecompletions[9] = new Decimal(1)
     achievementaward(134)
     player.antPoints = new Decimal(1e100)
-    player.antUpgrades[11] = 1
+    player.antUpgrades[11] = new Decimal(1)
     for (const key of shopItemPerk_20) {
       player.shopUpgrades[key] = shopData[key].maxLevel
     }
@@ -1521,7 +1521,7 @@ export const resetAnts = () => {
   }
 
   const ant12 = player.antUpgrades[12 - 1]
-  player.antUpgrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ant12]
+  player.antUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), ant12]
   player.antPoints = new Decimal(1)
 
   if (player.currentChallenge.ascension === 12) {

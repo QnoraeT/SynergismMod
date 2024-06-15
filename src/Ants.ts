@@ -22,7 +22,6 @@ import { updateTalismanInventory } from './Talismans'
 import { clearInterval, setInterval } from './Timers'
 import type { FirstToEighth, ZeroToSeven } from './types/Synergism'
 import { Confirm, revealStuff } from './UpdateHTML'
-import { smallestIncNumber, smallestIncDecimal } from './Utility'
 
 const antspecies: Record<`antspecies${number}`, string> = {
   antspecies1: 'Inceptus Formicidae',
@@ -133,75 +132,57 @@ export const updateAntDescription = (i: number) => {
   })
 }
 
-// TODO: get work on an updated version of buying ants
-// should be simple as the cost formulas are simple, but current implementation will fail at much larger exponents
-
-const getAntCost = (originalCost: Decimal, buyTo: Decimal, index: number) => {
-  buyTo = buyTo.sub(1)
-
-  // Determine how much the cost is for buyTo
-  const cost = originalCost
-    .times(Decimal.pow(G.antCostGrowth[index - 1], buyTo))
-    .add(buyTo)
-
-  return cost
+const getAntProdCost = (bought: DecimalSource, baseCost: DecimalSource, index: number) => {
+  let i = new Decimal(bought)
+  i = Decimal.pow(G.antCostGrowth[index - 1], bought).mul(baseCost).add(bought)
+  return i
 }
 
-const getAntUpgradeCost = (originalCost: Decimal, buyTo: number, index: number) => {
-  ;--buyTo
-
-  const cost = originalCost.times(Decimal.pow(G.antUpgradeCostIncreases[index - 1], buyTo))
-  return cost
+const getAntProdTarget = (amt: Decimal, baseCost: DecimalSource, index: number) => {
+  if (amt.lt(baseCost)) { return new Decimal(0) }
+  let i = amt
+  i = amt.div(baseCost).log(G.antCostGrowth[index - 1])
+  return i
 }
 
-// Note to self: REWRITE THIS SHIT Kevin :3
-export const buyAntProducers = (pos: FirstToEighth, originalCost: DecimalSource, index: number) => {
+const getAntUpgCost = (bought: DecimalSource, baseCost: DecimalSource, index: number) => {
+  let i = new Decimal(bought)
+  i = Decimal.pow(G.antUpgradeCostIncreases[index - 1], bought).mul(baseCost)
+  return i
+}
+
+const getAntUpgTarget = (amt: Decimal, baseCost: DecimalSource, index: number) => {
+  if (amt.lt(baseCost)) { return new Decimal(0) }
+  let i = amt
+  i = amt.div(baseCost).log(G.antUpgradeCostIncreases[index - 1])
+  return i
+}
+
+export const buyMaxProdAnts = (pos: FirstToEighth, baseCost: DecimalSource, index: number) => {
   const sacrificeMult = antSacrificePointsToMultiplier(player.antSacrificePoints)
-  // This is a fucking cool function. This will buymax ants cus why not
 
-  // Things we need: the position of producers, the costvalues, and input var i
-  originalCost = new Decimal(originalCost)
-  // Initiate type of resource used
   const tag = index === 1 ? 'reincarnationPoints' : 'antPoints'
   const key = `${pos}OwnedAnts` as const
 
-  const buydefault = Decimal.add(player[key], smallestIncDecimal(player[key]))
-  let buyTo = buydefault
-  let cashToBuy = getAntCost(originalCost, buyTo, index)
-  while (player[tag].gte(cashToBuy)) {
-    // Multiply by 4 until the desired amount. Iterate from there
-    buyTo = buyTo.mul(4)
-    cashToBuy = getAntCost(originalCost, buyTo, index)
-  }
-  let stepdown = buyTo.div(8).floor()
-  while (Decimal.gte(stepdown, smallestIncDecimal(buyTo))) {
-    if (getAntCost(originalCost, Decimal.sub(buyTo, stepdown), index).lte(player[tag])) {
-      stepdown = stepdown.div(2).floor()
-    } else {
-      buyTo = Decimal.sub(buyTo, Decimal.max(smallestIncDecimal(buyTo), stepdown))
-    }
-  }
+  if (getAntProdTarget(player[tag], baseCost, index).lt(Number.MAX_SAFE_INTEGER)) {
+    let boughtAnt = getAntProdTarget(player[tag], baseCost, index).sub(9).floor().max(player[key])
+    let cost = getAntProdCost(boughtAnt, baseCost, index)
 
-  if (!player.antMax) {
-    if (buydefault < buyTo) {
-      buyTo = buydefault
+    for (let i = 0; i < 10; i++) {
+      if (player[tag].lt(cost)) {
+        break;
+      }
+      player[tag] = player[tag].sub(getAntProdCost(boughtAnt, baseCost, index))
+      boughtAnt = boughtAnt.add(1)
+      player[key] = boughtAnt
+      cost = getAntProdCost(boughtAnt, baseCost, index)
+      player[`${pos}CostAnts` as const] = cost
     }
-  }
-  // go down by 7 steps below the last one able to be bought and spend the cost of 25 up to the one that you started with and stop if coin goes below requirement
-  let buyFrom = Decimal.max(Decimal.sub(buyTo, 6).sub(smallestIncDecimal(buyTo)), buydefault)
-  let thisCost = getAntCost(originalCost, buyFrom, index)
-  while (Decimal.lte(buyFrom, buyTo) && player[tag].gte(thisCost)) {
-    player[tag] = player[tag].sub(thisCost)
-    player[key] = buyFrom
-    buyFrom = Decimal.add(buyFrom, smallestIncDecimal(buyFrom))
-    thisCost = getAntCost(originalCost, buyFrom, index)
-    player[`${pos}CostAnts` as const] = thisCost
-  }
-  if (player.reincarnationPoints.lt(0)) {
-    player.reincarnationPoints = new Decimal('0')
-  }
-  if (player.antPoints.lt(0)) {
-    player.antPoints = new Decimal('0')
+  } else {
+    const boughtAnt = getAntProdTarget(player[tag], baseCost, index).floor().add(1).max(player[key])
+    player[key] = boughtAnt
+    const cost = getAntProdCost(boughtAnt, baseCost, index)
+    player[`${pos}CostAnts` as const] = cost
   }
   calculateAntSacrificeELO()
 
@@ -222,49 +203,43 @@ export const buyAntProducers = (pos: FirstToEighth, originalCost: DecimalSource,
   }
 }
 
-export const buyAntUpgrade = (originalCost: DecimalSource, auto: boolean, index: number) => {
+export const buyAntProducers = (pos: FirstToEighth, originalCost: DecimalSource, index: number) => {
+  buyMaxProdAnts(pos, originalCost, index)
+}
+
+export const buyMaxUpgAnts = (baseCost: DecimalSource, index: number, auto: boolean) => {
   if (player.currentChallenge.ascension !== 11) {
-    originalCost = new Decimal(originalCost)
-    const buydefault = player.antUpgrades[index - 1]! + smallestIncNumber(player.antUpgrades[index - 1]!)
-    let buyTo = buydefault
-    let cashToBuy = getAntUpgradeCost(originalCost, buyTo, index)
-    while (player.antPoints.gte(cashToBuy)) {
-      // Multiply by 4 until the desired amount. Iterate from there
-      buyTo = buyTo * 4
-      cashToBuy = getAntUpgradeCost(originalCost, buyTo, index)
-    }
-    let stepdown = Math.floor(buyTo / 8)
-    while (stepdown >= smallestIncNumber(buyTo)) {
-      if (getAntUpgradeCost(originalCost, buyTo - stepdown, index).lte(player.antPoints)) {
-        stepdown = Math.floor(stepdown / 2)
-      } else {
-        buyTo = buyTo - Math.max(smallestIncNumber(buyTo), stepdown)
+    if (getAntUpgTarget(player.antPoints, baseCost, index).lt(Number.MAX_SAFE_INTEGER)) {
+      let boughtAnt = getAntUpgTarget(player.antPoints, baseCost, index).sub(9).floor().max(player.antUpgrades[index - 1]!)
+      let cost = getAntUpgCost(boughtAnt, baseCost, index)
+      for (let i = 0; i < 10; i++) {
+        if (player.antPoints.lt(cost)) {
+          break;
+        }
+        player.antPoints = player.antPoints.sub(getAntUpgCost(boughtAnt, baseCost, index))
+        boughtAnt = boughtAnt.add(1)
+        player.antUpgrades[index - 1] = boughtAnt
+        cost = getAntUpgCost(boughtAnt, baseCost, index)
       }
+    } else {
+      const boughtAnt = getAntUpgTarget(player.antPoints, baseCost, index).floor().add(1).max(player.antUpgrades[index - 1]!)
+      player.antUpgrades[index - 1] = boughtAnt
     }
-    if (!player.antMax) {
-      if (buydefault < buyTo) {
-        buyTo = buydefault
-      }
-    }
-    // go down by 7 steps below the last one able to be bought and spend the cost of 25 up to the one that you started with and stop if coin goes below requirement
-    let buyFrom = Math.max(buyTo - 6 - smallestIncNumber(buyTo), buydefault)
-    let thisCost = getAntUpgradeCost(originalCost, buyFrom, index)
-    while (buyFrom <= buyTo && player.antPoints.gte(thisCost)) {
-      player.antPoints = player.antPoints.sub(thisCost)
-      player.antUpgrades[index - 1] = buyFrom
-      buyFrom = buyFrom + smallestIncNumber(buyFrom)
-      thisCost = getAntUpgradeCost(originalCost, buyFrom, index)
-    }
+
     calculateAnts()
     calculateRuneLevels()
     calculateAntSacrificeELO()
     if (!auto) {
       antUpgradeDescription(index)
     }
-    if (player.antUpgrades[12 - 1] === 1 && index === 12) {
+    if (Decimal.eq(player.antUpgrades[12 - 1]!, 1) && index === 12) {
       revealStuff()
     }
   }
+}
+
+export const buyAntUpgrade = (originalCost: DecimalSource, auto: boolean, index: number) => {
+  buyMaxUpgAnts(originalCost, index, auto)
 }
 
 export const antUpgradeDescription = (i: number) => {
@@ -281,13 +256,13 @@ export const antUpgradeDescription = (i: number) => {
   const c11 = player.currentChallenge.ascension === 11 ? 999 : 0
 
   el.childNodes[0].textContent = `${content1} Level ${format(player.antUpgrades[i - 1])}`
-  al.textContent = ` [+${format(Decimal.min(player.antUpgrades[i - 1]! + c11, bonuslevel))}]`
+  al.textContent = ` [+${format(Decimal.min(Decimal.add(player.antUpgrades[i - 1]!, c11), bonuslevel))}]`
   la.textContent = content2
   ti.textContent = i18next.t('ants.costGalacticCrumbs', {
     x: format(
       Decimal.pow(
         G.antUpgradeCostIncreases[i - 1],
-        player.antUpgrades[i - 1]! * G.extinctionMultiplier[player.usedCorruptions[10]]
+        Decimal.mul(player.antUpgrades[i - 1]!, G.extinctionMultiplier[player.usedCorruptions[10]])
       ).times(G.antUpgradeBaseCost[i - 1])
     )
   })
@@ -297,12 +272,12 @@ export const antUpgradeDescription = (i: number) => {
 }
 
 export const antSacrificePointsToMultiplier = (points: Decimal) => {
-  let multiplier = points.div(5000).add(1).pow(2)
-  multiplier = multiplier.mul(points.add(1).log10().mul(0.2).add(1))
+  let multiplier = Decimal.div(points, 5000).add(1).pow(2)
+  multiplier = multiplier.mul(Decimal.add(points, 1).log10().mul(0.2).add(1))
   if (player.achievements[174] > 0) {
-    multiplier = multiplier.mul(points.add(1).log10().mul(0.4).add(1))
+    multiplier = multiplier.mul(Decimal.add(points, 1).log10().mul(0.4).add(1))
   }
-  return Decimal.min(1e300, multiplier) // cappp
+  return multiplier
 }
 
 export const showSacrifice = () => {
@@ -329,7 +304,7 @@ export const showSacrifice = () => {
 
   DOMCacheGetOrSet('antSacrificeOffering').textContent = `+${format(sacRewards.offerings)}`
   DOMCacheGetOrSet('antSacrificeObtainium').textContent = `+${format(sacRewards.obtainium)}`
-  if (player.challengecompletions[9].gt(0)) {
+  if (Decimal.gt(player.challengecompletions[9], 0)) {
     DOMCacheGetOrSet('antSacrificeTalismanShard').textContent = i18next.t('ants.elo', {
       x: format(sacRewards.talismanShards),
       y: 500
@@ -364,7 +339,7 @@ export const showSacrifice = () => {
 export const sacrificeAnts = async (auto = false) => {
   let p = true
 
-  if (player.antPoints.gte('1e40')) {
+  if (player.antPoints.gte(1e40)) {
     if (!auto && player.toggles[32]) {
       p = await Confirm(i18next.t('ants.autoReset'))
     }
@@ -372,7 +347,7 @@ export const sacrificeAnts = async (auto = false) => {
       const antSacrificePointsBefore = player.antSacrificePoints
 
       const sacRewards = calculateAntSacrificeRewards()
-      player.antSacrificePoints = player.antSacrificePoints.mul(sacRewards.antSacrificePoints)
+      player.antSacrificePoints = player.antSacrificePoints.add(sacRewards.antSacrificePoints)
       player.runeshards = player.runeshards.add(sacRewards.offerings)
 
       if (player.currentChallenge.ascension !== 14) {
@@ -389,19 +364,18 @@ export const sacrificeAnts = async (auto = false) => {
         antSacrificePointsAfter: player.antSacrificePoints,
         baseELO: G.antELO,
         effectiveELO: G.effectiveELO,
-        crumbs: player.antPoints.toString(),
-        crumbsPerSecond: G.antOneProduce.toString()
+        crumbs: format(player.antPoints),
+        crumbsPerSecond: format(G.antOneProduce)
       }
 
-      if (player.challengecompletions[9].gt(0)) {
-        // CAPPPP
-        player.talismanShards = Decimal.min(1e300, Decimal.add(player.talismanShards, sacRewards.talismanShards))
-        player.commonFragments = Decimal.min(1e300, Decimal.add(player.commonFragments, sacRewards.commonFragments))
-        player.uncommonFragments = Decimal.min(1e300, Decimal.add(player.uncommonFragments, sacRewards.uncommonFragments))
-        player.rareFragments = Decimal.min(1e300, Decimal.add(player.rareFragments, sacRewards.rareFragments))
-        player.epicFragments = Decimal.min(1e300, Decimal.add(player.epicFragments, sacRewards.epicFragments))
-        player.legendaryFragments = Decimal.min(1e300, Decimal.add(player.legendaryFragments, sacRewards.legendaryFragments))
-        player.mythicalFragments = Decimal.min(1e300, Decimal.add(player.mythicalFragments, sacRewards.mythicalFragments))
+      if (Decimal.gt(player.challengecompletions[9], 0)) {
+        player.talismanShards = Decimal.add(player.talismanShards, sacRewards.talismanShards)
+        player.commonFragments = Decimal.add(player.commonFragments, sacRewards.commonFragments)
+        player.uncommonFragments = Decimal.add(player.uncommonFragments, sacRewards.uncommonFragments)
+        player.rareFragments = Decimal.add(player.rareFragments, sacRewards.rareFragments)
+        player.epicFragments = Decimal.add(player.epicFragments, sacRewards.epicFragments)
+        player.legendaryFragments = Decimal.add(player.legendaryFragments, sacRewards.legendaryFragments)
+        player.mythicalFragments = Decimal.add(player.mythicalFragments, sacRewards.mythicalFragments)
       }
 
       // Now we're safe to reset the ants.
@@ -427,10 +401,10 @@ export const sacrificeAnts = async (auto = false) => {
 export const autoBuyAnts = () => {
   const canAffordUpgrade = (x: number, m: DecimalSource) =>
     player.antPoints.gte(
-      getAntUpgradeCost(new Decimal(G.antUpgradeBaseCost[x - 1]), player.antUpgrades[x - 1]! + 1, x).times(m)
+      getAntUpgCost(Decimal.add(player.antUpgrades[x - 1]!, 1), G.antUpgradeBaseCost[x - 1], x).mul(m)
     )
   const ach = [176, 176, 177, 178, 178, 179, 180, 180, 181, 182, 182, 145]
-  const cost = ['100', '100', '1000', '1000', '1e5', '1e6', '1e8', '1e11', '1e15', '1e20', '1e40', '1e100']
+  const cost = [100, 100, 1000, 1000, 1e5, 1e6, 1e8, 1e11, 1e15, 1e20, 1e40, 1e100]
   if (player.currentChallenge.ascension !== 11) {
     for (let i = 1; i <= ach.length; i++) {
       const check = i === 12 ? player.researches[ach[i - 1]] : player.achievements[ach[i - 1]]
@@ -441,7 +415,7 @@ export const autoBuyAnts = () => {
   }
 
   const _ach = [173, 176, 177, 178, 179, 180, 181, 182]
-  const _cost = ['1e700', '3', '100', '10000', '1e12', '1e36', '1e100', '1e300']
+  const _cost = ['1e700', 3, 100, 10000, 1e12, 1e36, 1e100, 1e300]
   for (let i = 1; i <= _ach.length; i++) {
     const res = i === 1 ? player.reincarnationPoints : player.antPoints
     const m = i === 1 ? 1 : 2 // no multiplier on the first ant cost because it costs particles

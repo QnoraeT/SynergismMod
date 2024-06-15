@@ -244,7 +244,7 @@ export const visualUpdateBuildings = () => {
     if (player.resettoggle1 === 1 || player.resettoggle1 === 0) {
       const p = Decimal.pow(
         10,
-        Decimal.sub(G.prestigePointGain.add(1).log10(), player.prestigePoints.sub(1).log10())
+        Decimal.sub(G.prestigePointGain.add(1).log10(), player.prestigePoints.add(1).log10())
       )
       DOMCacheGetOrSet('autoprestige').textContent = i18next.t(
         'buildings.autoPrestige',

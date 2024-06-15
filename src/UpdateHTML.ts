@@ -199,12 +199,12 @@ export const revealStuff = () => {
 
   const example29 = document.getElementsByClassName('cubeUpgrade10') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example29.length; i++) {
-    example29[i].style.display = player.cubeUpgrades[10].gt(0) ? 'flex' : 'none'
+    example29[i].style.display = Decimal.gt(player.cubeUpgrades[10], 0) ? 'flex' : 'none'
   }
 
   const example30 = document.getElementsByClassName('cubeUpgrade19') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example30.length; i++) {
-    example30[i].style.display = player.cubeUpgrades[19].gt(0) ? 'block' : 'none'
+    example30[i].style.display = Decimal.gt(player.cubeUpgrades[19], 0) ? 'block' : 'none'
   }
 
   const example31 = document.getElementsByClassName('sacrificeAnts') as HTMLCollectionOf<HTMLElement>
@@ -387,7 +387,7 @@ export const revealStuff = () => {
   player.researches[190] > 0 // 8x15 Research [Auto Tesseracts]
     ? DOMCacheGetOrSet('autotessbuyeramount').style.display = 'block'
     : DOMCacheGetOrSet('autotessbuyeramount').style.display = 'none'
-  ;(player.antUpgrades[11]! > 0 || player.ascensionCount.gt(0)) // Ant Talisman Unlock, Mortuus
+  ;(Decimal.gt(player.antUpgrades[11]!, 0) || player.ascensionCount.gt(0)) // Ant Talisman Unlock, Mortuus
     ? DOMCacheGetOrSet('talisman6area').style.display = 'flex'
     : DOMCacheGetOrSet('talisman6area').style.display = 'none'
 
@@ -395,7 +395,7 @@ export const revealStuff = () => {
     ? DOMCacheGetOrSet('toggleautosacrifice').style.display = 'block'
     : DOMCacheGetOrSet('toggleautosacrifice').style.display = 'none'
 
-  player.cubeUpgrades[51].gt(0) && player.highestSingularityCount >= 40 // Auto Fragments Buy (After Cx1)
+  Decimal.gt(player.cubeUpgrades[51], 0) && player.highestSingularityCount >= 40 // Auto Fragments Buy (After Cx1)
     ? DOMCacheGetOrSet('toggleautoBuyFragments').style.display = 'block'
     : DOMCacheGetOrSet('toggleautoBuyFragments').style.display = 'none'
 
@@ -412,7 +412,7 @@ export const revealStuff = () => {
     ? DOMCacheGetOrSet('talisman7area').style.display = 'flex'
     : DOMCacheGetOrSet('talisman7area').style.display = 'none'
 
-  player.cubeUpgrades[8].gt(0)
+  Decimal.gt(player.cubeUpgrades[8], 0)
     ? DOMCacheGetOrSet('reincarnateAutoUpgrade').style.display = 'block'
     : DOMCacheGetOrSet('reincarnateAutoUpgrade').style.display = 'none'
 
@@ -539,11 +539,11 @@ export const revealStuff = () => {
     toggle19: player.upgrades[97] === 1, // Autobuyer - Mythos Buildings - Tier 4 (Oracles)
     toggle20: player.upgrades[98] === 1, // Autobuyer - Mythos Buildings - Tier 5 (Grandmasters)
     toggle21: player.upgrades[89] === 1, // Feature - Mythos Buildings - Auto Transcend
-    toggle22: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 1 (Protons)
-    toggle23: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 2 (Elements)
-    toggle24: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 3 (Pulsars)
-    toggle25: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 4 (Quasars)
-    toggle26: player.cubeUpgrades[7].eq(1), // Autobuyer - Particle Buildings - Tier 5 (Galactic Nuclei)
+    toggle22: Decimal.eq(player.cubeUpgrades[7], 1), // Autobuyer - Particle Buildings - Tier 1 (Protons)
+    toggle23: Decimal.eq(player.cubeUpgrades[7], 1), // Autobuyer - Particle Buildings - Tier 2 (Elements)
+    toggle24: Decimal.eq(player.cubeUpgrades[7], 1), // Autobuyer - Particle Buildings - Tier 3 (Pulsars)
+    toggle25: Decimal.eq(player.cubeUpgrades[7], 1), // Autobuyer - Particle Buildings - Tier 4 (Quasars)
+    toggle26: Decimal.eq(player.cubeUpgrades[7], 1), // Autobuyer - Particle Buildings - Tier 5 (Galactic Nuclei)
     toggle27: player.researches[46] === 1, // Feature - Particle Buildings - Auto Reincarnate
     coinAutoUpgrade: player.upgrades[91] === 1, // Feature - Upgrades - Auto Buy Coin Upgrades
     prestigeAutoUpgrade: player.upgrades[92] === 1, // Feature - Upgrades - Auto Buy Diamond Upgrades
@@ -769,7 +769,7 @@ export const buttoncolorchange = () => {
   DOMCacheGetOrSet('ascendChallengeBtn').style.backgroundColor = player.currentChallenge.ascension === 0 ? '' : 'purple'
 
   DOMCacheGetOrSet('ascendbtn').style.backgroundColor =
-    player.autoAscend && player.challengecompletions[11].gt(0) && player.cubeUpgrades[10].gt(0) ? 'green' : ''
+    player.autoAscend && player.challengecompletions[11].gt(0) && Decimal.gt(player.cubeUpgrades[10], 0) ? 'green' : ''
 
   DOMCacheGetOrSet('singularitybtn').style.filter = Decimal.gt(player.runelevels[6], 0)
     ? ''
@@ -937,7 +937,7 @@ export const buttoncolorchange = () => {
     }
 
     for (let i = 9; i <= 10; i++) {
-      if (player.researches[175] >= 1 || player.constantUpgrades[i]!.gte(1)) {
+      if (player.researches[175] >= 1 || Decimal.gte(player.constantUpgrades[i]!, 1)) {
         DOMCacheGetOrSet(`buyConstantUpgrade${i}`).classList.remove('constUpgradeAvailable')
         DOMCacheGetOrSet(`buyConstantUpgrade${i}`).classList.add('constUpgradeAuto')
       } else {
@@ -963,7 +963,7 @@ export const buttoncolorchange = () => {
       player.antPoints.gte(
           Decimal.pow(
             G.antUpgradeCostIncreases[i - 1],
-            player.antUpgrades[i - 1]! * G.extinctionMultiplier[player.usedCorruptions[10]]
+            Decimal.mul(player.antUpgrades[i - 1]!, G.extinctionMultiplier[player.usedCorruptions[10]])
           ).times(G.antUpgradeBaseCost[i - 1])
         )
         ? DOMCacheGetOrSet(`antUpgrade${i}`).classList.add('antUpgradeBtnAvailable')

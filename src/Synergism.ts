@@ -636,7 +636,7 @@ export const player: Player = {
   goldenQuarksTimer: new Decimal(90000),
 
   antPoints: new Decimal(1),
-  antUpgrades: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+  antUpgrades: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
   antSacrificePoints: new Decimal(0),
   antSacrificeTimer: new Decimal(900),
   antSacrificeTimerReal: new Decimal(900),
@@ -1956,7 +1956,7 @@ const loadSynergy = async () => {
       //    player.shopUpgrades.antSpeed = 0;
       //    player.shopUpgrades.shopTalisman = 0;
 
-      player.antUpgrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      player.antUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
 
       player.unlocks.rrow4 = false
       player.researchPoints = player.researchPoints.add(3e7 * player.researches[50])
@@ -1967,33 +1967,7 @@ const loadSynergy = async () => {
       player.researches[96] = 0
       player.researches[97] = 0
       player.researches[98] = 0
-      player.researches.push(
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0,
-        0
-      )
+      player.researches.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
       player.talismanLevels = [0, 0, 0, 0, 0, 0, 0]
       player.talismanRarity = [1, 1, 1, 1, 1, 1, 1]
@@ -3739,7 +3713,7 @@ export const updateAllMultiplier = (): void => {
   a = a.mul(1 + (0.4 / 100) * player.researches[173])
   a = a.mul(1 + (0.2 / 100) * player.researches[188])
   a = a.mul(1 + (0.01 / 100) * player.researches[200])
-  a = a.mul(player.cubeUpgrades[50].mul(0.0001).add(1))
+  a = a.mul(Decimal.mul(player.cubeUpgrades[50], 0.0001).add(1))
   a = a.mul(calculateSigmoidExponential(
     40,
     ((Decimal.add(player.antUpgrades[4]!, G.bonusant5).div(1000)).mul(40)).div(39)
@@ -4248,7 +4222,7 @@ export const resourceGain = (dt: Decimal): void => {
   updateAllMultiplier()
   multipliers()
   calculatetax()
-  
+
   if (G.produceTotal.gte(0.001)) {
     const addcoin = Decimal.min(
       G.produceTotal.div(G.taxdivisor),
@@ -4273,7 +4247,7 @@ export const resourceGain = (dt: Decimal): void => {
       Decimal.floor(G.transcendPointGain.div(4000).mul(dt.mul(40)))
     )
   }
-  if (player.cubeUpgrades[28].gt(0) && player.transcendShards.gte(1e300)) {
+  if (Decimal.gt(player.cubeUpgrades[28], 0) && player.transcendShards.gte(1e300)) {
     player.reincarnationPoints = player.reincarnationPoints.add(
       Decimal.floor(G.reincarnationPointGain.div(4000).mul(dt.mul(40)))
     )
@@ -4654,7 +4628,8 @@ export const resourceGain = (dt: Decimal): void => {
 export const updateAntMultipliers = (): void => {
   // Update 2.5.0: Updated to have a base of 10 instead of 1x
   // Update 2.9.0: Updated to give a 5x multiplier no matter what
-  G.globalAntMult = new Decimal(50)
+  // tearonq modification: 20x
+  G.globalAntMult = new Decimal(1000)
   G.globalAntMult = G.globalAntMult.mul( 
     Decimal.pow(
       getRuneEffective(5)
@@ -4669,7 +4644,7 @@ export const updateAntMultipliers = (): void => {
       new Decimal(1)
         .add(player.upgrades[77] / 250)
         .add(player.researches[96] / 5000)
-        .add(player.cubeUpgrades[65].div(250)),
+        .add(Decimal.div(player.cubeUpgrades[65], 250)),
       Decimal.add(player.firstOwnedAnts, player.secondOwnedAnts)
         .add(player.thirdOwnedAnts)
         .add(player.fourthOwnedAnts)
@@ -5122,7 +5097,7 @@ export const resetCheck = async (
   if (i === 'ascension') {
     if (
       player.achievements[141] > 0
-      && (!player.toggles[31] || player.challengecompletions[10].gt(0))
+      && (!player.toggles[31] || Decimal.gt(player.challengecompletions[10], 0))
     ) {
       if (manual) {
         void resetConfirmation('ascend')
@@ -5670,7 +5645,7 @@ export const updateAll = (): void => {
       player.achievements[133] > 0,
       player.achievements[140] > 0,
       player.achievements[147] > 0,
-      player.antUpgrades[11]! > 0 || player.ascensionCount.gt(0),
+      Decimal.gt(player.antUpgrades[11]!, 0) || player.ascensionCount.gt(0),
       player.shopUpgrades.shopTalisman > 0
     ]
     let upgradedTalisman = false
@@ -5873,7 +5848,7 @@ export const updateAll = (): void => {
     ) {
       ascension = true
     }
-    if (ascension && player.challengecompletions[10].gt(0)) {
+    if (ascension && Decimal.gt(player.challengecompletions[10], 0)) {
       // Auto Ascension and Auto Challenge Sweep enables rotation of the Ascension Challenge
       if (
         autoAscensionChallengeSweepUnlock()
@@ -6096,7 +6071,7 @@ const tack = (dt: Decimal) => {
   }
 
   // Adds an offering every 1/(cube upgrade 1x2) seconds. It shares a timer with the one above.
-  if (player.cubeUpgrades[2].gt(0)) {
+  if (Decimal.gt(player.cubeUpgrades[2], 0)) {
     automaticTools('addOfferings', Decimal.mul(dt, player.cubeUpgrades[2]))
   }
 
@@ -6217,7 +6192,7 @@ export const synergismHotkeys = (event: KeyboardEvent, key: string): void => {
     if (key === 'BACKQUOTE') {
       num = -1
     }
-    if (player.challengecompletions[11].gt(0) && !isNaN(num)) {
+    if (Decimal.gt(player.challengecompletions[11], 0) && !isNaN(num)) {
       if (num >= 0 && num < player.corruptionLoadoutNames.length) {
         if (player.toggles[41]) {
           void Notification(

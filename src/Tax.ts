@@ -65,7 +65,7 @@ export const calculatetax = () => {
     0,
     Decimal.sub(sumContentsDecimal(player.challengecompletions), player.challengecompletions[11]).sub(player.challengecompletions[12])
     .sub(player.challengecompletions[13]).sub(player.challengecompletions[14]).sub(player.challengecompletions[15])
-    .sub(player.cubeUpgrades[49].mul(3)).sub(((player.singularityCount >= 15) ? 4 : 0))
+    .sub(Decimal.mul(player.cubeUpgrades[49], 3)).sub(((player.singularityCount >= 15) ? 4 : 0))
     .sub(((player.singularityCount >= 20) ? 1 : 0))
   )
   if (player.currentChallenge.ascension === 13) {

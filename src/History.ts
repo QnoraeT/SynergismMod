@@ -197,7 +197,7 @@ const historyGains: Record<
     img: 'TinyWow5.png',
     formatter: conditionalFormatPerSecond,
     imgTitle: 'Wow! Hypercubes',
-    onlyif: () => player.challengecompletions[13].gt(0)
+    onlyif: () => Decimal.gt(player.challengecompletions[13], 0)
   },
   wowCubes: {
     img: 'TinyWow3.png',
@@ -208,7 +208,7 @@ const historyGains: Record<
     img: 'TinyWow6.png',
     formatter: conditionalFormatPerSecond,
     imgTitle: 'Platonic Cubes',
-    onlyif: () => player.challengecompletions[14].gt(0)
+    onlyif: () => Decimal.gt(player.challengecompletions[14], 0)
   },
   wowHepteracts: {
     img: 'TinyWow7.png',

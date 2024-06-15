@@ -145,7 +145,7 @@ export abstract class Cube {
   }
 
   add (amount: number): this {
-    this.value = Math.min(1e300, this.value + amount)
+    this.value = this.value + amount
     return this
   }
 
@@ -197,13 +197,13 @@ export class WowCubes extends Cube {
     let toSpendModulo = toSpend % 20
     let toSpendDiv20 = Math.floor(toSpend / 20)
 
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[13].eq(1)) {
+    if (toSpendDiv20 > 0 && Decimal.eq(player.cubeUpgrades[13], 1)) {
       toSpendModulo += toSpendDiv20
     }
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[23].eq(1)) {
+    if (toSpendDiv20 > 0 && Decimal.eq(player.cubeUpgrades[23], 1)) {
       toSpendModulo += toSpendDiv20
     }
-    if (toSpendDiv20 > 0 && player.cubeUpgrades[33].eq(1)) {
+    if (toSpendDiv20 > 0 && Decimal.eq(player.cubeUpgrades[33], 1)) {
       toSpendModulo += toSpendDiv20
     }
 

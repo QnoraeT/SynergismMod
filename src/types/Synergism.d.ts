@@ -422,7 +422,7 @@ export interface Player {
   goldenQuarksTimer: Decimal
 
   antPoints: Decimal
-  antUpgrades: (null | number)[]
+  antUpgrades: (null | Decimal)[]
   antSacrificePoints: Decimal
   antSacrificeTimer: Decimal
   antSacrificeTimerReal: Decimal

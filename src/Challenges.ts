@@ -34,7 +34,7 @@ export const getMaxChallenges = (i: number) => {
     // Start with base of 40 max completions
     maxChallenge = new Decimal(40)
     // Cube Upgrade 2x9: +4/level
-    maxChallenge = maxChallenge.add(player.cubeUpgrades[29].mul(4))
+    maxChallenge = maxChallenge.add(Decimal.mul(player.cubeUpgrades[29], 4))
     // Shop Upgrade "Challenge Extension": +2/level
     maxChallenge = maxChallenge.add(Decimal.mul(2, player.shopUpgrades.challengeExtension))
     // Platonic Upgrade 5 (ALPHA): +10
@@ -430,7 +430,7 @@ export const calculateChallengeRequirementMultiplier = (
       }
 
       if (Decimal.gte(i, 75)) {
-        i = Decimal.div(i, 75).pow(6).mul(75)
+        i = Decimal.div(i, 75).pow(7.5).mul(75)
       }
 
       requirementMultiplier = requirementMultiplier.mul(i.add(1).pow(2))
@@ -459,10 +459,10 @@ export const calculateChallengeRequirementMultiplier = (
       }
 
       if (Decimal.gte(i, 25)) {
-        i = Decimal.div(i, 25).pow(2.5).mul(25)
+        i = Decimal.div(i, 25).pow(4).mul(25)
       }
 
-      requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.5, i.pow(0.75)))
+      requirementMultiplier = requirementMultiplier.mul(Decimal.pow(2, i.pow(0.75)))
       // if (completions.gte(100) && (special === 9 || special === 10)) {
       //   requirementMultiplier = requirementMultiplier.mul(Decimal.pow(1.05, Decimal.mul(completions.sub(100), completions.sub(100).mul(0.05).add(1))))
       // }
