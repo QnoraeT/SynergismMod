@@ -298,7 +298,7 @@ const checkPlatonicUpgrade = (
   }
 
   if (
-    player.hepteractCrafts.abyss.BAL >= Math.floor(platUpgradeBaseCosts[index].abyssals * priceMultiplier)
+    Decimal.gte(player.hepteractCrafts.abyss.BAL, Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)))
     || platUpgradeBaseCosts[index].abyssals === 0
   ) {
     checksum++
@@ -337,20 +337,20 @@ export const createPlatonicDescription = (index: number) => {
   DOMCacheGetOrSet('platonicObtainiumCost').textContent = `${format(player.researchPoints)}/${
     format(platUpgradeBaseCosts[index].obtainium * priceMultiplier)
   } Obtainium`
-  DOMCacheGetOrSet('platonicCubeCost').textContent = `${format(player.wowCubes)}/${
+  DOMCacheGetOrSet('platonicCubeCost').textContent = `${format(player.wowCubes.value)}/${
     format(platUpgradeBaseCosts[index].cubes * priceMultiplier)
   } Wow! Cubes`
-  DOMCacheGetOrSet('platonicTesseractCost').textContent = `${format(player.wowTesseracts)}/${
+  DOMCacheGetOrSet('platonicTesseractCost').textContent = `${format(player.wowTesseracts.value)}/${
     format(platUpgradeBaseCosts[index].tesseracts * priceMultiplier)
   } Wow! Tesseracts`
-  DOMCacheGetOrSet('platonicHypercubeCost').textContent = `${format(player.wowHypercubes)}/${
+  DOMCacheGetOrSet('platonicHypercubeCost').textContent = `${format(player.wowHypercubes.value)}/${
     format(platUpgradeBaseCosts[index].hypercubes * priceMultiplier)
   } Wow! Hypercubes`
-  DOMCacheGetOrSet('platonicPlatonicCost').textContent = `${format(player.wowPlatonicCubes)}/${
+  DOMCacheGetOrSet('platonicPlatonicCost').textContent = `${format(player.wowPlatonicCubes.value)}/${
     format(platUpgradeBaseCosts[index].platonics * priceMultiplier)
   } Platonic! Cubes`
   DOMCacheGetOrSet('platonicHepteractCost').textContent = `${format(player.hepteractCrafts.abyss.BAL)}/${
-    format(Math.floor(platUpgradeBaseCosts[index].abyssals * priceMultiplier), 0, true)
+    format(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)), 0, true)
   } Hepteracts of the Abyss`
 
   resourceCheck.offerings
@@ -429,14 +429,14 @@ export const buyPlatonicUpgrades = (index: number, auto = false) => {
       player.platonicUpgrades[index] += 1
       // Auto Platonic Upgrades no longer claim the cost of Offerings and Obtainiums
       if (!auto) {
-        player.researchPoints = player.researchPoints.sub(Math.floor(platUpgradeBaseCosts[index].obtainium * priceMultiplier))
-        player.runeshards = player.runeshards.sub(Math.floor(platUpgradeBaseCosts[index].offerings * priceMultiplier))
+        player.researchPoints = player.researchPoints.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].obtainium, priceMultiplier)))
+        player.runeshards = player.runeshards.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].offerings, priceMultiplier)))
       }
-      player.wowCubes.sub(Math.floor(platUpgradeBaseCosts[index].cubes * priceMultiplier))
-      player.wowTesseracts.sub(Math.floor(platUpgradeBaseCosts[index].tesseracts * priceMultiplier))
-      player.wowHypercubes.sub(Math.floor(platUpgradeBaseCosts[index].hypercubes * priceMultiplier))
-      player.wowPlatonicCubes.sub(Math.floor(platUpgradeBaseCosts[index].platonics * priceMultiplier))
-      player.hepteractCrafts.abyss.spend(Math.floor(platUpgradeBaseCosts[index].abyssals * priceMultiplier))
+      player.wowCubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].cubes, priceMultiplier)))
+      player.wowTesseracts.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].tesseracts, priceMultiplier)))
+      player.wowHypercubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].hypercubes, priceMultiplier)))
+      player.wowPlatonicCubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].platonics, priceMultiplier)))
+      player.hepteractCrafts.abyss.spend(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)))
 
       Synergism.emit('boughtPlatonicUpgrade', platUpgradeBaseCosts[index])
       if (index === 20 && !auto && player.singularityCount === 0) {

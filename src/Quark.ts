@@ -4,10 +4,10 @@ import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateCubeQuarkMultiplier, calculateQuarkMultiplier } from './Calculate'
 import { format, player } from './Synergism'
 import { Alert } from './UpdateHTML'
-import Decimal from 'break_eternity.js'
+import Decimal, { type DecimalSource } from 'break_eternity.js'
 
 
-const getBonus = async (): Promise<null | number> => {
+const getBonus = async (): Promise<null | DecimalSource> => {
   if (!navigator.onLine) {
     return null
   }
@@ -17,7 +17,7 @@ const getBonus = async (): Promise<null | number> => {
 
   try {
     const r = await fetch('https://synergism-quarks.khafra.workers.dev/')
-    const j = await r.json() as { bonus: number }
+    const j = await r.json() as { bonus: DecimalSource }
 
     return j.bonus
   } catch (e) {
@@ -80,17 +80,17 @@ export const quarkHandler = () => {
 
 export class QuarkHandler {
   /** Global quark bonus */
-  public BONUS = 0
+  public BONUS = new Decimal(0)
   /** Quark amount */
-  private QUARKS = 0
+  public QUARKS = new Decimal(0)
 
   private interval: ReturnType<typeof setInterval> | null = null
 
-  constructor ({ bonus, quarks }: { bonus?: number; quarks: number }) {
-    this.QUARKS = quarks
+  constructor ({ bonus, quarks }: { bonus?: DecimalSource; quarks: DecimalSource }) {
+    this.QUARKS = new Decimal(quarks)
 
     if (bonus) {
-      this.BONUS = bonus
+      this.BONUS = new Decimal(bonus)
     } else {
       void this.getBonus()
     }
@@ -102,24 +102,21 @@ export class QuarkHandler {
   }
 
   /*** Calculates the number of quarks to give with the current bonus. */
-  applyBonus (amount: number | Decimal) {
+  applyBonus (amount: DecimalSource) {
     const nonPatreon = calculateQuarkMultiplier()
-    return Decimal.mul(amount, (1 + (this.BONUS / 100))).mul(nonPatreon).toNumber()
+    return Decimal.mul(amount, Decimal.div(this.BONUS, 100).add(1)).mul(nonPatreon)
   }
 
   /** Subtracts quarks, as the name suggests. */
-  add (amount: number, useBonus = true) {
-    this.QUARKS += useBonus ? this.applyBonus(amount) : amount
-    player.quarksThisSingularity += useBonus ? this.applyBonus(amount) : amount
+  add (amount: DecimalSource, useBonus = true) {
+    this.QUARKS = this.QUARKS.add(useBonus ? this.applyBonus(amount) : amount)
+    player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, useBonus ? this.applyBonus(amount) : amount)
     return this
   }
 
   /** Add quarks, as suggested by the function's name. */
-  sub (amount: number) {
-    this.QUARKS -= amount
-    if (this.QUARKS < 0) {
-      this.QUARKS = 0
-    }
+  sub (amount: DecimalSource) {
+    this.QUARKS = Decimal.sub(this.QUARKS, amount).max(0)
 
     return this
   }
@@ -132,10 +129,10 @@ export class QuarkHandler {
     }
 
     if (localStorage.getItem('quarkBonus') !== null) { // is in cache
-      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: number; fetched: number }
+      const { bonus, fetched } = JSON.parse(localStorage.getItem('quarkBonus')!) as { bonus: DecimalSource; fetched: number }
       if (Date.now() - fetched < 60 * 1000 * 15) { // cache is younger than 15 minutes
         el.textContent = `Generous patrons give you a bonus of ${bonus}% more Quarks!`
-        return this.BONUS = bonus
+        return this.BONUS = new Decimal(bonus)
       }
     } else if (!navigator.onLine) {
       return el.textContent = 'Current Bonus: N/A% (offline)!'
@@ -157,7 +154,7 @@ export class QuarkHandler {
 
     el.textContent = `Generous patrons give you a bonus of ${b}% more Quarks!`
     localStorage.setItem('quarkBonus', JSON.stringify({ bonus: b, fetched: Date.now() }))
-    this.BONUS = b
+    this.BONUS = new Decimal(b)
   }
 
   public toString (val: number | Decimal): string {
@@ -168,7 +165,7 @@ export class QuarkHandler {
    * Resets the amount of quarks saved but keeps the bonus amount.
    */
   public reset () {
-    this.QUARKS = 0
+    this.QUARKS = new Decimal(0)
   }
 
   [Symbol.toPrimitive] = (t: string) => t === 'number' ? this.QUARKS : null

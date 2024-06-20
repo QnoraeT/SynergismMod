@@ -130,6 +130,11 @@ export const updateAntDescription = (i: number) => {
     x: format(player[`${tier}OwnedAnts` as const]),
     y: format(player[`${tier}GeneratedAnts` as const], 2)
   })
+
+  DOMCacheGetOrSet('antsoftcap').style.display = G.globalAntMult.gte(1e33) ? '' : 'none'
+  DOMCacheGetOrSet('antsoftcap').textContent = i18next.t('ants.softcap', {
+    pow: format(G.antSoftcapPow, 4),
+  })
 }
 
 const getAntProdCost = (bought: DecimalSource, baseCost: DecimalSource, index: number) => {

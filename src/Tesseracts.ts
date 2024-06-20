@@ -1,5 +1,6 @@
 import { player } from './Synergism'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export const calculateTesseractBlessings = () => {
   // The visual updates are handled in visualUpdateCubes()
@@ -17,14 +18,15 @@ export const calculateTesseractBlessings = () => {
   ]
 
   for (let i = 0; i < 10; i++) {
-    let power = 1
-    let mult = 1
-    if (tesseractArray[i] >= 1000 && i !== 5) {
-      power = G.giftDRPower[i]
-      mult *= Math.pow(1000, 1 - G.giftDRPower[i])
-    }
+    const scPow = Decimal.add(G.blessingDRPower[i]!, G.giftDRPower[i])
+    let amt = tesseractArray[i]
 
-    G.tesseractBonusMultiplier[i + 1] = 1
-      + mult * G.giftbase[i] * Math.pow(tesseractArray[i], power) * G.hypercubeBonusMultiplier[i + 1]!
+    if (Decimal.gte(tesseractArray[i], 1000)) {
+      amt = Decimal.div(amt, 1000).pow(scPow).sub(1).mul(1000).div(scPow).add(1000)
+    }
+  
+    G.tesseractBonusMultiplier[i + 1] = amt
+    G.tesseractBonusMultiplier[i + 1] = Decimal.mul(G.tesseractBonusMultiplier[i + 1]!, G.hypercubeBonusMultiplier[i + 1]!).mul(G.giftbase[i]).add(1)
   }
 }
+

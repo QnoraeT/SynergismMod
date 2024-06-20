@@ -1,8 +1,8 @@
-import Decimal from 'break_eternity.js'
+import Decimal, { type DecimalSource } from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal } from './Calculate'
+import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal, constantEffects } from './Calculate'
 import { CalcECC } from './Challenges'
 import { format, player, updateAllMultiplier, updateAllTick } from './Synergism'
 import type { FirstToFifth, OneToFive, ZeroToFour } from './types/Synergism'
@@ -18,6 +18,7 @@ export const getReductionValue = () => {
     + player.researches[60]) / 200)
   reduction = reduction.add(CalcECC('transcend', player.challengecompletions[4]).div(200))
   reduction = reduction.add(ant7Effect())
+  reduction = reduction.mul(constantEffects().buildingSlowDown)
   return reduction
 }
 
@@ -200,12 +201,12 @@ export const tesseractBuildingCosts = [1, 10, 100, 1000, 10000] as const
 // in total. Use cost(owned+buyAmount) - cost(owned) to figure the cost of
 // buying multiple buildings.
 
-export type TesseractBuildings = [number | null, number | null, number | null, number | null, number | null]
+export type TesseractBuildings = [DecimalSource | null, DecimalSource | null, DecimalSource | null, DecimalSource | null, DecimalSource | null]
 
 const buyTessBuildingsToCheapestPrice = (
   ownedBuildings: TesseractBuildings,
-  cheapestPrice: number
-): [number, TesseractBuildings] => {
+  cheapestPrice: Decimal
+): [Decimal, TesseractBuildings] => {
   const buyToBuildings = ownedBuildings.map((currentlyOwned, index) => {
     if (currentlyOwned === null) {
       return null
@@ -215,22 +216,21 @@ const buyTessBuildingsToCheapestPrice = (
     // If buyTo has a fractional part, we want to round UP so that this
     // price costs more than the cheapest price.
     // If buyTo doesn't have a fractional part, thisPrice = cheapestPrice.
-    const buyTo = Math.ceil(Math.pow(cheapestPrice / tesseractBuildingCosts[index], 1 / 3) - 1)
+    const buyTo = Decimal.div(cheapestPrice, tesseractBuildingCosts[index]).root(3).sub(1).ceil()
     // It could be possible that cheapestPrice is less than the CURRENT
     // price of this building, so take the max of the number of buildings
     // we currently have.
-    return Math.max(currentlyOwned, buyTo)
+    return Decimal.max(currentlyOwned, buyTo)
   }) as TesseractBuildings
 
-  let price = 0
+  let price = new Decimal(0)
   for (let i = 0; i < ownedBuildings.length; i++) {
     const buyFrom = ownedBuildings[i]
     const buyTo = buyToBuildings[i]
     if (buyFrom === null || buyTo === null) {
       continue
     }
-    price += tesseractBuildingCosts[i]
-      * (Math.pow(buyTo * (buyTo + 1) / 2, 2) - Math.pow(buyFrom * (buyFrom + 1) / 2, 2))
+    price = price.add(Decimal.mul(buyTo, Decimal.add(buyTo, 1)).div(2).pow(2).sub(Decimal.mul(buyFrom, Decimal.add(buyFrom, 1)).div(2).pow(2))).mul(tesseractBuildingCosts[i])
   }
 
   return [price, buyToBuildings]
@@ -262,23 +262,23 @@ const buyTessBuildingsToCheapestPrice = (
  */
 export const calculateTessBuildingsInBudget = (
   ownedBuildings: TesseractBuildings,
-  budget: number
+  budget: DecimalSource
 ): TesseractBuildings => {
   // Nothing is affordable.
   // Also catches the case when budget <= 0, and all values are null.
-  let minCurrentPrice: number | null = null
+  let minCurrentPrice: Decimal | null = null
   for (let i = 0; i < ownedBuildings.length; i++) {
     const owned = ownedBuildings[i]
     if (owned === null) {
       continue
     }
-    const price = tesseractBuildingCosts[i] * Math.pow(owned + 1, 3)
-    if (minCurrentPrice === null || price < minCurrentPrice) {
+    const price = Decimal.pow(Decimal.add(owned, 1), 3).mul(tesseractBuildingCosts[i])
+    if (minCurrentPrice === null || Decimal.lt(price, minCurrentPrice)) {
       minCurrentPrice = price
     }
   }
 
-  if (minCurrentPrice === null || minCurrentPrice > budget) {
+  if (minCurrentPrice === null || Decimal.gt(minCurrentPrice, budget)) {
     return ownedBuildings
   }
 
@@ -308,21 +308,21 @@ export const calculateTessBuildingsInBudget = (
   // at least one thing.
   let lo = minCurrentPrice
   // Do an exponential search to find the upper bound.
-  let hi = lo * 2
-  while (buyTessBuildingsToCheapestPrice(ownedBuildings, hi)[0] <= budget) {
+  let hi = Decimal.mul(lo, 2)
+  while (Decimal.lte(buyTessBuildingsToCheapestPrice(ownedBuildings, hi)[0], budget)) {
     lo = hi
-    hi *= 2
+    hi = hi.mul(2)
   }
   // Invariant:
   // f(lo) <= budget < f(hi).
-  while (hi - lo > 0.5) {
-    const mid = lo + (hi - lo) / 2
+  while (Decimal.sub(hi, lo).gt(0.5)) {
+    const mid = Decimal.sub(hi, lo).div(2).add(lo)
     // It's possible to get into an infinite loop if mid here is equal to
     // the boundaries, even if hi !== lo (due to floating point inaccuracy).
-    if (mid === lo || mid === hi) {
+    if (Decimal.eq(mid, lo) || Decimal.eq(mid, hi)) {
       break
     }
-    if (buyTessBuildingsToCheapestPrice(ownedBuildings, mid)[0] <= budget) {
+    if (Decimal.lte(buyTessBuildingsToCheapestPrice(ownedBuildings, mid)[0], budget)) {
       lo = mid
     } else {
       hi = mid
@@ -338,16 +338,16 @@ export const calculateTessBuildingsInBudget = (
   // a set of buildings which are affordable, but more buildings can still be
   // bought. To fix this, we greedily buy the cheapest building one at a time,
   // which should take 4 or less iterations to run out of budget.
-  let remainingBudget = budget - cost
+  let remainingBudget = Decimal.sub(budget, cost)
   const currentPrices = buildings.map((num, index) => {
     if (num === null) {
       return null
     }
-    return tesseractBuildingCosts[index] * Math.pow(num + 1, 3)
+    return Decimal.pow(Decimal.add(num, 1), 3).mul(tesseractBuildingCosts[index])
   })
 
   for (let iteration = 1; iteration <= 5; iteration++) {
-    let minimum: { price: number; index: number } | null = null
+    let minimum: { price: Decimal; index: number } | null = null
     for (let index = 0; index < currentPrices.length; index++) {
       const price = currentPrices[index]
       if (price === null) {
@@ -355,19 +355,19 @@ export const calculateTessBuildingsInBudget = (
       }
       // <= is used instead of < to prioritise the higher tier buildings
       // over the lower tier ones if they have the same price.
-      if (minimum === null || price <= minimum.price) {
+      if (minimum === null || Decimal.lte(price, minimum.price)) {
         minimum = { price, index }
       }
     }
-    if (minimum !== null && minimum.price <= remainingBudget) {
-      remainingBudget -= minimum.price
+    if (minimum !== null && Decimal.lte(minimum.price, remainingBudget)) {
+      remainingBudget = Decimal.sub(remainingBudget, minimum.price)
       // buildings[minimum.index] should always be a number.
       // In extreme situations (when buildings[minimum.index] is bigger
       // than Number.MAX_SAFE_INTEGER), this below increment won't work.
       // However, that requires 1e47 tesseracts to get to, which shouldn't
       // ever happen.
-      buildings[minimum.index]!++
-      currentPrices[minimum.index] = tesseractBuildingCosts[minimum.index] * Math.pow(buildings[minimum.index]! + 1, 3)
+      buildings[minimum.index]! = Decimal.add(buildings[minimum.index]!, 1)
+      currentPrices[minimum.index] = Decimal.pow(Decimal.add(buildings[minimum.index]!, 1), 3).mul(tesseractBuildingCosts[minimum.index])
     } else {
       // Can't afford cheapest any more - break.
       break
@@ -385,41 +385,39 @@ export const calculateTessBuildingsInBudget = (
  */
 export const getTesseractCost = (
   index: OneToFive,
-  amount?: number,
+  amount?: Decimal,
   checkCanAfford = true,
-  buyFrom?: number
-): [number, number] => {
-  amount ??= player.tesseractbuyamount
-  buyFrom ??= player[`ascendBuilding${index}` as const].owned
+  buyFrom?: Decimal
+): [Decimal, Decimal] => {
+  amount ??= new Decimal(player.tesseractbuyamount)
+  buyFrom ??= new Decimal(player[`ascendBuilding${index}` as const].owned)
   const intCost = tesseractBuildingCosts[index - 1]
-  const subCost = intCost * Math.pow(buyFrom * (buyFrom + 1) / 2, 2)
+  const subCost = buyFrom.mul(buyFrom.add(1)).div(2).pow(2).mul(intCost)
 
-  let actualBuy: number
+  let actualBuy: Decimal
   if (checkCanAfford) {
-    const buyTo = Math.floor(
-      -1 / 2 + 1 / 2 * Math.pow(1 + 8 * Math.pow((Number(player.wowTesseracts) + subCost) / intCost, 1 / 2), 1 / 2)
-    )
-    actualBuy = Math.min(buyTo, buyFrom + amount)
+    const buyTo = player.wowTesseracts.value.add(subCost).div(intCost).sqrt().mul(8).add(1).sqrt().div(2).sub(0.5).floor()
+    actualBuy = Decimal.min(buyTo, Decimal.add(buyFrom, amount))
   } else {
-    actualBuy = buyFrom + amount
+    actualBuy = Decimal.add(buyFrom, amount)
   }
-  const actualCost = intCost * Math.pow(actualBuy * (actualBuy + 1) / 2, 2) - subCost
+  const actualCost = actualBuy.mul(actualBuy.add(1)).div(2).pow(2).mul(intCost).sub(subCost)
   return [actualBuy, actualCost]
 }
 
-export const buyTesseractBuilding = (index: OneToFive, amount = player.tesseractbuyamount) => {
+export const buyTesseractBuilding = (index: OneToFive, amount: DecimalSource = player.tesseractbuyamount) => {
   const intCost = tesseractBuildingCosts[index - 1]
   const ascendBuildingIndex = `ascendBuilding${index}` as const
   // Destructuring FTW!
-  const [buyTo, actualCost] = getTesseractCost(index, amount)
+  const [buyTo, actualCost] = getTesseractCost(index, new Decimal(amount))
 
   player[ascendBuildingIndex].owned = buyTo
   player.wowTesseracts.sub(actualCost)
-  player[ascendBuildingIndex].cost = intCost * Math.pow(1 + buyTo, 3)
+  player[ascendBuildingIndex].cost = Decimal.pow(buyTo.add(1), 3).mul(intCost)
 }
 
 export const buyRuneBonusLevels = (type: 'Blessings' | 'Spirits', index: number) => {
-  const unlocked = type === 'Spirits' ? player.challengecompletions[12].gt(0) : player.achievements[134] === 1
+  const unlocked = type === 'Spirits' ? Decimal.gt(player.challengecompletions[12], 0) : player.achievements[134] === 1
   if (unlocked && Decimal.isFinite(player.runeshards) && player.runeshards.gt(0)) {
     let baseCost: number
     let baseLevels: Decimal
@@ -462,7 +460,7 @@ export const updateRuneBlessing = (type: 'Blessings' | 'Spirits', index: number)
         achievementaward(234 + i)
       }
     }
-    if (player.runeBlessingLevels[1].gte(1e22) && player.achievements[245] < 1) {
+    if (Decimal.gte(player.runeBlessingLevels[1], 1e22) && player.achievements[245] < 1) {
       achievementaward(245)
     }
   }
@@ -498,7 +496,7 @@ export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100,
       if (Decimal.isFinite(player.runeshards) && Decimal.gt(player.runeshards, 0)) {
         let baseCost: number
         let baseLevels: Decimal
-        const levelCap = Infinity
+        const levelCap = Number.POSITIVE_INFINITY
         if (type === 'Spirits') {
           baseCost = G.spiritBaseCost
           baseLevels = player.runeSpiritLevels[index]
@@ -680,9 +678,18 @@ export const getAccelBoostTarget = (amt: Decimal): Decimal => {
   return i
 }
 
+function particleBuildScale() {
+  let i = (player.currentChallenge.ascension !== 15) ? new Decimal(300000) : new Decimal(1000)
+  if (player.currentChallenge.ascension !== 15) {
+    i = i.add(constantEffects().particleBuildingScale)
+  }
+
+  return i
+}
+
 export const getParticleCostq = (bought: number | Decimal, baseCost: number | Decimal): Decimal => {
   let i = new Decimal(bought)
-  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
+  const scaling = particleBuildScale()
 
   if (i.gte(scaling)) {
       i = i.div(scaling).pow(2).mul(scaling)
@@ -694,7 +701,7 @@ export const getParticleCostq = (bought: number | Decimal, baseCost: number | De
 export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
   if (amt.lt(baseCost)) { return new Decimal(0) }
   let i = amt.div(baseCost).log(2).add(1)
-  const scaling = (player.currentChallenge.ascension !== 15) ? 325000 : 1000
+  const scaling = particleBuildScale()
 
   if (Decimal.gte(i, scaling)) {
       i = Decimal.div(i, scaling).root(2).mul(scaling)
@@ -719,14 +726,14 @@ export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal,
   }
 
   i = i.div(getReductionValue())
-  i = i.pow(2).mul(Decimal.log10(1 + ((type === 'Mythos') ? 0.002 : 0.0005 * index))).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
+  i = i.pow(2).mul(Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index))).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
   return i
 }
 
 export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
   if (amt.lt(baseCost)) { return new Decimal(0) }
   let i = amt
-  i = inverseQuad(i.log10(), Decimal.log10(1 + ((type === 'Mythos') ? 0.002 : 0.0005 * index)), Decimal.pow(1.25, index).log10(), baseCost.log10())
+  i = inverseQuad(i.log10(), Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index)), Decimal.pow(1.25, index).log10(), baseCost.log10())
 
   i = i.mul(getReductionValue())
 

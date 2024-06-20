@@ -68,12 +68,12 @@ const getCubeCost = (i: number, buyMax: boolean): IMultiBuy => {
   if (cubic) {
     // TODO: Fix this inconsistency later.
     amountToBuy = buyMax ? new Decimal(maxLevel) : Decimal.min(maxLevel, cubeUpgrade.add(1))
-    metaData = calculateCubicSumDataDecimal(cubeUpgrade, cubeBaseCost[i - 1], Number(player.wowCubes), amountToBuy)
+    metaData = calculateCubicSumDataDecimal(cubeUpgrade, cubeBaseCost[i - 1], player.wowCubes.value, amountToBuy)
   } else {
     metaData = calculateSummationNonLinearDecimal(
       cubeUpgrade,
       cubeBaseCost[i - 1] * singularityMultiplier,
-      Number(player.wowCubes),
+      player.wowCubes.value,
       linGrowth,
       amountToBuy
     )
@@ -114,7 +114,7 @@ export const cubeUpgradeDesc = (i: number, buyMax = player.cubeUpgradesBuyMaxTog
   d.style.color = 'white'
 
   // This conditional is true only in the case where you can buy zero levels.
-  if (Decimal.lt(Number(player.wowCubes), metaData.cost)) {
+  if (Decimal.lt(player.wowCubes.value, metaData.cost)) {
     c.style.color = 'var(--crimson-text-color)'
   }
   if (Decimal.eq(player.cubeUpgrades[i] ?? 0, maxLevel)) {
@@ -129,7 +129,7 @@ export const updateCubeUpgradeBG = (i: number) => {
   const maxCubeLevel = getCubeMax(i)
   const cubeUpgrade = player.cubeUpgrades[i]!
   if (Decimal.gt(cubeUpgrade, maxCubeLevel)) {
-    player.wowCubes.add(Decimal.sub(cubeUpgrade, maxCubeLevel).mul(cubeBaseCost[i - 1]).toNumber()) // nope not dealing with that just yet
+    player.wowCubes.add(Decimal.sub(cubeUpgrade, maxCubeLevel).mul(cubeBaseCost[i - 1]))
     player.cubeUpgrades[i] = new Decimal(maxCubeLevel)
   }
   if (Decimal.eq(player.cubeUpgrades[i]!, 0)) {
@@ -172,8 +172,8 @@ export const buyCubeUpgrades = (i: number, buyMax = player.cubeUpgradesBuyMaxTog
 
   const metaData = getCubeCost(i, buyMax)
   const maxLevel = getCubeMax(i)
-  if (Decimal.gte(Number(player.wowCubes), metaData.cost) && Decimal.lt(player.cubeUpgrades[i]!, maxLevel)) {
-    player.wowCubes.sub(metaData.cost.toNumber()) // not dealing with this again :c
+  if (Decimal.gte(player.wowCubes.value, metaData.cost) && Decimal.lt(player.cubeUpgrades[i]!, maxLevel)) {
+    player.wowCubes.sub(metaData.cost)
     player.cubeUpgrades[i] = metaData.levelCanBuy
   } else {
     return

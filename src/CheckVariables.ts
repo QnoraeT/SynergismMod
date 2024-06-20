@@ -153,34 +153,34 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
   if (data.ascendBuilding1 === undefined) {
     player.ascendBuilding1 = {
-      cost: 1,
-      owned: 0,
+      cost: new Decimal(1),
+      owned: new Decimal(0),
       generated: new Decimal(0),
-      multiplier: 0.01
+      multiplier: new Decimal(0.01)
     }
     player.ascendBuilding2 = {
-      cost: 10,
-      owned: 0,
+      cost: new Decimal(10),
+      owned: new Decimal(0),
       generated: new Decimal(0),
-      multiplier: 0.01
+      multiplier: new Decimal(0.01)
     }
     player.ascendBuilding3 = {
-      cost: 100,
-      owned: 0,
+      cost: new Decimal(100),
+      owned: new Decimal(0),
       generated: new Decimal(0),
-      multiplier: 0.01
+      multiplier: new Decimal(0.01)
     }
     player.ascendBuilding4 = {
-      cost: 1000,
-      owned: 0,
+      cost: new Decimal(1000),
+      owned: new Decimal(0),
       generated: new Decimal(0),
-      multiplier: 0.01
+      multiplier: new Decimal(0.01)
     }
     player.ascendBuilding5 = {
-      cost: 10000,
-      owned: 0,
+      cost: new Decimal(10000),
+      owned: new Decimal(0),
       generated: new Decimal(0),
-      multiplier: 0.01
+      multiplier: new Decimal(0.01)
     }
   }
   if (data.tesseractbuyamount === undefined) {
@@ -188,28 +188,28 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
   if (data.tesseractBlessings === undefined) {
     player.tesseractBlessings = {
-      accelerator: 0,
-      multiplier: 0,
-      offering: 0,
-      runeExp: 0,
-      obtainium: 0,
-      antSpeed: 0,
-      antSacrifice: 0,
-      antELO: 0,
-      talismanBonus: 0,
-      globalSpeed: 0
+      accelerator: new Decimal(0),
+      multiplier: new Decimal(0),
+      offering: new Decimal(0),
+      runeExp: new Decimal(0),
+      obtainium: new Decimal(0),
+      antSpeed: new Decimal(0),
+      antSacrifice: new Decimal(0),
+      antELO: new Decimal(0),
+      talismanBonus: new Decimal(0),
+      globalSpeed: new Decimal(0)
     }
     player.hypercubeBlessings = {
-      accelerator: 0,
-      multiplier: 0,
-      offering: 0,
-      runeExp: 0,
-      obtainium: 0,
-      antSpeed: 0,
-      antSacrifice: 0,
-      antELO: 0,
-      talismanBonus: 0,
-      globalSpeed: 0
+      accelerator: new Decimal(0),
+      multiplier: new Decimal(0),
+      offering: new Decimal(0),
+      runeExp: new Decimal(0),
+      obtainium: new Decimal(0),
+      antSpeed: new Decimal(0),
+      antSacrifice: new Decimal(0),
+      antELO: new Decimal(0),
+      talismanBonus: new Decimal(0),
+      globalSpeed: new Decimal(0)
     }
   }
   if (data.prototypeCorruptions === undefined) {
@@ -345,7 +345,7 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   if (
     data.cubeUpgrades == null
     || Decimal.eq(data.cubeUpgrades[19], 0)
-    || player.cubeUpgrades[19].eq(0)
+    || Decimal.eq(player.cubeUpgrades[19], 0)
   ) {
     for (let i = 121; i <= 125; i++) {
       player.upgrades[i] = 0
@@ -366,12 +366,12 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   if (data.dayCheck === undefined) {
     player.dayCheck = null
     player.dayTimer = 0
-    player.cubeQuarkDaily = 0
-    player.tesseractQuarkDaily = 0
-    player.hypercubeQuarkDaily = 0
-    player.cubeOpenedDaily = 0
-    player.tesseractOpenedDaily = 0
-    player.hypercubeOpenedDaily = 0
+    player.cubeQuarkDaily = new Decimal(0)
+    player.tesseractQuarkDaily = new Decimal(0)
+    player.hypercubeQuarkDaily = new Decimal(0)
+    player.cubeOpenedDaily = new Decimal(0)
+    player.tesseractOpenedDaily = new Decimal(0)
+    player.hypercubeOpenedDaily = new Decimal(0)
   }
 
   player.singularityUpgrades = {
@@ -936,14 +936,14 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.challengecompletions[15] = new Decimal(0)
     player.highestchallengecompletions[15] = new Decimal(0)
     player.platonicBlessings = {
-      cubes: 0,
-      tesseracts: 0,
-      hypercubes: 0,
-      platonics: 0,
-      hypercubeBonus: 0,
-      taxes: 0,
-      scoreBonus: 0,
-      globalSpeed: 0
+      cubes: new Decimal(0),
+      tesseracts: new Decimal(0),
+      hypercubes: new Decimal(0),
+      platonics: new Decimal(0),
+      hypercubeBonus: new Decimal(0),
+      taxes: new Decimal(0),
+      scoreBonus: new Decimal(0),
+      globalSpeed: new Decimal(0)
     }
     player.platonicUpgrades = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     player.challenge15Exponent = new Decimal(0)
@@ -1136,8 +1136,8 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
   }
 
   if (data.platonicCubeOpenedDaily === undefined) {
-    player.platonicCubeOpenedDaily = 0
-    player.platonicCubeQuarkDaily = 0
+    player.platonicCubeOpenedDaily = new Decimal(0)
+    player.platonicCubeQuarkDaily = new Decimal(0)
   }
 
   if (data.shopUpgrades.calculator === undefined) {
@@ -1224,18 +1224,18 @@ export const checkVariablesOnLoad = (data: PlayerSave) => {
     player.singularityCount = 0
     player.goldenQuarks = new Decimal(0)
 
-    player.quarksThisSingularity = 0
-    player.quarksThisSingularity += +player.worlds
+    player.quarksThisSingularity = new Decimal(0)
+    player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, Number(player.worlds))
     const keys = Object.keys(
       player.shopUpgrades
     ) as (keyof Player['shopUpgrades'])[]
     for (const key of keys) {
-      player.quarksThisSingularity += getQuarkInvestment(key)
+      player.quarksThisSingularity = Decimal.add(player.quarksThisSingularity, getQuarkInvestment(key))
     }
   }
 
   if (data.totalQuarksEver === undefined) {
-    player.totalQuarksEver = 0
+    player.totalQuarksEver = new Decimal(0)
   }
 
   if (data.hotkeys === undefined) {

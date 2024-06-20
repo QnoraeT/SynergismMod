@@ -13,6 +13,7 @@ import {
 import { changeTabColor, hideStuff, revealStuff } from './UpdateHTML'
 import { assert, limitRange } from './Utility'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export enum Tabs {
   Buildings = 0,
@@ -208,7 +209,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       {
         subTabID: '7',
         get unlocked () {
-          return player.challenge15Exponent.gte(1e15)
+          return Decimal.gte(player.challenge15Exponent, 1e15)
         },
         buttonID: 'switchCubeSubTab7'
       }
@@ -530,7 +531,7 @@ tabRow.appendButton(
     .makeDraggable()
     .makeRemoveable(),
   new $Tab({ class: 'chal11', id: 'traitstab', i18n: 'tabs.main.corruption' })
-    .setUnlockedState(() => player.challengecompletions[11].gt(0))
+    .setUnlockedState(() => Decimal.gt(player.challengecompletions[11], 0))
     .setType(Tabs.Corruption)
     .makeDraggable()
     .makeRemoveable(),

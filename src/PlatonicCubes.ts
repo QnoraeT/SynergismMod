@@ -1,25 +1,28 @@
 import { player } from './Synergism'
 import { Globals as G } from './Variables'
+import Decimal from 'break_eternity.js'
 
 export const calculatePlatonicBlessings = () => {
   // The visual updates are handled in visualUpdateCubes()
   const platonicArray = Object.values(player.platonicBlessings)
   const DRThreshold = [4e6, 4e6, 4e6, 8e4, 1e4, 1e4, 1e4, 1e4]
   for (let i = 0; i < platonicArray.length; i++) {
-    let power = 1
-    let mult = 1
-    let effectiveAmount = platonicArray[i]
+    const scPow = G.platonicDRPower[i]
+    let amt = platonicArray[i]
+    
     if (i === 5) {
-      effectiveAmount = Math.min(effectiveAmount, 1e20)
-    }
-    if (i === 6 && effectiveAmount >= 1e20) {
-      effectiveAmount = Math.pow(effectiveAmount, 0.5) * 1e10
-    }
-    if (platonicArray[i] >= DRThreshold[i]) {
-      power = G.platonicDRPower[i]
-      mult *= Math.pow(DRThreshold[i], 1 - G.platonicDRPower[i])
+      amt = Decimal.min(1e20, amt)
     }
 
-    G.platonicBonusMultiplier[i] = 1 + mult * G.platonicCubeBase[i] * Math.pow(effectiveAmount, power)
+    if (i === 6 && Decimal.gte(amt, 1e20)) {
+      amt = Decimal.div(amt, 1e20).pow(0.5).sub(1).mul(1e20).div(0.5).add(1e20)
+    }
+
+    if (Decimal.gte(amt, DRThreshold[i])) {
+      amt = Decimal.div(amt, DRThreshold[i]).pow(scPow).sub(1).mul(DRThreshold[i]).div(scPow).add(DRThreshold[i])
+    }
+  
+    G.platonicBonusMultiplier[i] = amt
+    G.platonicBonusMultiplier[i] = Decimal.mul(G.platonicBonusMultiplier[i]!, G.platonicCubeBase[i]).add(1)
   }
 }

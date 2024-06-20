@@ -446,14 +446,12 @@ export const upgradeupdate = (num: number, fast?: boolean) => {
 }
 
 export const ascendBuildingDR = () => {
-  const sum = player.ascendBuilding1.owned + player.ascendBuilding2.owned + player.ascendBuilding3.owned
-    + player.ascendBuilding4.owned + player.ascendBuilding5.owned
+  let sum = Decimal.add(player.ascendBuilding1.owned, player.ascendBuilding2.owned).add(player.ascendBuilding3.owned).add(player.ascendBuilding4.owned).add(player.ascendBuilding5.owned)
 
-  if (sum > 100000) {
-    return Math.pow(100000, 0.5) * Math.pow(sum, 0.5)
-  } else {
-    return sum
+  if (sum.gte(1e5)) {
+    sum = sum.div(1e5).pow(0.5).mul(1e5)
   }
+  return sum
 }
 
 const constUpgEffect: Record<number, () => Record<string, string>> = {
@@ -567,7 +565,7 @@ export const constantUpgradeDescriptions = (i: number) => {
 
 export const buyConstantUpgrades = (i: number, fast = false) => {
   const [level, cost] = getConstUpgradeMetadata(i)
-  if (i <= 8 || (i >= 9 && player.constantUpgrades[i]!.lt(1))) {
+  if (i <= 8 || (i >= 9 && Decimal.lt(player.constantUpgrades[i]!, 1))) {
     if (player.ascendShards.gte(cost)) {
       player.constantUpgrades[i]! = Decimal.add(player.constantUpgrades[i]!, level)
       if (player.researches[175] === 0) {

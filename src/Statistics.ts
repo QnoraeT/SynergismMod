@@ -179,7 +179,7 @@ export const loadStatisticsMiscellaneous = () => {
     true
   )
   DOMCacheGetOrSet('sMisc14').textContent = format(
-    player.totalQuarksEver + player.quarksThisSingularity,
+    Decimal.add(player.totalQuarksEver, player.quarksThisSingularity),
     0,
     true
   )
@@ -500,8 +500,8 @@ export const loadQuarkMultiplier = () => {
   }` // IA Rune
   DOMCacheGetOrSet('sGQM12').textContent = `x${
     format(
-      player.challenge15Exponent.gte(1e15)
-        ? 1 + (5 / 10000) * hepteractEffective('quark')
+      Decimal.gte(player.challenge15Exponent, 1e15)
+        ? Decimal.mul(hepteractEffective('quark'), 0.0005).add(1)
         : 1,
       3,
       true
@@ -537,7 +537,7 @@ export const loadQuarkMultiplier = () => {
   }` // Singularity Milestones
   DOMCacheGetOrSet('sGQM17').textContent = `x${
     format(
-      player.cubeUpgrades[53].div(1000).add(1),
+      Decimal.div(player.cubeUpgrades[53], 1000).add(1),
       3,
       true
     )
@@ -545,7 +545,7 @@ export const loadQuarkMultiplier = () => {
   DOMCacheGetOrSet('sGQM18').textContent = `x${
     format(
       Decimal.div(player.cubeUpgrades[68], 10000)
-        .add(player.cubeUpgrades[68].div(1000).floor().mul(0.05)).add(1),
+        .add(Decimal.div(player.cubeUpgrades[68], 1000).floor().mul(0.05)).add(1),
       3,
       true
     )
@@ -592,13 +592,14 @@ export const loadQuarkMultiplier = () => {
   }`
   DOMCacheGetOrSet('sGQM24').textContent = `x${
     format(
-      1
-        + (1 / 10000)
-          * Math.floor(player.octeractUpgrades.octeractQuarkGain.level / 199)
-          * player.octeractUpgrades.octeractQuarkGain2.level
-          * Math.floor(
-            1 + Math.log10(Math.max(1, player.hepteractCrafts.quark.BAL))
-          ),
+      // 1
+      //   + (1 / 10000)
+      //     * Math.floor(player.octeractUpgrades.octeractQuarkGain.level / 199)
+      //     * player.octeractUpgrades.octeractQuarkGain2.level
+      //     * Math.floor(
+      //       1 + Math.log10(Math.max(1, player.hepteractCrafts.quark.BAL))
+      //     ),
+      Decimal.mul(player.octeractUpgrades.octeractQuarkGain2.level, Decimal.div(player.octeractUpgrades.octeractQuarkGain.level, 199).floor()).mul(Decimal.max(player.hepteractCrafts.quark.BAL, 1).log10().add(1).floor()).mul(0.0001).add(1),
       3,
       true
     )
@@ -1226,14 +1227,14 @@ export const loadAddCodeModifiersAndEffects = () => {
     // b/c floating-point errors
     DOMCacheGetOrSet('s+eff1').textContent = `+${
       format(
-        qbr * addEffectStats.minQuarks,
+        Decimal.mul(qbr, addEffectStats.minQuarks),
         3
       )
-    } ~ ${format(qbr * addEffectStats.maxQuarks, 3)}`
+    } ~ ${format(Decimal.mul(qbr, addEffectStats.maxQuarks), 3)}`
   } else {
     DOMCacheGetOrSet('s+eff1').textContent = `+${
       format(
-        qbr * addEffectStats.quarks,
+        Decimal.mul(qbr, addEffectStats.quarks),
         3
       )
     }`
@@ -1707,7 +1708,7 @@ export const gameStages = (): Stage[] => {
       stage: 12,
       tier: 5,
       name: 'challenge14-w5x10max',
-      unlocked: player.cubeUpgrades[50].gte(100000),
+      unlocked: Decimal.gte(player.cubeUpgrades[50], 100000),
       reset: player.achievements[183] === 1
     },
     {
@@ -1742,7 +1743,7 @@ export const gameStages = (): Stage[] => {
       stage: 17,
       tier: 5,
       name: 'beta-1e15-expo',
-      unlocked: player.challenge15Exponent.gte(1e15),
+      unlocked: Decimal.gte(player.challenge15Exponent, 1e15),
       reset: player.achievements[183] === 1
     },
     {

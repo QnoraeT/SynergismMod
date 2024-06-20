@@ -239,11 +239,11 @@ export const exportSynergism = async (
 
     const quarkData = quarkHandler()
 
-    let bonusGQMultiplier = 1
-    bonusGQMultiplier *= 1 + player.worlds.BONUS / 100
-    bonusGQMultiplier *= player.highestSingularityCount >= 100
+    let bonusGQMultiplier = new Decimal(1)
+    bonusGQMultiplier = Decimal.mul(bonusGQMultiplier, player.worlds.BONUS.div(100).add(1))
+    bonusGQMultiplier = Decimal.mul(bonusGQMultiplier, player.highestSingularityCount >= 100
       ? 1 + player.highestSingularityCount / 50
-      : 1
+      : 1)
     if (player.singularityUpgrades.goldenQuarks3.getEffect().bonus > 0) {
       player.goldenQuarks = player.goldenQuarks.add(Decimal.floor(Decimal.div(player.goldenQuarksTimer, 3600 / player.singularityUpgrades.goldenQuarks3.getEffect().bonus))
       ).mul(bonusGQMultiplier)
@@ -446,14 +446,14 @@ export const promocodes = async (input: string | null, amount?: number) => {
     player.dailyCodeUsed = false
 
     if (
-      player.challenge15Exponent.gte(1e15)
+      Decimal.gte(player.challenge15Exponent, 1e15)
       || player.highestSingularityCount > 0
     ) {
-      player.hepteractCrafts.quark.CAP *= 2
-      player.hepteractCrafts.quark.BAL += Math.min(
+      player.hepteractCrafts.quark.CAP = Decimal.mul(player.hepteractCrafts.quark.CAP, 2)
+      player.hepteractCrafts.quark.BAL = Decimal.add(player.hepteractCrafts.quark.BAL, Decimal.min(
         1e13,
-        player.hepteractCrafts.quark.CAP / 2
-      )
+        Decimal.div(player.hepteractCrafts.quark.CAP, 2)
+      ))
     }
     if (player.highestSingularityCount > 0) {
       player.singularityUpgrades.goldenQuarks1.freeLevels += 1 + Math.floor(player.highestSingularityCount / 10)
@@ -467,7 +467,7 @@ export const promocodes = async (input: string | null, amount?: number) => {
     return Alert(
       `Not sponsored by the company! Your Quark timer(s) have been replenished and you have been given 8 real life hours of Ascension progress! Your daily code has also been reset for you.
                       ${
-        player.challenge15Exponent.gte(1e15)
+        Decimal.gte(player.challenge15Exponent, 1e15)
           || player.highestSingularityCount > 0
           ? 'Derpsmith also hacked your save to expand Quark Hepteract for free, and (to a limit) automatically filled the extra amount! What a generous, handsome gigachad.'
           : ''
@@ -510,14 +510,14 @@ export const promocodes = async (input: string | null, amount?: number) => {
       return Alert(i18next.t('importexport.promocodes.bribe.notUnlocked'))
     }
 
-    const cap = craft.computeActualCap()
+    // const cap = craft.computeActualCap()
 
-    if (cap >= 1e300) {
-      return Alert(i18next.t('importexport.promocodes.bribe.overCapacity'))
-    }
+    // if (cap >= 1e300) {
+    //   return Alert(i18next.t('importexport.promocodes.bribe.overCapacity'))
+    // }
 
     player.codes.set(47, true)
-    craft.CAP = Math.min(1e300, craft.CAP * 2)
+    craft.CAP = Decimal.mul(craft.CAP, 2)
 
     return Alert(i18next.t('importexport.promocodes.bribe.thanks'))
   } else if (input.toLowerCase() === 'daily' && !player.dailyCodeUsed) {
@@ -528,16 +528,16 @@ export const promocodes = async (input: string | null, amount?: number) => {
     const quarkMultiplier = 1 + Math.min(49, player.highestSingularityCount)
 
     let actualQuarkAward = player.worlds.applyBonus(
-      rewards.quarks * quarkMultiplier
+      Decimal.mul(rewards.quarks, quarkMultiplier)
     )
-    if (actualQuarkAward > 1e5) {
-      actualQuarkAward = Math.pow(1e5, 0.75) * Math.pow(actualQuarkAward, 0.25)
+    if (actualQuarkAward.gte(1e5)) {
+      actualQuarkAward = actualQuarkAward.div(1e5).root(4).mul(1e4)
     }
     player.worlds.add(actualQuarkAward, false)
     player.goldenQuarks = player.goldenQuarks.add(rewards.goldenQuarks)
 
     rewardMessage += `\n${format(actualQuarkAward, 0, true)} Quarks`
-    if (rewards.goldenQuarks > 0) {
+    if (Decimal.gt(rewards.goldenQuarks, 0)) {
       rewardMessage += `\n${
         format(
           rewards.goldenQuarks,
@@ -809,19 +809,19 @@ export const promocodes = async (input: string | null, amount?: number) => {
     }
   } else if (input === 'sub') {
     const amount = 1 + (window.crypto.getRandomValues(new Uint16Array(1))[0] % 16) // [1, 16]
-    const quarks = Number(player.worlds)
+    const quarks = player.worlds.QUARKS
     await Alert(i18next.t('importexport.promocodes.sub.subbed', { x: amount }))
 
-    if (quarks < amount) {
+    if (Decimal.lt(quarks, amount)) {
       await Alert(
         i18next.t('importexport.promocodes.sub.gave', {
-          x: amount - quarks,
+          x: format(Decimal.sub(amount, quarks)),
           y: amount
         })
       )
     }
 
-    player.worlds.sub(quarks < amount ? amount - quarks : amount)
+    player.worlds.sub(Decimal.lt(quarks, amount) ? Decimal.sub(amount, quarks) : amount)
   } else if (input === 'gamble') {
     if (
       typeof player.skillCode === 'number'
@@ -857,7 +857,7 @@ export const promocodes = async (input: string | null, amount?: number) => {
       return (el.textContent = i18next.t(
         'importexport.promocodes.gamble.cheaters'
       ))
-    } else if (Number(player.worlds) < bet) {
+    } else if (Decimal.lt(player.worlds.QUARKS, bet)) {
       return (el.textContent = i18next.t(
         'general.validation.moreThanPlayerHas'
       ))
@@ -892,7 +892,7 @@ export const promocodes = async (input: string | null, amount?: number) => {
     const start = Date.now()
     const playerConfirmed = await Confirm(
       i18next.t('importexport.promocodes.time.confirm', {
-        x: format(2500 + 125 * player.cubeUpgrades[61].toNumber(), 0, true),
+        x: format(Decimal.mul(player.cubeUpgrades[61], 125).add(2500), 0, true),
         y: format(rewardMult, 2, true)
       })
     )
@@ -901,25 +901,23 @@ export const promocodes = async (input: string | null, amount?: number) => {
       const diff = Math.abs(Date.now() - (start + random))
       player.promoCodeTiming.time = Date.now()
 
-      if (diff <= 2500 + 125 * player.cubeUpgrades[61].toNumber()) {
-        const reward = Math.floor(
-          Math.min(1000, 125 + 25 * player.highestSingularityCount)
-            * (1 + player.cubeUpgrades[61].toNumber() / 50)
-        )
+      if (Decimal.lte(diff, Decimal.mul(player.cubeUpgrades[61], 125).add(2500))) {
+        const reward = Decimal.mul(player.highestSingularityCount, 25).add(125).min(1000).mul(player.cubeUpgrades[61].div(50).add(1)).floor()
         let actualQuarkAward = player.worlds.applyBonus(reward)
         let blueberryTime = 0
-        if (actualQuarkAward > 66666) {
-          actualQuarkAward = Math.pow(actualQuarkAward, 0.35) * Math.pow(66666, 0.65)
+        // why is this sc here
+        if (actualQuarkAward.gte(66666)) {
+          actualQuarkAward = actualQuarkAward.div(66666).pow(0.35).mul(66666)
         }
 
         if (player.visitedAmbrosiaSubtab) {
           blueberryTime = 1800 * rewardMult
         }
 
-        player.worlds.add(actualQuarkAward * rewardMult, false)
+        player.worlds.add(Decimal.mul(actualQuarkAward, rewardMult), false)
         G.ambrosiaTimer = G.ambrosiaTimer.add(blueberryTime)
         const winText = i18next.t('importexport.promocodes.time.won', {
-          x: format(actualQuarkAward * rewardMult, 0, true)
+          x: format(Decimal.mul(actualQuarkAward, rewardMult), 0, true)
         })
         const ambrosiaText = blueberryTime > 0
           ? i18next.t('importexport.promocodes.time.ambrosia', {
@@ -1132,74 +1130,74 @@ const dailyCodeFormatFreeLevelMessage = (
 }
 
 const dailyCodeReward = () => {
-  let quarks = 0
-  let goldenQuarks = 0
+  let quarks = new Decimal(0)
+  let goldenQuarks = new Decimal(0)
 
   const ascended = player.ascensionCount.gt(0)
   const singularity = player.highestSingularityCount > 0
   if (player.reincarnationCount.gt(0) || ascended || singularity) {
-    quarks += 20
+    quarks = Decimal.add(quarks, 20)
   }
   if (Decimal.gt(player.challengecompletions[6], 0) || ascended || singularity) {
-    quarks += 20
+    quarks = Decimal.add(quarks, 20)
   } // 40
   if (Decimal.gt(player.challengecompletions[7], 0) || ascended || singularity) {
-    quarks += 30
+    quarks = Decimal.add(quarks, 30)
   } // 70
   if (Decimal.gt(player.challengecompletions[8], 0) || ascended || singularity) {
-    quarks += 30
+    quarks = Decimal.add(quarks, 30)
   } // 100
   if (Decimal.gt(player.challengecompletions[9], 0) || ascended || singularity) {
-    quarks += 40
+    quarks = Decimal.add(quarks, 40)
   } // 140
   if (Decimal.gt(player.challengecompletions[10], 0) || ascended || singularity) {
-    quarks += 60
+    quarks = Decimal.add(quarks, 60)
   } // 200
   if (ascended || singularity) {
-    quarks += 50
+    quarks = Decimal.add(quarks, 50)
   } // 250
   if (Decimal.gt(player.challengecompletions[11], 0) || singularity) {
-    quarks += 50
+    quarks = Decimal.add(quarks, 50)
   } // 300
   if (Decimal.gt(player.challengecompletions[12], 0) || singularity) {
-    quarks += 50
+    quarks = Decimal.add(quarks, 50)
   } // 350
   if (Decimal.gt(player.challengecompletions[13], 0) || singularity) {
-    quarks += 50
+    quarks = Decimal.add(quarks, 50)
   } // 400
   if (Decimal.gt(player.challengecompletions[14], 0) || singularity) {
-    quarks += 100
+    quarks = Decimal.add(quarks, 100)
   } // 500
   if (player.researches[200] === G.researchMaxLevels[200]) {
-    quarks += 250
+    quarks = Decimal.add(quarks, 250)
   } // 750
-  if (player.cubeUpgrades[50].eq(100000)) {
-    quarks += 250
+  if (Decimal.eq(player.cubeUpgrades[50], 100000)) {
+    quarks = Decimal.add(quarks, 250)
   } // 1000
   if (player.platonicUpgrades[5] > 0) {
-    quarks += 250
+    quarks = Decimal.add(quarks, 250)
   } // 1250
   if (player.platonicUpgrades[10] > 0) {
-    quarks += 500
+    quarks = Decimal.add(quarks, 500)
   } // 1750
   if (player.platonicUpgrades[15] > 0) {
-    quarks += 750
+    quarks = Decimal.add(quarks, 750)
   } // 2500
   if (player.challenge15Exponent.gte(1e18)) {
-    quarks += player.challenge15Exponent.log10().sub(18).mul(1000).floor().toNumber() // CHANGE THIS TO DECIMAL AT SOME POINT
+    quarks = Decimal.add(quarks, player.challenge15Exponent.log10().sub(18).mul(1000).floor())
   } // at least 2500
   if (player.platonicUpgrades[20] > 0) {
-    quarks += 2500
+    quarks = Decimal.add(quarks, 2500)
   } // at least 5k
 
-  quarks *= 1 + 0.05 * player.shopUpgrades.shopImprovedDaily
-  quarks = Math.floor(quarks)
+  quarks = Decimal.mul(quarks, 1 + 0.05 * player.shopUpgrades.shopImprovedDaily)
+  quarks = Decimal.floor(quarks)
 
   if (singularity) {
-    goldenQuarks += 2 + 3 * player.highestSingularityCount
-    goldenQuarks *= 1 + 0.2 * player.shopUpgrades.shopImprovedDaily2
-    goldenQuarks *= 1 + 0.15 * player.shopUpgrades.shopImprovedDaily3
-    goldenQuarks *= 1 + player.shopUpgrades.shopImprovedDaily4
+    goldenQuarks = Decimal.add(goldenQuarks, 2 + 3 * player.highestSingularityCount)
+    goldenQuarks = Decimal.mul(goldenQuarks, 1 + 0.2 * player.shopUpgrades.shopImprovedDaily2)
+    goldenQuarks = Decimal.mul(goldenQuarks, 1 + 0.15 * player.shopUpgrades.shopImprovedDaily3)
+    goldenQuarks = Decimal.mul(goldenQuarks, 1 + player.shopUpgrades.shopImprovedDaily4)
   }
 
   return {

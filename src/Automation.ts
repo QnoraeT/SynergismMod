@@ -85,7 +85,7 @@ export const autoUpgrades = () => {
     for (let i = 121; i <= 125; i++) {
       if (
         player.upgrades[i] === 0 && player.coins.gte(Decimal.pow(10, G.upgradeCosts[i])) && player.shoptoggles.coin
-        && player.cubeUpgrades[19].gt(0)
+        && Decimal.gt(player.cubeUpgrades[19], 0)
       ) {
         buyUpgrades(Upgrade.coin, i, true)
       }

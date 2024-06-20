@@ -50,7 +50,7 @@ import { Alert, revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { upgradeupdate } from './Upgrades'
 import { getElementById } from './Utility'
 import { updateClassList } from './Utility'
-import { sumContentsNumber } from './Utility'
+import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
 
 let repeatreset: ReturnType<typeof setTimeout>
@@ -613,13 +613,13 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.runeshards = new Decimal(0)
     player.crystalUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
 
-    player.runelevels[0] = player.cubeUpgrades[26].mul(3)
-    player.runelevels[1] = player.cubeUpgrades[26].mul(3)
-    player.runelevels[2] = player.cubeUpgrades[26].mul(3)
-    player.runelevels[3] = player.cubeUpgrades[26].mul(3)
-    player.runelevels[4] = player.cubeUpgrades[26].mul(3)
+    player.runelevels[0] = Decimal.mul(player.cubeUpgrades[26], 3)
+    player.runelevels[1] = Decimal.mul(player.cubeUpgrades[26], 3)
+    player.runelevels[2] = Decimal.mul(player.cubeUpgrades[26], 3)
+    player.runelevels[3] = Decimal.mul(player.cubeUpgrades[26], 3)
+    player.runelevels[4] = Decimal.mul(player.cubeUpgrades[26], 3)
 
-    if (player.cubeUpgrades[27].eq(1)) {
+    if (Decimal.eq(player.cubeUpgrades[27], 1)) {
       player.firstOwnedParticles = new Decimal(1)
       player.secondOwnedParticles = new Decimal(1)
       player.thirdOwnedParticles = new Decimal(1)
@@ -636,11 +636,11 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
         Decimal.isFinite(metaData[4]) && Decimal.isFinite(metaData[5]) && Decimal.isFinite(metaData[6]) && Decimal.isFinite(metaData[7])
         && Decimal.isFinite(metaData[8])
       ) {
-        player.wowCubes.add(new Decimal(metaData[4]).toNumber())
-        player.wowTesseracts.add(new Decimal(metaData[5]).toNumber())
-        player.wowHypercubes.add(new Decimal(metaData[6]).toNumber())
-        player.wowPlatonicCubes.add(new Decimal(metaData[7]).toNumber())
-        player.wowAbyssals = Decimal.min(1e300, Decimal.add(player.wowAbyssals, metaData[8]))
+        player.wowCubes.add(metaData[4])
+        player.wowTesseracts.add(metaData[5])
+        player.wowHypercubes.add(metaData[6])
+        player.wowPlatonicCubes.add(metaData[7])
+        player.wowAbyssals = Decimal.add(player.wowAbyssals, metaData[8])
       }
     }
 
@@ -706,17 +706,17 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     calculateTesseractBlessings()
     calculateHypercubeBlessings()
 
-    if (player.cubeUpgrades[4].eq(1)) {
+    if (Decimal.eq(player.cubeUpgrades[4], 1)) {
       player.upgrades[94] = 1
       player.upgrades[95] = 1
       player.upgrades[96] = 1
       player.upgrades[97] = 1
       player.upgrades[98] = 1
     }
-    if (player.cubeUpgrades[5].eq(1)) {
+    if (Decimal.eq(player.cubeUpgrades[5], 1)) {
       player.upgrades[99] = 1
     }
-    if (player.cubeUpgrades[6].eq(1)) {
+    if (Decimal.eq(player.cubeUpgrades[6], 1)) {
       player.upgrades[100] = 1
     }
 
@@ -799,7 +799,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
         const buyFrom = ownedBuildings[i - 1]
         const buyTo = buyToBuildings[i - 1]
         if (buyFrom !== null && buyTo !== null && buyTo !== buyFrom) {
-          buyTesseractBuilding(i as OneToFive, buyTo - buyFrom)
+          buyTesseractBuilding(i as OneToFive, Decimal.sub(buyTo, buyFrom))
         }
       }
     }
@@ -812,7 +812,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
 
     // Auto open Cubes. If to remove !== 0, game will lag a bit if it was set to 0
     if (player.highestSingularityCount >= 35) {
-      if (player.autoOpenCubes && player.openCubes !== 0 && player.cubeUpgrades[51].gt(0)) {
+      if (player.autoOpenCubes && player.openCubes !== 0 && Decimal.gt(player.cubeUpgrades[51], 0)) {
         player.wowCubes.open(Math.floor(Number(player.wowCubes) * player.openCubes / 100), false)
       }
       if (player.autoOpenTesseracts && player.openTesseracts !== 0 && player.challengecompletions[11].gt(0)) {
@@ -856,15 +856,15 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.unlocks.rrow3 = false
     player.unlocks.rrow4 = false
 
-    player.ascendBuilding1.owned = 0
+    player.ascendBuilding1.owned = new Decimal(0)
     player.ascendBuilding1.generated = new Decimal(0)
-    player.ascendBuilding2.owned = 0
+    player.ascendBuilding2.owned = new Decimal(0)
     player.ascendBuilding2.generated = new Decimal(0)
-    player.ascendBuilding3.owned = 0
+    player.ascendBuilding3.owned = new Decimal(0)
     player.ascendBuilding3.generated = new Decimal(0)
-    player.ascendBuilding4.owned = 0
+    player.ascendBuilding4.owned = new Decimal(0)
     player.ascendBuilding4.generated = new Decimal(0)
-    player.ascendBuilding5.owned = 0
+    player.ascendBuilding5.owned = new Decimal(0)
     player.ascendBuilding5.generated = new Decimal(0)
 
     player.constantUpgrades = [null, new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
@@ -1139,10 +1139,10 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
       quarks: player.quarksThisSingularity,
       c15Score: player.challenge15Exponent,
       goldenQuarks: calculateGoldenQuarkGain(),
-      wowTribs: sumContentsNumber(cubeArray),
-      tessTribs: sumContentsNumber(tesseractArray),
-      hyperTribs: sumContentsNumber(hypercubeArray),
-      platTribs: sumContentsNumber(platonicArray),
+      wowTribs: sumContentsDecimal(cubeArray),
+      tessTribs: sumContentsDecimal(tesseractArray),
+      hyperTribs: sumContentsDecimal(hypercubeArray),
+      platTribs: sumContentsDecimal(platonicArray),
       octeracts: player.totalWowOcteracts,
       quarkHept: player.hepteractCrafts.quark.BAL,
       kind: 'singularity'
@@ -1171,7 +1171,7 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
     player.singularityCount = setSingNumber
   }
 
-  player.totalQuarksEver += player.quarksThisSingularity
+  player.totalQuarksEver = Decimal.add(player.totalQuarksEver, player.quarksThisSingularity)
   await resetShopUpgrades(true)
   const hold = Object.assign({}, blankSave, {
     codes: Array.from(blankSave.codes)
@@ -1515,7 +1515,7 @@ export const resetAnts = () => {
   player.seventhCostAnts = new Decimal(1e100)
   player.eighthCostAnts = new Decimal(1e300)
 
-  if (player.cubeUpgrades[48].gt(0)) {
+  if (Decimal.gt(player.cubeUpgrades[48], 0)) {
     player.firstOwnedAnts = new Decimal(1)
     player.firstCostAnts = new Decimal('1e741')
   }

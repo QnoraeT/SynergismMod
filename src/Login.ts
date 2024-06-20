@@ -70,7 +70,7 @@ export async function handleLogin () {
   const { globalBonus, member, personalBonus } = await response.json() as SynergismUserAPIResponse
 
   player.worlds = new QuarkHandler({
-    quarks: Number(player.worlds),
+    quarks: player.worlds.QUARKS,
     bonus: 100 * (1 + globalBonus / 100) * (1 + personalBonus / 100) - 100 // Multiplicative
   })
 

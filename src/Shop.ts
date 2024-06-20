@@ -1349,7 +1349,7 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
         } because you are already at the maximum ${shopItem.type === shopUpgradeTypes.UPGRADE ? 'level' : 'capacity'}!`
       )
       : null
-  } else if (Number(player.worlds) < getShopCosts(input)) {
+  } else if (player.worlds.QUARKS.lt(getShopCosts(input))) {
     return player.shopConfirmationToggle
       ? Alert(
         `You can't purchase ${
@@ -1381,7 +1381,7 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
       buyData = calculateSummationNonLinearDecimal(
         player.shopUpgrades[input],
         shopItem.price,
-        +player.worlds,
+        player.worlds.QUARKS,
         shopItem.priceIncrease / shopItem.price,
         Math.min(10, maxBuyAmount)
       )
@@ -1392,7 +1392,7 @@ export const buyShopUpgrades = async (input: ShopUpgradeNames) => {
       buyData = calculateSummationNonLinearDecimal(
         player.shopUpgrades[input],
         shopItem.price,
-        +player.worlds,
+        player.worlds.QUARKS,
         shopItem.priceIncrease / shopItem.price,
         maxBuyAmount
       )
@@ -1725,17 +1725,17 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       )
     case 'powderEX':
       return (
-        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
+        Decimal.gte(player.challenge15Exponent, 1e15) || player.highestSingularityCount > 0
       )
     case 'chronometer2':
       return (
-        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
+        Decimal.gte(player.challenge15Exponent, 1e15) || player.highestSingularityCount > 0
       )
     case 'chronometer3':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)
     case 'seasonPassY':
       return (
-        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
+        Decimal.gte(player.challenge15Exponent, 1e15) || player.highestSingularityCount > 0
       )
     case 'seasonPassZ':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)
@@ -1765,7 +1765,7 @@ export const isShopUpgradeUnlocked = (upgrade: ShopUpgradeNames): boolean => {
       return Boolean(player.singularityUpgrades.wowPass3.getEffect().bonus)
     case 'improveQuarkHept':
       return (
-        player.challenge15Exponent.gte(1e15) || player.highestSingularityCount > 0
+        Decimal.gte(player.challenge15Exponent, 1e15) || player.highestSingularityCount > 0
       )
     case 'improveQuarkHept2':
       return Boolean(player.singularityUpgrades.wowPass.getEffect().bonus)

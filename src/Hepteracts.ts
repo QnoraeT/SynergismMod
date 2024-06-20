@@ -1,4 +1,4 @@
-import Decimal from 'break_eternity.js'
+import Decimal, { type DecimalSource } from 'break_eternity.js'
 import type { StringMap } from 'i18next'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -16,15 +16,15 @@ import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt } from './UpdateHTML'
 
 export interface IHepteractCraft {
-  BASE_CAP: number
-  HEPTERACT_CONVERSION: number
-  OTHER_CONVERSIONS: Record<string, number>
+  BASE_CAP: DecimalSource
+  HEPTERACT_CONVERSION: DecimalSource
+  OTHER_CONVERSIONS: Record<string, DecimalSource>
   HTML_STRING: string
   AUTO?: boolean
   UNLOCKED?: boolean
-  BAL?: number
-  CAP?: number
-  DISCOUNT?: number
+  BAL?: DecimalSource
+  CAP?: DecimalSource
+  DISCOUNT?: DecimalSource
 }
 
 export const hepteractTypeList = [
@@ -49,19 +49,19 @@ export class HepteractCraft {
   /**
    * Current Inventory (amount) of craft you possess
    */
-  BAL = 0
+  BAL: DecimalSource = new Decimal(0)
 
   /**
    * Maximum Inventory (amount) of craft you can hold
    * base_cap is the smallest capacity for such item.
    */
-  CAP = 0
-  BASE_CAP = 0
+  CAP: DecimalSource = new Decimal(0)
+  BASE_CAP: DecimalSource = new Decimal(0)
 
   /**
    * Conversion rate of hepteract to synthesized items
    */
-  HEPTERACT_CONVERSION = 0
+  HEPTERACT_CONVERSION: DecimalSource = new Decimal(0)
 
   /**
    * Automatic crafting toggle. If on, allows crafting to be done automatically upon ascension.
@@ -74,13 +74,14 @@ export class HepteractCraft {
    * values being the amount player has.
    */
   OTHER_CONVERSIONS: {
-    [key in keyof Player]?: number
+    [key in keyof Player]?: Decimal
   }
 
   /**
    * Discount Factor (number from [0, 1))
+   * revamp: Discount from 1 to Infinity
    */
-  DISCOUNT = 0
+  DISCOUNT: DecimalSource = new Decimal(1)
 
   /**
    * String Prefix used for HTML DOM manipulation
@@ -93,9 +94,9 @@ export class HepteractCraft {
     this.OTHER_CONVERSIONS = data.OTHER_CONVERSIONS
     this.HTML_STRING = data.HTML_STRING
     this.UNLOCKED = data.UNLOCKED ?? false // This would basically always be true if this parameter is provided
-    this.BAL = data.BAL ?? 0
+    this.BAL = data.BAL ?? new Decimal(0)
     this.CAP = data.CAP ?? this.BASE_CAP // This sets cap either as previous value or keeps it to default.
-    this.DISCOUNT = data.DISCOUNT ?? 0
+    this.DISCOUNT = data.DISCOUNT ?? new Decimal(0)
     this.AUTO = data.AUTO ?? false
 
     void this.toggleAutomatic(this.AUTO)
@@ -114,11 +115,11 @@ export class HepteractCraft {
     }
   }
 
-  computeActualCap = (): number => {
-    let multiplier = 1
-    multiplier *= (player.singularityChallenges.limitedAscensions.rewards.hepteractCap) ? 2 : 1
+  computeActualCap = (): Decimal => {
+    let multiplier = new Decimal(1)
+    multiplier = Decimal.mul(multiplier, (player.singularityChallenges.limitedAscensions.rewards.hepteractCap) ? 2 : 1)
 
-    return this.CAP * multiplier
+    return Decimal.mul(this.CAP, multiplier)
   }
 
   // Add to balance through crafting.
@@ -131,7 +132,7 @@ export class HepteractCraft {
       return Alert(i18next.t('hepteracts.notUnlocked'))
     }
 
-    if (heptCap - this.BAL <= 0) {
+    if (Decimal.sub(heptCap, this.BAL).lte(0)) {
       if (player.toggles[35]) {
         return Alert(i18next.t('hepteracts.reachedCapacity', { x: format(heptCap, 0, true) }))
       }
@@ -143,31 +144,33 @@ export class HepteractCraft {
 
     // Calculate the largest craft amount possible, with an upper limit being craftAmount
     const hepteractLimit = Decimal.floor(
-      Decimal.div(player.wowAbyssals, this.HEPTERACT_CONVERSION * craftCostMulti).mul(1 / (1 - this.DISCOUNT))
+      Decimal.div(player.wowAbyssals, Decimal.mul(this.HEPTERACT_CONVERSION, craftCostMulti)).mul(this.DISCOUNT)
     )
 
     // Create an array of how many we can craft using our conversion limits for additional items
-    const itemLimits: number[] = []
+    const itemLimits: Decimal[] = []
     for (const item in this.OTHER_CONVERSIONS) {
       // The type of player[item] is number | Decimal | Cube.
       if (item === 'worlds') {
         itemLimits.push(
-          Math.floor((player[item as keyof Player] as number) / (this.OTHER_CONVERSIONS[item as keyof Player] ?? 1)) * 1
-            / (1 - this.DISCOUNT)
+          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player] ?? 1)).mul(this.DISCOUNT)
         )
       } else {
         itemLimits.push(
-          Math.floor(
-            (player[item as keyof Player] as number) / (craftCostMulti * this.OTHER_CONVERSIONS[item as keyof Player]!)
-          ) * 1 / (1 - this.DISCOUNT)
+          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, Decimal.mul(craftCostMulti, this.OTHER_CONVERSIONS[item as keyof Player]!)) ).mul(this.DISCOUNT)
         )
       }
     }
 
     // Get the smallest of the array we created
-    const smallestItemLimit = Math.min(...itemLimits)
+    let smallestItemLimit = new Decimal(Number.POSITIVE_INFINITY)
+    for (const i in itemLimits) {
+      if (Decimal.lt(smallestItemLimit, itemLimits[i])) {
+        smallestItemLimit = itemLimits[i]
+      }
+    }
 
-    let amountToCraft = Decimal.min(smallestItemLimit, hepteractLimit).min(heptCap).min(heptCap - this.BAL)
+    let amountToCraft = Decimal.min(smallestItemLimit, hepteractLimit).min(heptCap).min(Decimal.sub(heptCap, this.BAL))
 
     // Return if the material is not a calculable number
     if (Decimal.isNaN(amountToCraft) || !Decimal.isFinite(amountToCraft)) {
@@ -194,14 +197,14 @@ export class HepteractCraft {
     }
 
     // Check these lol
-    if (isNaN(craftAmount) || !isFinite(craftAmount) || !Number.isInteger(craftAmount)) { // nan + Infinity checks
+    if (Decimal.isNaN(craftAmount) || !Decimal.isFinite(craftAmount) || Decimal.floor(craftAmount).eq(craftAmount)) { // nan + Infinity checks
       return Alert(i18next.t('general.validation.finite'))
-    } else if (craftAmount <= 0) { // 0 or less selected
+    } else if (Decimal.lte(craftAmount, 0)) { // 0 or less selected
       return Alert(i18next.t('general.validation.zeroOrLess'))
     }
 
     // Get the smallest of hepteract limit, limit found above and specified input
-    amountToCraft = Decimal.min(smallestItemLimit, hepteractLimit).min(heptCap).min(heptCap - this.BAL)
+    amountToCraft = Decimal.min(smallestItemLimit, hepteractLimit).min(heptCap).min(Decimal.sub(heptCap, this.BAL))
 
     if (max && player.toggles[35]) {
       const craftYesPlz = await Confirm(i18next.t('hepteracts.craftMax', {
@@ -232,10 +235,10 @@ export class HepteractCraft {
         (player[item] as number) = 0
       } else if (player[item] instanceof Cube) {
         (player[item] as Cube).sub(
-          Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!).toNumber()
+          Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!)
         )
       } else if (item === 'worlds') {
-        player.worlds.sub(Decimal.mul(amountToCraft, this.OTHER_CONVERSIONS[item]!).toNumber())
+        player.worlds.sub(Decimal.mul(amountToCraft, this.OTHER_CONVERSIONS[item]!))
       }
     }
 
@@ -249,12 +252,12 @@ export class HepteractCraft {
   }
 
   // Reduce balance through spending
-  spend (amount: number): this {
+  spend (amount: DecimalSource): this {
     if (!this.UNLOCKED) {
       return this
     }
 
-    this.BAL -= amount
+    this.BAL = Decimal.sub(this.BAL, amount)
     return this
   }
 
@@ -284,7 +287,7 @@ export class HepteractCraft {
     const expandPrompt = await Confirm(i18next.t('hepteracts.expandPrompt', {
       x: format(this.CAP),
       y: format(heptCap),
-      z: format(heptCap * expandMultiplier),
+      z: format(Decimal.mul(heptCap, expandMultiplier)),
       a: format(expandMultiplier, 2, true)
     }))
 
@@ -302,14 +305,13 @@ export class HepteractCraft {
     }
 
     // Empties inventory in exchange for doubling maximum capacity.
-    this.BAL -= this.CAP
-    this.BAL = Math.max(0, this.BAL)
+    this.BAL = Decimal.sub(this.BAL, this.CAP).max(0)
 
-    this.CAP = Math.min(1e300, this.CAP * expandMultiplier)
+    this.CAP = Decimal.mul(this.CAP, expandMultiplier)
 
     if (player.toggles[35]) {
       return Alert(i18next.t('hepteracts.expandedInventory', {
-        x: format(heptCap * expandMultiplier, 0, true)
+        x: format(Decimal.mul(heptCap, expandMultiplier), 0, true)
       }))
     }
   }
@@ -318,15 +320,19 @@ export class HepteractCraft {
   /**
    * Discount has boundaries [0, 1), and upper limit
    *  is defined by (1 - EPSILON). Craft amount is multiplied by 1 / (1 - Discount)
+   * 
+   * ! no, do not do this
    */
-  addDiscount (amount: number): this {
-    // If amount would put Discount to 1 or higher set to upper limit
-    if (this.DISCOUNT + amount > (1 - Number.EPSILON)) {
-      this.DISCOUNT = 1 - Number.EPSILON
-      return this
-    }
+  addDiscount (amount: DecimalSource): this {
+    this.DISCOUNT = Decimal.mul(this.DISCOUNT, Decimal.div(1, Decimal.sub(1, amount)))
 
-    this.DISCOUNT += amount
+    // If amount would put Discount to 1 or higher set to upper limit
+    // if (this.DISCOUNT + amount > (1 - Number.EPSILON)) {
+    //   this.DISCOUNT = 1 - Number.EPSILON
+    //   return this
+    // }
+
+    // this.DISCOUNT += amount
     return this
   }
 
@@ -349,39 +355,43 @@ export class HepteractCraft {
 
     // Calculate the largest craft amount possible, with an upper limit being craftAmount
     const hepteractLimitCraft = Decimal.floor(
-      (Decimal.div(heptAmount, (craftCostMulti * this.HEPTERACT_CONVERSION))).mul(1 / (1 - this.DISCOUNT))
+      (Decimal.div(heptAmount, Decimal.mul(craftCostMulti, this.HEPTERACT_CONVERSION))).mul(this.DISCOUNT)
     )
 
     // Create an array of how many we can craft using our conversion limits for additional items
-    const itemLimits: number[] = []
+    const itemLimits: Decimal[] = []
     for (const item in this.OTHER_CONVERSIONS) {
       // When Auto is turned on, only Quarks and hepteracts are consumed.
       if (item === 'worlds') {
         itemLimits.push(
-          Math.floor((player[item as keyof Player] as number) / this.OTHER_CONVERSIONS[item as keyof Player]!) * 1
-            / (1 - this.DISCOUNT)
+          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player]!)).mul(this.DISCOUNT)
         )
       }
     }
 
     // Get the smallest of the array we created [If Empty, this will be infinite]
-    const smallestItemLimit = Math.min(...itemLimits)
+    let smallestItemLimit = new Decimal(Number.POSITIVE_INFINITY)
+    for (const i in itemLimits) {
+      if (Decimal.lt(smallestItemLimit, itemLimits[i])) {
+        smallestItemLimit = itemLimits[i]
+      }
+    }
 
     let amountToCraft = Decimal.min(smallestItemLimit, hepteractLimitCraft)
     let amountCrafted = new Decimal(0)
 
-    let craft = Decimal.min(heptCap - this.BAL, amountToCraft) // Always nonzero
-    this.BAL += craft.toNumber()
+    let craft = Decimal.min(Decimal.sub(heptCap, this.BAL), amountToCraft) // Always nonzero
+    this.BAL = Decimal.add(this.BAL, craft)
     amountCrafted = amountCrafted.add(craft)
     amountToCraft = amountToCraft.sub(craft)
 
     while (Decimal.gte(this.BAL, heptCap) && Decimal.gte(amountToCraft, this.CAP)) {
-      this.BAL -= this.CAP
-      this.CAP *= expandMultiplier
-      heptCap *= expandMultiplier
-      craft = Decimal.min(heptCap - this.BAL, amountToCraft)
+      this.BAL = Decimal.sub(this.BAL, this.CAP)
+      this.CAP = Decimal.mul(this.CAP, expandMultiplier)
+      heptCap = Decimal.mul(heptCap, expandMultiplier)
+      craft = Decimal.min(Decimal.sub(heptCap, this.BAL), amountToCraft)
 
-      this.BAL += craft.toNumber()
+      this.BAL = Decimal.add(this.BAL, craft)
       amountCrafted = amountCrafted.add(craft)
       amountToCraft = amountToCraft.sub(craft)
     }
@@ -452,47 +462,55 @@ export const createHepteract = (data: IHepteractCraft) => {
 }
 
 export const hepteractEffective = (data: hepteractTypes) => {
-  let effectiveValue = Math.min(player.hepteractCrafts[data].BAL, hepteractEffectiveValues[data].LIMIT)
-  let exponentBoost = 0
+  // let effectiveValue = Decimal.min(player.hepteractCrafts[data].BAL, hepteractEffectiveValues[data].LIMIT)
+  let amt = player.hepteractCrafts[data].BAL
+  let exponentBoost = new Decimal(0)
   if (data === 'chronos') {
-    exponentBoost += 1 / 750 * player.platonicUpgrades[19]
+    exponentBoost = Decimal.add(exponentBoost, 1 / 750 * player.platonicUpgrades[19])
   }
   if (data === 'quark') {
-    exponentBoost += +player.singularityUpgrades.singQuarkHepteract.getEffect().bonus
-    exponentBoost += +player.singularityUpgrades.singQuarkHepteract2.getEffect().bonus
-    exponentBoost += +player.singularityUpgrades.singQuarkHepteract3.getEffect().bonus
-    exponentBoost += +player.octeractUpgrades.octeractImprovedQuarkHept.getEffect().bonus
-    exponentBoost += player.shopUpgrades.improveQuarkHept / 100
-    exponentBoost += player.shopUpgrades.improveQuarkHept2 / 100
-    exponentBoost += player.shopUpgrades.improveQuarkHept3 / 100
-    exponentBoost += player.shopUpgrades.improveQuarkHept4 / 100
-    exponentBoost += player.shopUpgrades.improveQuarkHept5 / 5000
+    exponentBoost = Decimal.add(exponentBoost, player.singularityUpgrades.singQuarkHepteract.getEffect().bonus)
+    exponentBoost = Decimal.add(exponentBoost, player.singularityUpgrades.singQuarkHepteract2.getEffect().bonus)
+    exponentBoost = Decimal.add(exponentBoost, player.singularityUpgrades.singQuarkHepteract3.getEffect().bonus)
+    exponentBoost = Decimal.add(exponentBoost, player.octeractUpgrades.octeractImprovedQuarkHept.getEffect().bonus)
+    exponentBoost = Decimal.add(exponentBoost, player.shopUpgrades.improveQuarkHept / 100)
+    exponentBoost = Decimal.add(exponentBoost, player.shopUpgrades.improveQuarkHept2 / 100)
+    exponentBoost = Decimal.add(exponentBoost, player.shopUpgrades.improveQuarkHept3 / 100)
+    exponentBoost = Decimal.add(exponentBoost, player.shopUpgrades.improveQuarkHept4 / 100)
+    exponentBoost = Decimal.add(exponentBoost, player.shopUpgrades.improveQuarkHept5 / 5000)
 
-    const amount = player.hepteractCrafts[data].BAL
-    if (1000 < amount && amount <= 1000 * Math.pow(2, 10)) {
-      return effectiveValue * Math.pow(amount / 1000, 1 / 2 + exponentBoost)
-    } else if (1000 * Math.pow(2, 10) < amount && amount <= 1000 * Math.pow(2, 18)) {
-      return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
-        * Math.pow(amount / (1000 * Math.pow(2, 10)), 1 / 4 + exponentBoost / 2)
-    } else if (1000 * Math.pow(2, 18) < amount && amount <= 1000 * Math.pow(2, 44)) {
-      return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
-        * Math.pow(Math.pow(2, 8), 1 / 4 + exponentBoost / 2)
-        * Math.pow(amount / (1000 * Math.pow(2, 18)), 1 / 6 + exponentBoost / 3)
-    } else if (1000 * Math.pow(2, 44) < amount) {
-      return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
-        * Math.pow(Math.pow(2, 8), 1 / 4 + exponentBoost / 2)
-        * Math.pow(Math.pow(2, 26), 1 / 6 + exponentBoost / 3)
-        * Math.pow(amount / (1000 * Math.pow(2, 44)), 1 / 12 + exponentBoost / 6)
-    }
-  }
-  if (player.hepteractCrafts[data].BAL > hepteractEffectiveValues[data].LIMIT) {
-    effectiveValue *= Math.pow(
-      player.hepteractCrafts[data].BAL / hepteractEffectiveValues[data].LIMIT,
-      hepteractEffectiveValues[data].DR + exponentBoost
-    )
+    // * what the hell is this
+    // const amount = player.hepteractCrafts[data].BAL
+    // if (1000 < amount && amount <= 1000 * Math.pow(2, 10)) {
+    //   return effectiveValue * Math.pow(amount / 1000, 1 / 2 + exponentBoost)
+    // } else if (1000 * Math.pow(2, 10) < amount && amount <= 1000 * Math.pow(2, 18)) {
+    //   return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
+    //     * Math.pow(amount / (1000 * Math.pow(2, 10)), 1 / 4 + exponentBoost / 2)
+    // } else if (1000 * Math.pow(2, 18) < amount && amount <= 1000 * Math.pow(2, 44)) {
+    //   return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
+    //     * Math.pow(Math.pow(2, 8), 1 / 4 + exponentBoost / 2)
+    //     * Math.pow(amount / (1000 * Math.pow(2, 18)), 1 / 6 + exponentBoost / 3)
+    // } else if (1000 * Math.pow(2, 44) < amount) {
+    //   return effectiveValue * Math.pow(Math.pow(2, 10), 1 / 2 + exponentBoost)
+    //     * Math.pow(Math.pow(2, 8), 1 / 4 + exponentBoost / 2)
+    //     * Math.pow(Math.pow(2, 26), 1 / 6 + exponentBoost / 3)
+    //     * Math.pow(amount / (1000 * Math.pow(2, 44)), 1 / 12 + exponentBoost / 6)
+    // }
+    const pow = Decimal.div(3, Decimal.sub(1, exponentBoost).pow(3))
+    amt = Decimal.div(amt, 1000).add(1).ln().div(pow).add(1).pow(pow).sub(1).mul(1000)
   }
 
-  return effectiveValue
+  // if (player.hepteractCrafts[data].BAL > hepteractEffectiveValues[data].LIMIT) {
+  //   effectiveValue *= Math.pow(
+  //     player.hepteractCrafts[data].BAL / hepteractEffectiveValues[data].LIMIT,
+  //     hepteractEffectiveValues[data].DR + exponentBoost
+  //   )
+  // }
+  if (Decimal.gte(amt, hepteractEffectiveValues[data].LIMIT)) {
+    amt = Decimal.div(amt, hepteractEffectiveValues[data].LIMIT).pow(Decimal.add(hepteractEffectiveValues[data].DR, exponentBoost)).mul(hepteractEffectiveValues[data].LIMIT)
+  }
+
+  return amt
 }
 
 export const hepteractDescriptions = (type: hepteractTypes) => {
@@ -510,9 +528,9 @@ export const hepteractDescriptions = (type: hepteractTypes) => {
   const bonusCapacityText = DOMCacheGetOrSet('hepteractBonusCapacity')
   const craftCostMulti = calculateSingularityDebuff('Hepteract Costs')
 
-  const multiplier = player.hepteractCrafts[type].computeActualCap() / player.hepteractCrafts[type].CAP
+  const multiplier = Decimal.div(player.hepteractCrafts[type].computeActualCap(), player.hepteractCrafts[type].CAP)
   bonusCapacityText.textContent =
-    (player.hepteractCrafts[type].computeActualCap() / player.hepteractCrafts[type].CAP > 1)
+    Decimal.div(player.hepteractCrafts[type].computeActualCap(), player.hepteractCrafts[type].CAP).gt(1)
       ? `Hepteract capacities are currently multiplied by ${multiplier}. Expansions cost what they would if this multiplier were 1.`
       : ''
   let currentEffectRecord!: StringMap
@@ -520,45 +538,45 @@ export const hepteractDescriptions = (type: hepteractTypes) => {
 
   switch (type) {
     case 'chronos':
-      currentEffectRecord = { x: format(hepteractEffective('chronos') * 6 / 100, 2, true) }
-      oneCost = format(1e115 * craftCostMulti, 0, false)
+      currentEffectRecord = { x: format(Decimal.mul(hepteractEffective('chronos'), 0.06), 2, true) }
+      oneCost = format(Decimal.mul(1e115, craftCostMulti), 0, false)
 
       break
     case 'hyperrealism':
-      currentEffectRecord = { x: format(hepteractEffective('hyperrealism') * 6 / 100, 2, true) }
-      oneCost = format(1e80 * craftCostMulti, 0, true)
+      currentEffectRecord = { x: format(Decimal.mul(hepteractEffective('hyperrealism'), 0.06), 2, true) }
+      oneCost = format(Decimal.mul(1e80, craftCostMulti), 0, true)
       break
     case 'quark':
-      currentEffectRecord = { x: format(hepteractEffective('quark') * 5 / 100, 2, true) }
+      currentEffectRecord = { x: format(Decimal.mul(hepteractEffective('quark'), 0.05), 2, true) }
       oneCost = '100'
       break
     case 'challenge':
-      currentEffectRecord = { x: format(hepteractEffective('challenge') * 5 / 100, 2, true) }
+      currentEffectRecord = { x: format(Decimal.mul(hepteractEffective('challenge'), 0.05), 2, true) }
       oneCost = {
-        y: format(1e11 * craftCostMulti),
-        z: format(1e22 * craftCostMulti)
+        y: format(Decimal.mul(1e11, craftCostMulti)),
+        z: format(Decimal.mul(1e22, craftCostMulti))
       }
       break
     case 'abyss':
-      oneCost = format(69 * craftCostMulti)
+      oneCost = format(Decimal.mul(69, craftCostMulti))
       break
     case 'accelerator':
       currentEffectRecord = {
-        x: format(2000 * hepteractEffective('accelerator'), 2, true),
-        y: format(hepteractEffective('accelerator') * 3 / 100, 2, true)
+        x: format(Decimal.mul(hepteractEffective('accelerator'), 2000), 2, true),
+        y: format(Decimal.mul(hepteractEffective('accelerator'), 0.03), 2, true)
       }
-      oneCost = format(1e14 * craftCostMulti)
+      oneCost = format(Decimal.mul(1e14, craftCostMulti))
       break
     case 'acceleratorBoost':
-      currentEffectRecord = { x: format(hepteractEffective('acceleratorBoost') / 10, 2, true) }
-      oneCost = format(1e10 * craftCostMulti)
+      currentEffectRecord = { x: format(Decimal.div(hepteractEffective('acceleratorBoost'), 10), 2, true) }
+      oneCost = format(Decimal.mul(1e10, craftCostMulti))
       break
     case 'multiplier':
       currentEffectRecord = {
-        x: format(1000 * hepteractEffective('multiplier'), 2, true),
-        y: format(hepteractEffective('multiplier') * 3 / 100, 2, true)
+        x: format(Decimal.mul(hepteractEffective('multiplier'), 1000), 2, true),
+        y: format(Decimal.mul(hepteractEffective('multiplier'), 0.03), 2, true)
       }
-      oneCost = format(1e130 * craftCostMulti)
+      oneCost = format(Decimal.mul(1e130, craftCostMulti))
       break
   }
 
@@ -573,7 +591,7 @@ export const hepteractDescriptions = (type: hepteractTypes) => {
   })
   const record = typeof oneCost === 'string' ? { y: oneCost } : oneCost
   costText.textContent = i18next.t(`wowCubes.hepteractForge.descriptions.${type}.oneCost`, {
-    x: format(player.hepteractCrafts[type].HEPTERACT_CONVERSION * craftCostMulti, 0, true),
+    x: format(Decimal.mul(player.hepteractCrafts[type].HEPTERACT_CONVERSION, craftCostMulti), 0, true),
     ...record
   })
 

@@ -27,6 +27,58 @@ const EX_ULTRA_OFFERING = 0.125
 const EX_ULTRA_OBTAINIUM = 0.125
 const EX_ULTRA_CUBES = 0.125
 
+export const constantEffects = () => {
+  const EFF = {
+    tax: new Decimal(1), 
+    antSoftcap: new Decimal(1), 
+    particleBuildingScale: new Decimal(0), 
+    buildingSlowDown: new Decimal(1), 
+    c3Effect: new Decimal(1), 
+    cubeSoftcap: new Decimal(1), 
+    accelScale: [new Decimal(1), new Decimal(1)], 
+    multScale: [new Decimal(1), new Decimal(1)], 
+    boostScale: new Decimal(1), 
+    siEffectPower: new Decimal(1), 
+    pBuildEff: new Decimal(1)
+  }
+  const AMT = player.ascendShards.max(0)
+
+  EFF.tax = AMT.add(1).log10().add(1).pow(Decimal.sub(G.platonicBonusMultiplier[5], 1).add(0.2 * player.platonicUpgrades[10]).add(0.1 * player.platonicUpgrades[5]).add(Decimal.mul(player.challengecompletions[10], player.upgrades[125]).div(300)).add(1))
+  if (AMT.gte(1e3)) {
+    EFF.antSoftcap = AMT.log10().div(3).pow(0.4).sub(1).mul(12).pow10()
+  }
+  if (AMT.gte(1e6)) {
+    EFF.particleBuildingScale = AMT.log10().div(6).sub(1).div(20).add(1).ln().mul(500000)
+  }
+  if (AMT.gte(1e10)) {
+    EFF.buildingSlowDown = AMT.log10().div(10).ln().add(1)
+  }
+  if (AMT.gte(1e30)) {
+    EFF.c3Effect = AMT.log10().div(30).log2().pow(2)
+  }
+  if (AMT.gte(1e100)) {
+    EFF.cubeSoftcap = AMT.log10().log10().div(2).pow(3)
+  }
+  if (AMT.gte(1e308)) {
+    EFF.accelScale[0] = AMT.log10().div(308).sqrt()
+    EFF.accelScale[1] = AMT.log10().div(154).sqrt()
+  }
+  if (AMT.gte("1e616")) {
+    EFF.multScale[0] = AMT.log10().div(616).sqrt()
+    EFF.multScale[1] = AMT.log10().div(308).sqrt()
+  }
+  if (AMT.gte("1e1000")) {
+    EFF.boostScale = AMT.log10().cbrt().div(10)
+  }
+  if (AMT.gte("e100000")) {
+    EFF.siEffectPower = AMT.log10().log10().div(5)
+  }
+  if (AMT.gte("ee7")) {
+    EFF.pBuildEff = AMT.log10().log10().sub(7).div(100).add(1).pow(2)
+  }
+  return EFF
+}
+
 export const calculateTotalCoinOwned = () => {
   G.totalCoinOwned = Decimal.add(player.firstOwnedCoin
     , player.secondOwnedCoin)
@@ -75,7 +127,7 @@ export const calculateTotalAcceleratorBoost = () => {
   b = b.mul(1 + (0.2 / 100) * player.researches[187])
   b = b.mul(1 + (0.01 / 100) * player.researches[200])
   b = b.mul(Decimal.mul(player.cubeUpgrades[50], 0.0001).add(1))
-  b = b.mul(1 + (1 / 1000) * hepteractEffective('acceleratorBoost'))
+  b = b.mul(Decimal.mul(hepteractEffective('acceleratorBoost'), 0.001).add(1))
   if (
     player.upgrades[73] > 0.5
     && player.currentChallenge.reincarnation !== 0
@@ -884,7 +936,7 @@ export const calculateAnts = () => {
   }
   if (player.currentChallenge.ascension === 11) {
     c11bonus = Decimal.floor(
-      player.challengecompletions[8].mul(4).add(player.challengecompletions[9].mul(23)).mul(Decimal.sub(1, player.challengecompletions[11].div(10)).max(0))
+      Decimal.mul(player.challengecompletions[8], 4).add(Decimal.mul(player.challengecompletions[9], 23)).mul(Decimal.sub(1, Decimal.div(player.challengecompletions[11], 10)).max(0))
     )
   }
 
@@ -951,12 +1003,13 @@ export const calculateAntSacrificeELO = () => {
     G.antELO = G.antELO.add(CalcECC('reincarnation', player.challengecompletions[10]).mul(100))
     G.antELO = G.antELO.add(75 * player.upgrades[80])
     G.antELO = G.antELO.mul(10).floor().div(10)
- 
-    G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.5, Decimal.min(3500, G.antELO)))
-    G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(4000, G.antELO)))
-    G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(6000, G.antELO)))
-    G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(10000, G.antELO)))
-    G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.2, G.antELO))
+
+    G.effectiveELO = G.antELO
+    // G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.5, Decimal.min(3500, G.antELO)))
+    // G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(4000, G.antELO)))
+    // G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(6000, G.antELO)))
+    // G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.1, Decimal.min(10000, G.antELO)))
+    // G.effectiveELO = G.effectiveELO.add(Decimal.mul(0.2, G.antELO))
     G.effectiveELO = G.effectiveELO.add(G.cubeBonusMultiplier[8].sub(1))
     G.effectiveELO = G.effectiveELO.add(player.cubeUpgrades[50])
     G.effectiveELO = G.effectiveELO.mul(1 + 0.03 * player.upgrades[124])
@@ -1014,7 +1067,7 @@ export const calculateAntSacrificeRewards = (): IAntSacRewards => {
   calculateAntSacrificeELO()
   calculateAntSacrificeMultipliers()
 
-  const maxCap = new Decimal(Infinity)
+  const maxCap = new Decimal(Number.POSITIVE_INFINITY)
   const rewardsMult = Decimal.min(maxCap, Decimal.mul(G.timeMultiplier, G.upgradeMultiplier))
   const rewards: IAntSacRewards = {
     antSacrificePoints: Decimal.mul(G.effectiveELO, rewardsMult).div(85),
@@ -1400,23 +1453,19 @@ export const calculateCubeBlessings = () => {
   ]
 
   for (let i = 1; i <= 10; i++) {
-    let power = 1
-    let mult = new Decimal(1)
-    if (cubeArray[i - 1] >= 1000) {
-      power = G.blessingDRPower[i]!
-      mult = mult.mul(Decimal.pow(
-        1000,
-        Decimal.sub(1, G.blessingDRPower[i]!).mul(Decimal.add(1, powerBonus[i - 1]))
-      ))
-    }
-    if (i === 6) {
-      power = 2.25
-      mult = new Decimal(1)
+    const scPow = Decimal.add(G.blessingDRPower[i]!, powerBonus[i - 1])
+    let amt = cubeArray[i - 1]
+    
+    if (i !== 6) {
+      if (Decimal.gte(cubeArray[i - 1], 1000)) {
+        amt = Decimal.div(amt, 1000).pow(scPow).sub(1).mul(1000).div(scPow).add(1000)
+      }
+    } else {
+      amt = Decimal.pow(amt, 2.25)
     }
 
-    G.cubeBonusMultiplier[i] = Decimal.min(
-      1e300, Decimal.pow(cubeArray[i - 1], Decimal.mul(power, powerBonus[i - 1].add(1))).mul(G.tesseractBonusMultiplier[i]!).mul(G.blessingbase[i]!).mul(mult).add(1)
-    )
+    G.cubeBonusMultiplier[i] = amt
+    G.cubeBonusMultiplier[i] = Decimal.mul(G.cubeBonusMultiplier[i]!, G.tesseractBonusMultiplier[i]!).mul(G.blessingbase[i]!).add(1)
   }
   calculateRuneLevels()
   calculateAntSacrificeELO()
@@ -1425,7 +1474,7 @@ export const calculateCubeBlessings = () => {
 
 export const calculateTotalOcteractCubeBonus = () => {
   if (player.singularityChallenges.noOcteracts.enabled) {
-    return 1
+    return new Decimal(1)
   }
   if (player.totalWowOcteracts.lt(1000)) {
     const bonus = player.totalWowOcteracts.mul(0.002).add(1) // At 1,000 returns 3
@@ -1438,7 +1487,7 @@ export const calculateTotalOcteractCubeBonus = () => {
 
 export const calculateTotalOcteractQuarkBonus = () => {
   if (player.singularityChallenges.noOcteracts.enabled) {
-    return 1
+    return new Decimal(1)
   }
   if (player.totalWowOcteracts.lt(1000)) {
     const bonus = player.totalWowOcteracts.mul(0.002).add(1) // At 1,000 returns 1.20
@@ -1450,14 +1499,14 @@ export const calculateTotalOcteractQuarkBonus = () => {
 
 export const calculateTotalOcteractOfferingBonus = () => {
   if (!player.singularityChallenges.noOcteracts.rewards.offeringBonus) {
-    return 1
+    return new Decimal(1)
   }
   return Decimal.pow(calculateTotalOcteractQuarkBonus(), 1.5)
 }
 
 export const calculateTotalOcteractObtainiumBonus = () => {
   if (!player.singularityChallenges.noOcteracts.rewards.obtainiumBonus) {
-    return 1
+    return new Decimal(1)
   }
   return Decimal.pow(calculateTotalOcteractQuarkBonus(), 1.4)
 }
@@ -1558,7 +1607,7 @@ export const calculateCubeMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    score.div(3000).root(4.1),
+    score.div(3000).root(3),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 1
@@ -1626,7 +1675,7 @@ export const calculateTesseractMultiplier = (score = new Decimal(-1)) => {
   const corrSum = sumContentsNumber(player.usedCorruptions.slice(2, 10))
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1e5)).div(1e4)), 0.35),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(10000)).div(1000)), 0.5),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 1
@@ -1673,7 +1722,7 @@ export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1e9)).div(1e8)), 0.5),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1e7)).div(1e6)), 0.75),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
@@ -1701,7 +1750,7 @@ export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
       * sumContentsNumber(player.usedCorruptions)
       * player.platonicUpgrades[3],
     // Hyperreal Hepteract Bonus
-    1 + (0.6 / 1000) * hepteractEffective('hyperrealism')
+    Decimal.mul(hepteractEffective('hyperrealism'), 0.0006).add(1)
     // Total Hypercube Multipliers: 11
   ]
 
@@ -1718,7 +1767,7 @@ export const calculatePlatonicMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(2666e9)).div(2666e8)), 0.75),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(2666e8)).div(2666e7)), 0.85),
     // Global Multipliers
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
@@ -1759,7 +1808,7 @@ export const calculateHepteractMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1666e13)).div(3333e13)), 0.85),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1666e12)).div(3333e12)), 1),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 3
@@ -1805,9 +1854,7 @@ export const getOcteractValueMultipliers = () => {
     player.singularityUpgrades.singOcteractGain4.getEffect().bonus,
     player.singularityUpgrades.singOcteractGain5.getEffect().bonus,
     // Patreon bonus
-    1
-    + (player.worlds.BONUS / 100)
-      * player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus,
+    Decimal.mul(player.worlds.BONUS, player.singularityUpgrades.singOcteractPatreonBonus.getEffect().bonus).div(100).add(1),
     // octeracts for dummies
     1 + 0.2 * player.octeractUpgrades.octeractStarter.getEffect().bonus,
     // cogenesis and trigenesis
@@ -1983,7 +2030,7 @@ export const calculateAscensionSpeedMultiplier = () => {
     1 + (1.2 / 100) * player.shopUpgrades.chronometer, // Chronometer
     1 + (0.6 / 100) * player.shopUpgrades.chronometer2, // Chronometer 2
     1 + (1.5 / 100) * player.shopUpgrades.chronometer3, // Chronometer 3
-    1 + (0.6 / 1000) * hepteractEffective('chronos'), // Chronos Hepteract
+    Decimal.mul(hepteractEffective('chronos'), 0.0006).add(1), // Chronos Hepteract
     Decimal.log10(player.ascensionCount.add(1)).mul(0.0001).min(0.1).mul(player.achievements[262]).add(1), // Achievement 262 Bonus
     Decimal.log10(player.ascensionCount.add(1)).mul(0.0001).min(0.1).mul(player.achievements[263]).add(1), // Achievement 263 Bonus
     sumContentsDecimal(player.usedCorruptions).mul(player.platonicUpgrades[15]).mul(0.002).add(1), // Platonic Omega
@@ -2098,9 +2145,9 @@ export const calculateQuarkMultiplier = () => {
     // Purchased Infinite Ascent Rune
     multiplier = multiplier.mul(calculateEffectiveIALevel().mul(0.15/75).add(1.1))
   }
-  if (player.challenge15Exponent.gte(1e15)) {
+  if (Decimal.gte(player.challenge15Exponent, 1e15)) {
     // Challenge 15: Exceed 1e15 exponent reward
-    multiplier = multiplier.mul(1 + (5 / 10000) * hepteractEffective('quark'))
+    multiplier = multiplier.mul(Decimal.mul(hepteractEffective('quark'), 0.0005).add(1))
   }
   if (player.overfluxPowder.gt(0)) {
     // Overflux Powder [Max: 10% at 10,000]
@@ -2188,7 +2235,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
 
   const arr = [
     player.challenge15Exponent.add(1).log10().sub(20).max(0).div(2).add(1), // Challenge 15 Exponent
-    1 + player.worlds.BONUS / 100, // Patreon Bonus
+    player.worlds.BONUS.div(100).add(1), // Patreon Bonus
     player.singularityUpgrades.goldenQuarks1.getEffect().bonus, // Golden Quarks I
     player.cubeUpgrades[69].mul(0.12).add(1), // Cookie Upgrade 19
     player.singularityChallenges.noSingularityUpgrades.rewards.goldenQuarks, // No Singularity Upgrades
@@ -2204,7 +2251,7 @@ export const calculateGoldenQuarkMultiplier = (computeMultiplier = false) => {
   arr.push(
     computeMultiplier
       ? 1 / 1e5
-      : Decimal.div((Decimal.mul((base + player.quarksThisSingularity / 1e5), productContentsDecimal(arr)).add(bonus)), productContentsDecimal(arr))
+      : Decimal.div((Decimal.mul(player.quarksThisSingularity.div(1e5).add(base), productContentsDecimal(arr)).add(bonus)), productContentsDecimal(arr))
   )
 
   return {
@@ -2423,7 +2470,7 @@ export const computeAscensionScoreBonusMultiplier = () => {
   if (player.achievements[259] > 0) {
     multiplier = multiplier.mul(Decimal.max(
       1,
-      Decimal.pow(1.01, Math.log2(player.hepteractCrafts.abyss.CAP))
+      Decimal.pow(1.01, Decimal.log2(player.hepteractCrafts.abyss.CAP))
     ))
   }
   if (G.isEvent) {
@@ -3006,14 +3053,14 @@ export const dailyResetCheck = () => {
  * Resets Cube Counts and stuff. NOTE: It is intentional it does not award powder or expire orbs.
  */
 export const forcedDailyReset = (rewards = false) => {
-  player.cubeQuarkDaily = 0
-  player.tesseractQuarkDaily = 0
-  player.hypercubeQuarkDaily = 0
-  player.platonicCubeQuarkDaily = 0
-  player.cubeOpenedDaily = 0
-  player.tesseractOpenedDaily = 0
-  player.hypercubeOpenedDaily = 0
-  player.platonicCubeOpenedDaily = 0
+  player.cubeQuarkDaily = new Decimal(0)
+  player.tesseractQuarkDaily = new Decimal(0)
+  player.hypercubeQuarkDaily = new Decimal(0)
+  player.platonicCubeQuarkDaily = new Decimal(0)
+  player.cubeOpenedDaily = new Decimal(0)
+  player.tesseractOpenedDaily = new Decimal(0)
+  player.hypercubeOpenedDaily = new Decimal(0)
+  player.platonicCubeOpenedDaily = new Decimal(0)
 
   if (rewards) {
     player.overfluxPowder = player.overfluxPowder.add(player.overfluxOrbs.mul(calculatePowderConversion().mult))

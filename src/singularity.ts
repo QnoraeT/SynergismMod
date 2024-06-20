@@ -2406,7 +2406,7 @@ export const getGoldenQuarkCost = (): {
   let costReduction = new Decimal(10000) // We will construct our cost reduction by subtracting 10000 - this value.
 
   costReduction = costReduction.mul(1 - 0.1 * Math.min(1, player.achievementPoints / 10000))
-  costReduction = costReduction.mul(Decimal.sub(1, player.cubeUpgrades[60].mul(0.00003)))
+  costReduction = costReduction.mul(Decimal.sub(1, Decimal.mul(player.cubeUpgrades[60], 0.00003)))
   costReduction = costReduction.mul(+player.singularityUpgrades.goldenQuarks2.getEffect().bonus)
   costReduction = costReduction.mul(+player.octeractUpgrades.octeractGQCostReduce.getEffect().bonus)
   costReduction = costReduction.mul(player.highestSingularityCount >= 100

@@ -1,6 +1,7 @@
 import { player } from './Synergism'
 import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
+import { constantEffects } from './Calculate'
 
 import Decimal from 'break_eternity.js'
 import { achievementaward } from './Achievements'
@@ -91,14 +92,7 @@ export const calculatetax = () => {
       .add(player.challengecompletions[9]).add(player.challengecompletions[10]))
   ))
   exponent = exponent.mul(Decimal.pow(0.99, Decimal.add(player.antUpgrades[2]!, G.bonusant3)).mul(0.995).add(0.005))
-  exponent = exponent.div(
-    Decimal.pow(
-      player.ascendShards.add(1).log10().add(1),
-      Decimal.mul(player.challengecompletions[10], player.upgrades[125]).mul(.2 / 60).add(1)
-      .add(Decimal.mul(0.1, player.platonicUpgrades[5]))
-      .add(Decimal.mul(0.2, player.platonicUpgrades[10] ))
-      .add(Decimal.sub(G.platonicBonusMultiplier[5], 1))
-    ))
+  exponent = exponent.div(constantEffects().tax)
   exponent = exponent.mul(Decimal.sub(1, Decimal.sub(player.talismanRarity[1 - 1], 1).mul(0.1)))
   exponent = exponent.mul(Decimal.pow(0.98, Decimal.add(player.rareFragments, 1).log10().mul(player.researches[159]).mul(0.6)))
   

@@ -214,7 +214,7 @@ export const revealStuff = () => {
 
   const example32 = document.getElementsByClassName('hepteracts') as HTMLCollectionOf<HTMLElement>
   for (const ex of Array.from(example32)) { // Ability to use and gain hepteracts //
-    ex.style.display = player.challenge15Exponent.gte(1e15) ? 'block' : 'none'
+    ex.style.display = Decimal.gte(player.challenge15Exponent, 1e15) ? 'block' : 'none'
   }
 
   const singularityHTMLs = document.getElementsByClassName('singularity') as HTMLCollectionOf<HTMLElement>
@@ -472,7 +472,7 @@ export const revealStuff = () => {
     : (DOMCacheGetOrSet('settingpic6').style.display = 'none')
 
   // Hepteract Confirmations toggle
-  player.highestSingularityCount > 0 && player.challenge15Exponent.gte(1e15)
+  player.highestSingularityCount > 0 && Decimal.gte(player.challenge15Exponent, 1e15)
     ? (DOMCacheGetOrSet('heptnotificationpic').style.display = 'block')
     : (DOMCacheGetOrSet('heptnotificationpic').style.display = 'none')
 
@@ -557,7 +557,7 @@ export const revealStuff = () => {
     toggle32: player.achievements[173] > 0, // Settings - Confirmations - Ant Sacrifice
     toggle33: player.highestSingularityCount > 0 && player.ascensionCount.gt(0), // Settings - Confirmations - Singularity
     toggle34: player.unlocks.coinfour, // Achievements - Notifications
-    toggle35: player.challenge15Exponent.gte(1e15) && player.highestSingularityCount > 0, // Hepteracts - Notifications
+    toggle35: Decimal.gte(player.challenge15Exponent, 1e15) && player.highestSingularityCount > 0, // Hepteracts - Notifications
     toggle36: player.highestSingularityCount >= 15, // Auto Blessings
     toggle37: player.highestSingularityCount >= 15, // Auto Spirits
     toggle38: player.highestSingularityCount > 0, // Researchs Hover to Buy
@@ -730,7 +730,9 @@ export const htmlInserts = () => {
     'obtainiumDisplay'
   ] as const
   for (let i = 0; i < playerRequirements.length; i++) {
-    const text = format(player[`${playerRequirements[i]}` as const])
+    const text = playerRequirements[i] === 'worlds' 
+                ? format(player.worlds.QUARKS)
+                : format(player[`${playerRequirements[i]}` as const])
     const dom = DOMCacheGetOrSet(`${domRequirements[i]}` as const)
     if (dom.textContent !== text) {
       dom.textContent = text
@@ -769,7 +771,7 @@ export const buttoncolorchange = () => {
   DOMCacheGetOrSet('ascendChallengeBtn').style.backgroundColor = player.currentChallenge.ascension === 0 ? '' : 'purple'
 
   DOMCacheGetOrSet('ascendbtn').style.backgroundColor =
-    player.autoAscend && player.challengecompletions[11].gt(0) && Decimal.gt(player.cubeUpgrades[10], 0) ? 'green' : ''
+    player.autoAscend && Decimal.gt(player.challengecompletions[11], 0) && Decimal.gt(player.cubeUpgrades[10], 0) ? 'green' : ''
 
   DOMCacheGetOrSet('singularitybtn').style.filter = Decimal.gt(player.runelevels[6], 0)
     ? ''
@@ -920,7 +922,7 @@ export const buttoncolorchange = () => {
   if (G.currentTab === Tabs.Buildings && G.buildingSubTab === 'tesseract') {
     for (let i = 1; i <= 5; i++) {
       const ascendBuilding = player[`ascendBuilding${i as OneToFive}` as const].cost
-      Number(player.wowTesseracts) >= ascendBuilding
+      Decimal.gte(player.wowTesseracts.value, ascendBuilding)
         ? DOMCacheGetOrSet(`buyTesseracts${i}`).classList.add('buildingPurchaseBtnAvailable')
         : DOMCacheGetOrSet(`buyTesseracts${i}`).classList.remove('buildingPurchaseBtnAvailable')
     }

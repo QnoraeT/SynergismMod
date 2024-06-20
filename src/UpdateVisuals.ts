@@ -22,7 +22,8 @@ import {
   calculateTotalOcteractObtainiumBonus,
   calculateTotalOcteractOfferingBonus,
   calculateTotalOcteractQuarkBonus,
-  octeractGainPerSecond
+  octeractGainPerSecond,
+  constantEffects
 } from './Calculate'
 import { CalcECC } from './Challenges'
 import { version } from './Config'
@@ -174,18 +175,24 @@ export const visualUpdateBuildings = () => {
 
     // update the tax text
     let warning = ''
+    let rooted = ''
     if (player.reincarnationCount.gt(0.5)) {
       warning = i18next.t('buildings.taxWarning', {
         gain: format(
           Decimal.pow(10, Decimal.sub(G.maxexponent, G.taxdivisorcheck.log10()))
         )
       })
+      rooted = i18next.t('buildings.taxCapped', {
+        root: format(G.coinProduceTrue.max(1).log(G.produceTotal.max(10)), 4)
+      })
     }
+    
     DOMCacheGetOrSet('taxinfo').textContent = i18next.t(
       'buildings.excessiveWealth',
       {
         div: format(G.taxdivisor, 2),
-        warning
+        warning,
+        rooted
       }
     )
   } else if (G.buildingSubTab === 'diamond') {
@@ -408,14 +415,14 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('reincarnationCrystalInfo').textContent = i18next.t(
       'buildings.thanksR2x14',
       {
-        mult: format(Decimal.pow(G.reincarnationMultiplier, 1 / 50), 3, false)
+        mult: format(G.reincarnationMultiplier.add(10).log10().pow(0.9).mul(0.2).pow10(), 3, false)
       }
     )
 
     DOMCacheGetOrSet('reincarnationMythosInfo').textContent = i18next.t(
       'buildings.thanksR2x15',
       {
-        mult: format(Decimal.pow(G.reincarnationMultiplier, 1 / 250), 3, false)
+        mult: format(G.reincarnationMultiplier.add(10).log10().pow(0.8).mul(0.15).pow10(), 3, false)
       }
     )
 
@@ -475,7 +482,7 @@ export const visualUpdateBuildings = () => {
       DOMCacheGetOrSet(`buyTesseracts${i}`).textContent = i18next.t(
         'buildings.costTesseracts',
         {
-          tesseracts: format(player[ascendBuildingI].cost, 0)
+          tesseracts: format(player[ascendBuildingI].cost)
         }
       )
     }
@@ -483,25 +490,125 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('tesseractInfo').textContent = i18next.t(
       'buildings.tesseractsYouHave',
       {
-        tesseracts: format(player.wowTesseracts)
+        tesseracts: format(player.wowTesseracts.value)
       }
     )
 
     DOMCacheGetOrSet('ascendShardInfo').textContent = i18next.t(
       'buildings.constantYouHave',
       {
-        const: format(player.ascendShards, 2),
-        amount: format(
-          Decimal.pow(
-            player.ascendShards.add(1).log10().add(1),
-            Decimal.sub(G.platonicBonusMultiplier[5], 1).add(0.2 * player.platonicUpgrades[10]).add(0.1 * player.platonicUpgrades[5]).add(Decimal.mul(player.challengecompletions[10], player.upgrades[125]).div(300)).add(1)
-          ),
-          4,
-          true
-        )
+        const: format(player.ascendShards, 2)
       }
     )
 
+    DOMCacheGetOrSet('ascendShardEff1').textContent = i18next.t(
+      'buildings.constantEff1',
+      {
+        x: format(constantEffects().tax, 4, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff2').textContent = i18next.t(
+      'buildings.constantEff2',
+      {
+        x: format(constantEffects().antSoftcap, 2, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff3').style.display = Decimal.gte(player.ascendShards, 1e3) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff3').textContent = i18next.t(
+      'buildings.constantEff3',
+      {
+        x: format(constantEffects().particleBuildingScale, 0, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff4').style.display = Decimal.gte(player.ascendShards, 1e6) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff4').textContent = i18next.t(
+      'buildings.constantEff4',
+      {
+        x: format(constantEffects().buildingSlowDown, 3, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff5').style.display = Decimal.gte(player.ascendShards, 1e10) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff5').textContent = i18next.t(
+      'buildings.constantEff5',
+      {
+        x: format(constantEffects().c3Effect, 2, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff6').style.display = Decimal.gte(player.ascendShards, 1e30) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff6').textContent = i18next.t(
+      'buildings.constantEff6',
+      {
+        x: format(constantEffects().cubeSoftcap, 4, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff7').style.display = Decimal.gte(player.ascendShards, 1e100) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff7').textContent = i18next.t(
+      'buildings.constantEff7',
+      {
+        x: format(constantEffects().accelScale[0], 2, true),
+        y: format(constantEffects().accelScale[1], 2, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff8').style.display = Decimal.gte(player.ascendShards, 1e308) ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff8').textContent = i18next.t(
+      'buildings.constantEff8',
+      {
+        x: format(constantEffects().multScale[0], 2, true),
+        y: format(constantEffects().multScale[1], 2, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff9').style.display = Decimal.gte(player.ascendShards, "1e616") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff9').textContent = i18next.t(
+      'buildings.constantEff9',
+      {
+        x: format(constantEffects().boostScale, 3, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff10').style.display = Decimal.gte(player.ascendShards, "1e1000") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff10').textContent = i18next.t(
+      'buildings.constantEff10',
+      {
+        x: format(constantEffects().siEffectPower, 4, true),
+      }
+    )
+
+    DOMCacheGetOrSet('ascendShardEff11').style.display = Decimal.gte(player.ascendShards, "e100000") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff11').textContent = i18next.t(
+      'buildings.constantEff11',
+      {
+        x: format(constantEffects().pBuildEff, 4, true),
+      }
+    )
+
+    // if (amt.gte(1e100)) {
+    //   i.cubeSoftcap = amt.log10().log10().div(2).pow(3)
+    // }
+    // if (amt.gte(1e308)) {
+    //   i.accelScale[0] = amt.log10().div(308).sqrt()
+    //   i.accelScale[1] = amt.log10().div(154).sqrt()
+    // }
+    // if (amt.gte("1e616")) {
+    //   i.multScale[0] = amt.log10().div(616).sqrt()
+    //   i.multScale[1] = amt.log10().div(308).sqrt()
+    // }
+    // if (amt.gte("1e1000")) {
+    //   i.boostScale = amt.log10().cbrt().div(10)
+    // }
+    // if (amt.gte("e100000")) {
+    //   i.siEffectPower = amt.log10().log10().div(5)
+    // }
+    // if (amt.gte("ee7")) {
+    //   i.pBuildEff = amt.log10().log10().sub(7).div(100).add(1).pow(2)
+    // }
     if (player.resettoggle4 === 1 || player.resettoggle4 === 0) {
       DOMCacheGetOrSet('autotessbuyeramount').textContent = i18next.t(
         'buildings.autoTesseract',
@@ -921,7 +1028,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('cubeQuantity').innerHTML = i18next.t(
         'wowCubes.cubes.inventory',
         {
-          amount: format(player.wowCubes, 0, true)
+          amount: format(player.wowCubes.value, 0, true)
         }
       )
       const cubeArray = [
@@ -941,7 +1048,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 1, 4, 3]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (cubeArray[i]! >= 1000 && i !== 6) {
+        if (Decimal.gte(cubeArray[i]!, 1000) && i !== 6) {
           augmentAccuracy += 2
         }
         const aestheticMultiplier = i === 1 || i === 8 || i === 9 ? 1 : 100
@@ -960,7 +1067,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('cubeBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.cubes.total',
         {
-          amount: format(sumContentsNumber(cubeArray.slice(1) as number[]), 0, true)
+          amount: format(sumContentsDecimal(cubeArray.slice(1) as Decimal[]), 0, true)
         }
       )
       break
@@ -977,7 +1084,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('tesseractQuantity').innerHTML = i18next.t(
         'wowCubes.tesseracts.inventory',
         {
-          amount: format(player.wowTesseracts, 0, true)
+          amount: format(player.wowTesseracts.value, 0, true)
         }
       )
       const tesseractArray = [
@@ -996,7 +1103,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (tesseractArray[i]! >= 1000 && i !== 6) {
+        if (Decimal.gte(tesseractArray[i]!, 1000) && i !== 6) {
           augmentAccuracy += 2
         }
         DOMCacheGetOrSet(`tesseract${i}Bonus`).innerHTML = i18next.t(
@@ -1004,7 +1111,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(tesseractArray[i], 0, true),
             bonus: format(
-              100 * (G.tesseractBonusMultiplier[i]! - 1),
+              G.tesseractBonusMultiplier[i]!.sub(1).mul(100),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1015,7 +1122,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.tesseracts.total',
         {
           amount: format(
-            sumContentsNumber(tesseractArray.slice(1) as number[]),
+            sumContentsDecimal(tesseractArray.slice(1) as Decimal[]),
             0,
             true
           )
@@ -1035,7 +1142,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('hypercubeQuantity').innerHTML = i18next.t(
         'wowCubes.hypercubes.inventory',
         {
-          amount: format(player.wowHypercubes, 0, true)
+          amount: format(player.wowHypercubes.value, 0, true)
         }
       )
       const hypercubeArray = [
@@ -1054,7 +1161,7 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (hypercubeArray[i]! >= 1000) {
+        if (Decimal.gte(hypercubeArray[i]!, 1000)) {
           augmentAccuracy += 2
         }
         DOMCacheGetOrSet(`hypercube${i}Bonus`).innerHTML = i18next.t(
@@ -1062,7 +1169,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(hypercubeArray[i], 0, true),
             bonus: format(
-              100 * (G.hypercubeBonusMultiplier[i]! - 1),
+              G.hypercubeBonusMultiplier[i]!.sub(1).mul(100),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1073,7 +1180,7 @@ export const visualUpdateCubes = () => {
         'wowCubes.hypercubes.total',
         {
           amount: format(
-            sumContentsNumber(hypercubeArray.slice(1) as number[]),
+            sumContentsDecimal(hypercubeArray.slice(1) as Decimal[]),
             0,
             true
           )
@@ -1093,7 +1200,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('platonicQuantity').innerHTML = i18next.t(
         'wowCubes.platonics.inventory',
         {
-          amount: format(player.wowPlatonicCubes, 0, true)
+          amount: format(player.wowPlatonicCubes.value, 0, true)
         }
       )
       const platonicArray = [
@@ -1110,7 +1217,7 @@ export const visualUpdateCubes = () => {
       accuracy = [5, 5, 5, 5, 2, 3, 3, 2]
       for (let i = 0; i < platonicArray.length; i++) {
         let augmentAccuracy = 0
-        if (platonicArray[i] >= DRThreshold[i]) {
+        if (Decimal.gte(platonicArray[i], DRThreshold[i])) {
           augmentAccuracy += 1
         }
         DOMCacheGetOrSet(`platonicCube${i + 1}Bonus`).innerHTML = i18next.t(
@@ -1118,7 +1225,7 @@ export const visualUpdateCubes = () => {
           {
             amount: format(platonicArray[i], 0, true),
             bonus: format(
-              100 * (G.platonicBonusMultiplier[i] - 1),
+              G.platonicBonusMultiplier[i].sub(1).mul(100),
               accuracy[i]! + augmentAccuracy,
               true
             )
@@ -1128,7 +1235,7 @@ export const visualUpdateCubes = () => {
       DOMCacheGetOrSet('platonicBlessingsTotal').innerHTML = i18next.t(
         'wowCubes.platonics.total',
         {
-          amount: format(sumContentsNumber(platonicArray), 0, true)
+          amount: format(sumContentsDecimal(platonicArray), 0, true)
         }
       )
       break
@@ -1136,7 +1243,7 @@ export const visualUpdateCubes = () => {
     case 4:
       DOMCacheGetOrSet('cubeAmount2').textContent = `You have ${
         format(
-          player.wowCubes,
+          player.wowCubes.value,
           0,
           true
         )
@@ -1196,7 +1303,7 @@ const UpdateHeptGridValues = (type: hepteractTypes) => {
   } else {
     const balance = player.hepteractCrafts[type].BAL
     const cap = player.hepteractCrafts[type].computeActualCap()
-    const barWidth = Math.round((balance / cap) * 100)
+    const barWidth = Decimal.div(balance, cap).mul(100).round().toNumber()
 
     let barColor = ''
     if (barWidth < 34) {
@@ -1323,11 +1430,11 @@ export const visualUpdateSettings = () => {
     const onExportQuarks = quarkData.gain
     const maxExportQuarks = quarkData.capacity
 
-    let goldenQuarkMultiplier = 1
-    goldenQuarkMultiplier *= 1 + player.worlds.BONUS / 100
-    goldenQuarkMultiplier *= player.highestSingularityCount >= 100
+    let goldenQuarkMultiplier = new Decimal(1)
+    goldenQuarkMultiplier = Decimal.mul(goldenQuarkMultiplier, player.worlds.BONUS.div(100).add(1))
+    goldenQuarkMultiplier = Decimal.mul(goldenQuarkMultiplier, player.highestSingularityCount >= 100
       ? 1 + player.highestSingularityCount / 50
-      : 1
+      : 1)
 
     DOMCacheGetOrSet('quarktimerdisplay').textContent = i18next.t(
       'settings.exportQuark',
@@ -1368,11 +1475,7 @@ export const visualUpdateSettings = () => {
           2
         ),
         y: format(
-          Math.floor(
-            168
-              * +player.singularityUpgrades.goldenQuarks3.getEffect().bonus
-              * goldenQuarkMultiplier
-          )
+          Decimal.mul(goldenQuarkMultiplier, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).mul(168).floor()
         )
       }
     )
@@ -1602,7 +1705,7 @@ export const visualUpdateShop = () => {
   }
   DOMCacheGetOrSet('quarkamount').textContent = i18next.t(
     'shop.youHaveQuarks',
-    { x: format(player.worlds, 0, true) }
+    { x: format(player.worlds.QUARKS, 0, true) }
   )
   DOMCacheGetOrSet('offeringpotionowned').textContent = format(
     player.shopUpgrades.offeringPotion,
@@ -1624,8 +1727,8 @@ export const visualUpdateShop = () => {
     const shopItem = shopData[key]
 
     if (shopItem.type === shopUpgradeTypes.CONSUMABLE) {
-      const maxBuyablePotions = Math.min(
-        Math.floor(Number(player.worlds) / getShopCosts(key)),
+      const maxBuyablePotions = Decimal.min(
+        Decimal.floor(player.worlds.QUARKS.div(getShopCosts(key))),
         shopItem.maxLevel - player.shopUpgrades[key]
       )
       const el = DOMCacheGetOrSet(`buy${key.toLowerCase()}`)
@@ -1634,9 +1737,9 @@ export const visualUpdateShop = () => {
           el.textContent = 'BUY: 100 Quarks Each'
           break
         case 'TEN':
-          el.textContent = `+${Math.min(10, maxBuyablePotions)} for ${
+          el.textContent = `+${Decimal.min(10, maxBuyablePotions)} for ${
             format(
-              getShopCosts(key) * Math.min(10, maxBuyablePotions),
+              Decimal.min(10, maxBuyablePotions).mul(getShopCosts(key)),
               0,
               true
             )
@@ -1645,7 +1748,7 @@ export const visualUpdateShop = () => {
         default:
           el.textContent = `+${maxBuyablePotions} for ${
             format(
-              getShopCosts(key) * maxBuyablePotions
+              Decimal.mul(getShopCosts(key), maxBuyablePotions)
             )
           } Quarks`
       }
@@ -1696,7 +1799,7 @@ export const visualUpdateShop = () => {
           buyData = calculateSummationNonLinearDecimal(
             player.shopUpgrades[key],
             shopItem.price,
-            +player.worlds,
+            player.worlds.QUARKS,
             shopItem.priceIncrease / shopItem.price,
             Math.min(10, buyMaxAmount)
           )
@@ -1715,7 +1818,7 @@ export const visualUpdateShop = () => {
           buyData = calculateSummationNonLinearDecimal(
             player.shopUpgrades[key],
             shopItem.price,
-            +player.worlds,
+            player.worlds.QUARKS,
             shopItem.priceIncrease / shopItem.price,
             buyMaxAmount
           )

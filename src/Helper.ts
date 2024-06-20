@@ -121,9 +121,9 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
           }
 
           for (let i = 0; i < amountOfGiveaways.toNumber(); i++) {
-            const quarkFraction = player.quarksThisSingularity * frac * actualLevel
+            const quarkFraction = Decimal.mul(player.quarksThisSingularity, frac).mul(actualLevel)
             player.goldenQuarks = player.goldenQuarks.add(Decimal.mul(quarkFraction, calculateGoldenQuarkGain(true)))
-            player.quarksThisSingularity -= quarkFraction
+            player.quarksThisSingularity = Decimal.sub(player.quarksThisSingularity, quarkFraction)
           }
         }
         visualUpdateOcteracts()
@@ -302,7 +302,7 @@ export const automaticTools = (input: AutoToolInput, time: Decimal) => {
         }
 
         // If you bought cube upgrade 2x10 then it sacrifices to all runes equally
-        if (player.cubeUpgrades[20].eq(1)) {
+        if (Decimal.eq(player.cubeUpgrades[20], 1)) {
           const maxi = player.highestSingularityCount >= 50
             ? 7
             : player.highestSingularityCount >= 30
