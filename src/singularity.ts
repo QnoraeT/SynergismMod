@@ -1,6 +1,5 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateAmbrosiaGenerationSpeed, calculateAmbrosiaLuck, calculateBlueberryInventory } from './Calculate'
 import type { IUpgradeData } from './DynamicUpgrade'
 import { DynamicUpgrade } from './DynamicUpgrade'
 import { format, player } from './Synergism'
@@ -8,7 +7,6 @@ import type { Player } from './types/Synergism'
 import { Alert, Prompt, revealStuff } from './UpdateHTML'
 import { toOrdinal } from './Utility'
 import Decimal from 'break_eternity.js'
-import { Globals as G } from './Variables'
 
 export const updateSingularityPenalties = (): void => {
   const singularityCount = player.singularityCount
@@ -338,6 +336,10 @@ export class SingularityUpgrade extends DynamicUpgrade {
 
       if (this.name === player.singularityUpgrades.singCitadel2.name) {
         player.singularityUpgrades.singCitadel.freeLevels = player.singularityUpgrades.singCitadel2.level
+      }
+
+      if (this.name === player.singularityUpgrades.blueberries.name) {
+        player.caches.ambrosiaGeneration.updateVal('SingularityBerries')
       }
     }
 
@@ -1402,12 +1404,7 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaBlueberries = calculateBlueberryInventory().value
-      },
-      () => {
-        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
-      }
+      () => player.caches.blueberryInventory.updateVal('SingularityUpgrade')
     ]
   },
   singAmbrosiaLuck: {
@@ -1427,9 +1424,7 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
-      }
+      () => player.caches.ambrosiaLuck.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaLuck2: {
@@ -1448,9 +1443,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
-      }
+      () => player.caches.ambrosiaLuck.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaLuck3: {
@@ -1469,9 +1462,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
-      }
+      () => player.caches.ambrosiaLuck.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaLuck4: {
@@ -1490,9 +1481,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
-      }
+      () => player.caches.ambrosiaLuck.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaGeneration: {
@@ -1512,9 +1501,7 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
-      }
+      () => player.caches.ambrosiaGeneration.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaGeneration2: {
@@ -1533,9 +1520,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
-      }
+      () => player.caches.ambrosiaGeneration.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaGeneration3: {
@@ -1554,9 +1539,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
-      }
+      () => player.caches.ambrosiaGeneration.updateVal('SingularityBerries')
     ]
   },
   singAmbrosiaGeneration4: {
@@ -1575,9 +1558,7 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {
-        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
-      }
+      () => player.caches.ambrosiaGeneration.updateVal('SingularityBerries')
     ]
   }
 }
@@ -2119,7 +2100,7 @@ export const singularityPerks: SingularityPerk[] = [
     name: () => {
       return i18next.t('singularity.perkNames.dilatedFiveLeaf')
     },
-    levels: [100, 150, 200, 225, 250, 265, 260, 265, 269, 272],
+    levels: [100, 200, 250, 260, 266],
     description: (n: number, levels: number[]) => {
       for (let i = levels.length - 1; i >= 0; i--) {
         if (n >= levels[i]) {

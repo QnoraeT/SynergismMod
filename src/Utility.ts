@@ -1,5 +1,4 @@
 import Decimal from 'break_eternity.js'
-import cloneDeepWith from 'lodash.clonedeepwith'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { format } from './Synergism'
 
@@ -281,16 +280,6 @@ export const createDeferredPromise = <T>() => {
   })
 
   return { resolve, reject, promise }
-}
-
-export const deepClone = (value: unknown) => {
-  return cloneDeepWith(value, (value) => {
-    if (isDecimal(value) || value instanceof Decimal) {
-      return new Decimal(value)
-    }
-
-    return value
-  })
 }
 
 /**

@@ -36,7 +36,6 @@ import { importSynergism } from './ImportExport'
 import { autoBuyPlatonicUpgrades, updatePlatonicUpgradeBG } from './Platonic'
 import { buyResearch, updateResearchBG } from './Research'
 import { resetofferings } from './Runes'
-import { playerJsonSchema } from './saves/PlayerJsonSchema'
 import { resetShopUpgrades, shopData } from './Shop'
 import { calculateSingularityDebuff, getFastForwardTotalMultiplier } from './singularity'
 import { blankSave, format, player, saveSynergy, updateAll, updateEffectiveLevelMult } from './Synergism'
@@ -49,7 +48,9 @@ import { toggleAutoChallengeModeText } from './Toggles'
 import type { OneToFive, Player, resetNames } from './types/Synergism'
 import { Alert, revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { upgradeupdate } from './Upgrades'
-import { assert, getElementById, updateClassList, sumContentsDecimal } from './Utility'
+import { getElementById } from './Utility'
+import { updateClassList } from './Utility'
+import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
 
 let repeatreset: ReturnType<typeof setTimeout>
@@ -1172,8 +1173,9 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
 
   player.totalQuarksEver = Decimal.add(player.totalQuarksEver, player.quarksThisSingularity)
   await resetShopUpgrades(true)
-  const { data: hold, success } = playerJsonSchema.safeParse(blankSave)
-  assert(success)
+  const hold = Object.assign({}, blankSave, {
+    codes: Array.from(blankSave.codes)
+  }) as Player
 
   // Reset Displays
   changeTab(Tabs.Buildings)
@@ -1191,7 +1193,7 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   hold.highestSingularityCount = player.highestSingularityCount
   hold.goldenQuarks = player.goldenQuarks
   hold.shopUpgrades = player.shopUpgrades
-  player.worlds.reset()
+  hold.worlds.reset()
   // Exclude potentially non-latin1 characters from the save
   hold.singularityUpgrades = Object.fromEntries(
     Object.entries(player.singularityUpgrades).map(([key, value]) => {
@@ -1284,9 +1286,9 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   hold.autoOpenPlatonicsCubes = player.autoOpenPlatonicsCubes
   hold.openPlatonicsCubes = player.openPlatonicsCubes
   hold.historyShowPerSecond = player.historyShowPerSecond
-  hold.exporttest = typeof player.exporttest === 'boolean' ? player.exporttest : player.exporttest === 'YES!'
+  hold.exporttest = player.exporttest
   hold.dayTimer = player.dayTimer
-  hold.dayCheck = player.dayCheck?.toISOString() ?? null
+  hold.dayCheck = player.dayCheck
   hold.ascStatToggles = player.ascStatToggles
   hold.hepteractAutoCraftPercentage = player.hepteractAutoCraftPercentage
   hold.autoWarpCheck = player.autoWarpCheck
@@ -1332,10 +1334,6 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   hold.blueberryTime = player.blueberryTime
   hold.blueberryLoadouts = player.blueberryLoadouts
   hold.blueberryLoadoutMode = player.blueberryLoadoutMode as BlueberryLoadoutMode
-  hold.wowCubes = player.wowCubes.value
-  hold.wowTesseracts = player.wowTesseracts.value
-  hold.wowHypercubes = player.wowHypercubes.value
-  hold.wowPlatonicCubes = player.wowPlatonicCubes.value
 
   const saveCode42 = player.codes.get(42) ?? false
   const saveCode43 = player.codes.get(43) ?? false
@@ -1345,6 +1343,14 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   const saveCode47 = player.codes.get(47) ?? false
   const saveCode48 = player.codes.get(48) ?? false
 
+  // Import Game
+
+  /*(for (const obj in blankSave) {
+        const k = obj as keyof Player;
+        if (k in blankSave) {
+            player[k] = blankSave?.[k]
+        }
+    }*/
   await importSynergism(btoa(JSON.stringify(hold)), true)
   // Techically possible to import game during reset. But that will only "hurt" that imported save
 
