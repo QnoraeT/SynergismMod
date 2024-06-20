@@ -623,8 +623,8 @@ export interface Player {
     SingularityChallenge
   >
 
-  ambrosia: number
-  lifetimeAmbrosia: number
+  ambrosia: Decimal
+  lifetimeAmbrosia: Decimal
   blueberryTime: Decimal
   visitedAmbrosiaSubtab: boolean
   spentBlueberries: number
@@ -996,6 +996,13 @@ export interface GlobalVariables {
   ambrosiaTimer: Decimal
   TIME_PER_AMBROSIA: Decimal
 
+  ambrosiaCurrStats: {
+    ambrosiaAdditiveLuckMult: number
+    ambrosiaLuck: Decimal
+    ambrosiaBlueberries: number
+    ambrosiaGenerationSpeed: Decimal
+  }
+
   currentSingChallenge: keyof Player['singularityChallenges'] | undefined
 }
 
@@ -1043,3 +1050,5 @@ export type ZeroToSeven = ZeroToFour | 5 | 6 | 7
 export type FirstToFifth = GlobalVariables['ordinals'][ZeroToFour]
 
 export type FirstToEighth = GlobalVariables['ordinals'][ZeroToSeven]
+
+export type SaveSupplier<K extends keyof Player = keyof Player> = Map<K, (value: unknown) => Player[K]>

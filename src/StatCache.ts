@@ -1,8 +1,12 @@
 import {
+  calculateAdditiveLuckMult,
   calculateAmbrosiaGenerationOcteractUpgrade,
   calculateAmbrosiaGenerationSingularityUpgrade,
+  calculateAmbrosiaGenerationSpeed,
+  calculateAmbrosiaLuck,
   calculateAmbrosiaLuckOcteractUpgrade,
   calculateAmbrosiaLuckSingularityUpgrade,
+  calculateBlueberryInventory,
   calculateCashGrabBlueberryBonus,
   calculateDilatedFiveLeafBonus,
   calculateEventBuff,
@@ -17,33 +21,29 @@ import { BuffType } from './Event'
 import { player } from './Synergism'
 import { productContentsNumber } from './Utility'
 import { Globals } from './Variables'
+import Decimal from 'break_eternity.js'
 
 interface StatCache<T> {
   totalVal: number
-
   /**
    * Updates the cache value for a statistic
    * @param key: Statistic which we must update for value
    */
   updateVal(key: T, init: boolean): void
-
   /**
    * Initializes the cache by establishing statistics for each value as well as
    * updating the total statistic.
    */
   initialize(): void
 }
-
 abstract class AdditionCache<T extends string> implements StatCache<T> {
   public totalVal = 0
   abstract vals: Record<T, number>
-
   /**
    * Updates a particular statistic 'key' and updates total accordingly
    * @param key The statistic to update
    */
   abstract updateVal (key: T, init: boolean): void
-
   /**
    * Initialize all statistics of interest and compute a total value as sum of all statistics
    */
@@ -53,7 +53,6 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
       this.updateVal(val, true)
     }
   }
-
   /**
    * Updates the value of total after updating individual statistic value, with key
    * @param oldVal: Value present in values[key] before update
@@ -66,7 +65,6 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
       this.totalVal += newVal - oldVal
     }
   }
-
   /**
    * Flattens the value object into an array, for use in statistics.
    * @returns Array consisting of all additive values as well as sum of elements
@@ -77,11 +75,9 @@ abstract class AdditionCache<T extends string> implements StatCache<T> {
     return arr
   }
 }
-
 abstract class MultiplicationCache<T extends string> implements StatCache<T> {
   public totalVal = 1
   abstract vals: Record<T, number>
-
   /**
    * Updates a particular statistic 'key' and updates total accordingly
    * @param key The statistic to update
@@ -96,7 +92,6 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
       this.updateVal(val, true)
     }
   }
-
   updateTotal (oldVal: number, newVal: number, init = false): void {
     if (init) {
       this.totalVal *= newVal
@@ -114,7 +109,6 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
       }
     }
   }
-
   /**
    * Flattens the value object into an array, for use in statistics.
    * @returns Array consisting of all additive values as well as sum of elements
@@ -125,11 +119,9 @@ abstract class MultiplicationCache<T extends string> implements StatCache<T> {
     return arr
   }
 }
-
 /**
  * Define Types Below. For each one, the union is all statistics of a particular stat.
  */
-
 type AmbrosialLuck =
   | 'Base'
   | 'SingPerks'
@@ -144,7 +136,6 @@ type AmbrosialLuck =
   | 'TwoHundredSixtyNine'
   | 'OneHundredThirtyOne'
   | 'Exalt5'
-
 type AmbrosiaGeneration =
   | 'DefaultVal'
   | 'Blueberries'
@@ -156,9 +147,7 @@ type AmbrosiaGeneration =
   | 'Exalt2'
   | 'CashGrabUltra'
   | 'Exalt5'
-
 type BlueberryInventory = 'Exalt1' | 'SingularityUpgrade' | 'SingularityPerk' | 'Exalt5'
-
 type AmbrosiaLuckAdditiveMult =
   | 'Base'
   | 'Exalt1'
@@ -168,22 +157,25 @@ type AmbrosiaLuckAdditiveMult =
   | 'Event'
 
 export class AmbrosiaLuckAdditiveMultCache extends AdditionCache<AmbrosiaLuckAdditiveMult> {
-  vals: Record<AmbrosiaLuckAdditiveMult, number>
-  public totalVal: number
+  vals!: Record<AmbrosiaLuckAdditiveMult, number>
+  totalVal!: number
 
   constructor () {
     super()
+    this.reset()
+  }
+
+  reset () {
     this.vals = {
       Base: 1,
       Exalt1: 0,
       SingularityPerk: 0,
       ShopUpgrades: 0,
       Exalt5: 0,
-      Event: 0,
+      Event: 0
     }
     this.totalVal = 1
   }
-
   updateVal (key: AmbrosiaLuckAdditiveMult, init = false): void {
     const oldVal = this.vals[key]
     switch (key) {
@@ -221,12 +213,16 @@ export class AmbrosiaLuckAdditiveMultCache extends AdditionCache<AmbrosiaLuckAdd
 }
 
 export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
-  vals: Record<AmbrosialLuck, number>
-  public totalVal: number
-  public usedTotal: number
+  vals!: Record<AmbrosialLuck, number>
+  totalVal!: number
+  usedTotal!: number
 
   constructor () {
     super()
+    this.reset()
+  }
+
+  reset () {
     this.vals = {
       Base: 100,
       SingPerks: 0,
@@ -240,12 +236,11 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
       OneHundredThirtyOne: 0,
       TwoHundredSixtyNine: 0,
       ShopOcteractAmbrosiaLuck: 0,
-      Exalt5: 0,
+      Exalt5: 0
     }
     this.totalVal = 0
     this.usedTotal = 0
   }
-
   updateVal (key: AmbrosialLuck, init = false): void {
     const oldVal = this.vals[key]
     switch (key) {
@@ -294,7 +289,7 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
         break
       }
       case 'ShopOcteractAmbrosiaLuck': {
-        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck).toNumber()
+        this.vals[key] = Decimal.add(player.totalWowOcteracts, 1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck).toNumber()
         break
       }
       case 'Exalt5': {
@@ -311,11 +306,15 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
 }
 
 export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGeneration> {
-  vals: Record<AmbrosiaGeneration, number>
-  public totalVal: number
+  vals!: Record<AmbrosiaGeneration, number>
+  totalVal!: number
 
   constructor () {
     super()
+    this.reset()
+  }
+
+  reset () {
     this.vals = {
       DefaultVal: 1,
       Blueberries: 1,
@@ -330,7 +329,6 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
     }
     this.totalVal = 0
   }
-
   updateVal (key: AmbrosiaGeneration, init = false): void {
     const oldVal = this.vals[key]
     switch (key) {
@@ -383,20 +381,23 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
 }
 
 export class BlueberryInventoryCache extends AdditionCache<BlueberryInventory> {
-  vals: Record<BlueberryInventory, number>
-  public totalVal: number
+  vals!: Record<BlueberryInventory, number>
+  totalVal!: number
 
   constructor () {
     super()
+    this.reset()
+  }
+
+  reset () {
     this.vals = {
       Exalt1: 0,
       SingularityUpgrade: 0,
       SingularityPerk: 0,
-      Exalt5: 0,
+      Exalt5: 0
     }
     this.totalVal = 0
   }
-
   updateVal (key: BlueberryInventory, init = false): void {
     const oldVal = this.vals[key]
     switch (key) {
@@ -425,9 +426,20 @@ export class BlueberryInventoryCache extends AdditionCache<BlueberryInventory> {
 }
 
 export const cacheReinitialize = () => {
-  // TODO: Create a hierarchy of cache dependencies (ambrosia generation depends on blueberry inventory)
-  player.caches.ambrosiaLuckAdditiveMult.initialize()
+  // TODO: REMOVE THIS FUCKING SHIT ASS CODE
+  // WHY THE FUCK ARE WE CACHING MATH OPERATIONS???
+  /*player.caches.ambrosiaLuckAdditiveMult.initialize()
   player.caches.blueberryInventory.initialize()
   player.caches.ambrosiaGeneration.initialize()
-  player.caches.ambrosiaLuck.initialize()
+  player.caches.ambrosiaLuck.initialize() */
+
+  // As of 6/13/2024, caches are no longer used. Instead calculations are done directly and the end value is stored in a Global variable
+  // which is not stored in the save.
+
+  Globals.ambrosiaCurrStats = {
+    ambrosiaAdditiveLuckMult: calculateAdditiveLuckMult().value,
+    ambrosiaLuck: calculateAmbrosiaLuck().value,
+    ambrosiaBlueberries: calculateBlueberryInventory().value,
+    ambrosiaGenerationSpeed: calculateAmbrosiaGenerationSpeed().value
+  }
 }

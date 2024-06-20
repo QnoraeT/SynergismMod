@@ -1,5 +1,6 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
+import { calculateAmbrosiaGenerationSpeed, calculateAmbrosiaLuck } from './Calculate'
 import { DynamicUpgrade } from './DynamicUpgrade'
 import type { IUpgradeData } from './DynamicUpgrade'
 import { exportData, saveFilename } from './ImportExport'
@@ -8,6 +9,7 @@ import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt } from './UpdateHTML'
 import { visualUpdateAmbrosia } from './UpdateVisuals'
 import Decimal from 'break_eternity.js'
+import { Globals as G } from './Variables'
 
 export type blueberryUpgradeNames =
   | 'ambrosiaTutorial'
@@ -103,9 +105,9 @@ export class BlueberryUpgrade extends DynamicUpgrade {
       } else if (buy <= 0) {
         return Alert(i18next.t('octeract.buyLevel.cancelPurchase')) // For some reason this is in the Octeract section (???)
       } else {
-        ambrosiaBudget = buy
+        ambrosiaBudget = new Decimal(buy)
       }
-      ambrosiaBudget = Math.min(player.ambrosia, ambrosiaBudget)
+      ambrosiaBudget = Decimal.min(player.ambrosia, ambrosiaBudget)
     }
 
     if (this.maxLevel > 0) {
@@ -118,11 +120,11 @@ export class BlueberryUpgrade extends DynamicUpgrade {
 
     while (maxPurchasable > 0) {
       const cost = this.getCostTNL()
-      if (player.ambrosia < cost || ambrosiaBudget < cost) {
+      if (Decimal.lt(player.ambrosia, cost) || Decimal.lt(ambrosiaBudget, cost)) {
         break
       } else {
         if (this.level === 0) {
-          const availableBlueberries = player.caches.blueberryInventory.totalVal - player.spentBlueberries
+          const availableBlueberries = G.ambrosiaCurrStats.ambrosiaBlueberries - player.spentBlueberries
           if (availableBlueberries < this.blueberryCost) {
             return Alert(i18next.t('ambrosia.notEnoughBlueberries'))
           } else {
@@ -130,8 +132,8 @@ export class BlueberryUpgrade extends DynamicUpgrade {
             this.blueberriesInvested = this.blueberryCost
           }
         }
-        player.ambrosia -= cost
-        ambrosiaBudget -= cost
+        player.ambrosia = Decimal.sub(player.ambrosia, cost)
+        ambrosiaBudget = Decimal.sub(ambrosiaBudget, cost)
         this.ambrosiaInvested += cost
         this.level += 1
         purchased += 1
@@ -176,7 +178,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
       }</span>`
     }
 
-    const isAffordable = costNextLevel <= player.ambrosia
+    const isAffordable = Decimal.lte(costNextLevel, player.ambrosia)
     const affordableInfo = isMaxLevel
       ? `<span style="color: plum"> ${i18next.t('general.maxed')}</span>`
       : isAffordable
@@ -273,7 +275,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
   }
 
   refund (): void {
-    player.ambrosia += this.ambrosiaInvested
+    player.ambrosia = Decimal.add(player.ambrosia, this.ambrosiaInvested)
     this.ambrosiaInvested = 0
     this.level = 0
 
@@ -282,7 +284,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
   }
 
   public get rewardDesc (): string {
-    const effectiveLevel = (player.singularityChallenges.noAmbrosiaUpgrades.enabled) ? 0: this.level
+    const effectiveLevel = (player.singularityChallenges.noAmbrosiaUpgrades.enabled) ? 0 : this.level
     if ('desc' in this.rewards(0)) {
       return String(this.rewards(effectiveLevel).desc)
     } else {
@@ -291,7 +293,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
   }
 
   public get bonus () {
-    const effectiveLevel = (player.singularityChallenges.noAmbrosiaUpgrades.enabled) ? 0: this.level
+    const effectiveLevel = (player.singularityChallenges.noAmbrosiaUpgrades.enabled) ? 0 : this.level
     return this.rewards(effectiveLevel)
   }
 }
@@ -388,8 +390,9 @@ export const blueberryUpgradeData: Record<
       ambrosiaTutorial: 10
     },
     cacheUpdates: [
-      () => player.caches.ambrosiaLuck.updateVal('BlueberryUpgrade1'),
-      () => player.caches.ambrosiaLuck.updateVal('BlueberryUpgrade2')
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   ambrosiaQuarkCube1: {
@@ -425,7 +428,7 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.0002 * n
-      const val = 1 + baseVal * player.caches.ambrosiaLuck.usedTotal
+      const val = Decimal.mul(baseVal, G.ambrosiaCurrStats.ambrosiaLuck).add(1).toNumber()
       return {
         cubes: val,
         desc: String(
@@ -480,12 +483,11 @@ export const blueberryUpgradeData: Record<
     },
     rewards: (n: number) => {
       const baseVal = 0.0001 * n
-      const effectiveLuck = Math.min(
-        player.caches.ambrosiaLuck.usedTotal,
-        Math.pow(1000, 0.5)
-          * Math.pow(player.caches.ambrosiaLuck.usedTotal, 0.5)
-      )
-      const val = 1 + baseVal * effectiveLuck
+      let effectiveLuck = G.ambrosiaCurrStats.ambrosiaLuck
+      if (Decimal.gte(effectiveLuck, 1000)) {
+        effectiveLuck = Decimal.div(effectiveLuck, 1000).pow(0.5).mul(1000)
+      }
+      const val = Decimal.mul(baseVal, effectiveLuck).add(1).toNumber()
       return {
         quarks: val,
         desc: String(
@@ -531,7 +533,9 @@ export const blueberryUpgradeData: Record<
       ambrosiaCubes1: 20
     },
     cacheUpdates: [
-      () => player.caches.ambrosiaLuck.updateVal('BlueberryCubeLuck1')
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   ambrosiaQuarkLuck1: {
@@ -558,7 +562,9 @@ export const blueberryUpgradeData: Record<
       ambrosiaQuarks1: 20
     },
     cacheUpdates: [
-      () => player.caches.ambrosiaLuck.updateVal('BlueberryQuarkLuck1')
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   ambrosiaQuarks2: {
@@ -640,7 +646,9 @@ export const blueberryUpgradeData: Record<
       ambrosiaLuck1: 40
     },
     cacheUpdates: [
-      () => player.caches.ambrosiaLuck.updateVal('BlueberryUpgrade2')
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   ambrosiaPatreon: {
@@ -662,7 +670,9 @@ export const blueberryUpgradeData: Record<
       }
     },
     cacheUpdates: [
-      () => player.caches.ambrosiaGeneration.updateVal('BlueberryPatreon')
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   },
   ambrosiaObtainium1: {
@@ -673,13 +683,13 @@ export const blueberryUpgradeData: Record<
       return baseCost * Math.pow(25, level)
     },
     rewards: (n: number) => {
-      const luck = player.caches.ambrosiaLuck.usedTotal
+      const luck = G.ambrosiaCurrStats.ambrosiaLuck
       return {
         luckMult: n,
-        obtainiumMult: n * luck,
+        obtainiumMult: Decimal.mul(n , luck).toNumber(),
         desc: String(
           i18next.t('ambrosia.data.ambrosiaObtainium1.effect', {
-            amount: format((n * luck) / 10, 1, true)
+            amount: format(Decimal.mul(n, luck).div(10), 1, true)
           })
         )
       }
@@ -693,13 +703,13 @@ export const blueberryUpgradeData: Record<
       return baseCost * Math.pow(25, level)
     },
     rewards: (n: number) => {
-      const luck = player.caches.ambrosiaLuck.usedTotal
+      const luck = G.ambrosiaCurrStats.ambrosiaLuck
       return {
         luckMult: n,
-        offeringMult: n * luck,
+        offeringMult: Decimal.mul(n, luck).toNumber(),
         desc: String(
           i18next.t('ambrosia.data.ambrosiaOffering1.effect', {
-            amount: format((n * luck) / 10, 1, true)
+            amount: format(Decimal.mul(n, luck).div(10), 1, true)
           })
         )
       }
@@ -752,7 +762,7 @@ export const validateBlueberryTree = (modules: BlueberryOpt) => {
   }
 
   const ambrosiaBudget = player.lifetimeAmbrosia
-  const blueberryBudget = player.caches.blueberryInventory.totalVal
+  const blueberryBudget = G.ambrosiaCurrStats.ambrosiaBlueberries
 
   let spentAmbrosia = 0
   let spentBlueberries = 0
@@ -811,8 +821,8 @@ export const validateBlueberryTree = (modules: BlueberryOpt) => {
     }
   }
 
-  meetsAmbrosia = ambrosiaBudget >= spentAmbrosia
-  meetsBlueberries = blueberryBudget >= spentBlueberries
+  meetsAmbrosia = Decimal.gte(ambrosiaBudget, spentAmbrosia)
+  meetsBlueberries = Decimal.gte(blueberryBudget, spentBlueberries)
 
   return meetsPrerequisites && meetsAmbrosia && meetsBlueberries
 }
@@ -866,7 +876,7 @@ export const createBlueberryTree = async (modules: BlueberryOpt) => {
       for (let i = 0; i < val; i++) {
         tempCost += costFormula(i, costPerLevel)
       }
-      player.ambrosia -= tempCost
+      player.ambrosia = Decimal.sub(player.ambrosia, tempCost)
       player.blueberryUpgrades[k].ambrosiaInvested = tempCost
       player.blueberryUpgrades[k].level = val
       player.blueberryUpgrades[k].updateCaches()

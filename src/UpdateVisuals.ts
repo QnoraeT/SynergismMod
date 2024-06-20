@@ -1503,7 +1503,7 @@ export const visualUpdateSingularity = () => {
     const val = G.shopEnhanceVision
 
     for (const key of keys) {
-      if (key === 'offeringAutomatic') {
+      if (key === 'offeringAutomatic' || key === 'WIP') {
         continue
       }
       const singItem = player.singularityUpgrades[key]
@@ -1628,26 +1628,33 @@ export const visualUpdateAmbrosia = () => {
     return
   }
 
-  const luck = player.caches.ambrosiaLuck.usedTotal
-  const baseLuck = player.caches.ambrosiaLuck.totalVal
-  const luckBonusPercent = 100 * (player.caches.ambrosiaLuckAdditiveMult.totalVal - 1)
-  const guaranteed = Math.floor(luck / 100)
-  const chance = luck - 100 * Math.floor(luck / 100)
+  const luck = G.ambrosiaCurrStats.ambrosiaLuck
+  const baseLuck = Decimal.div(G.ambrosiaCurrStats.ambrosiaLuck, G.ambrosiaCurrStats.ambrosiaAdditiveLuckMult)
+  const luckBonusPercent = 100 * (G.ambrosiaCurrStats.ambrosiaAdditiveLuckMult - 1)
+  const guaranteed = Decimal.floor(Decimal.div(luck, 100))
+  const chance = Decimal.sub(luck, Decimal.div(luck, 100).floor().mul(100))
   const requiredTime = calculateRequiredBlueberryTime()
   const cubePercent = calculateAmbrosiaCubeMult().sub(1).mul(100)
   const quarkPercent = calculateAmbrosiaQuarkMult().sub(1).mul(100)
-  const availableBlueberries = player.caches.blueberryInventory.totalVal - player.spentBlueberries
-  const totalTimePerSecond = player.caches.ambrosiaGeneration.totalVal
-  const progressTimePerSecond = Math.min(totalTimePerSecond, Math.pow(1000 * totalTimePerSecond, 1/2))
+  const availableBlueberries = Decimal.sub(G.ambrosiaCurrStats.ambrosiaBlueberries, player.spentBlueberries)
+  const totalTimePerSecond = G.ambrosiaCurrStats.ambrosiaGenerationSpeed
+  let progressTimePerSecond = totalTimePerSecond
+  if (Decimal.gte(progressTimePerSecond, 1000)) {
+    progressTimePerSecond = Decimal.div(progressTimePerSecond, 1000).pow(0.5).mul(1000)
+  }
   const barWidth = Decimal.div(player.blueberryTime, requiredTime).min(1).mul(100).toNumber()
   const pixelBarWidth = Decimal.div(player.ultimateProgress, 1e6).min(1).mul(100).toNumber()
 
 
   DOMCacheGetOrSet('ambrosiaProgress').style.width = `${barWidth}%`
-  DOMCacheGetOrSet('ambrosiaProgressText').textContent = `${format(player.blueberryTime, 0, true)} / ${format(requiredTime, 0, true)} [+${format(totalTimePerSecond, 0, true)}/s]`
+  DOMCacheGetOrSet('ambrosiaProgressText').textContent = `${format(player.blueberryTime, 0, true)} / ${
+    format(requiredTime, 0, true)
+  } [+${format(totalTimePerSecond, 0, true)}/s]`
 
   DOMCacheGetOrSet('pixelProgress').style.width = `${pixelBarWidth}%`
-  DOMCacheGetOrSet('pixelProgressText').textContent = `${format(player.ultimateProgress, 0, true)} / ${format(1000000, 0, true)} [+${format(progressTimePerSecond * 0.02, 2, true)}/s]`
+  DOMCacheGetOrSet('pixelProgressText').textContent = `${format(player.ultimateProgress, 0, true)} / ${
+    format(1000000, 0, true)
+  } [+${format(Decimal.mul(progressTimePerSecond, 0.02), 2, true)}/s]`
   const extraLuckHTML = luckBonusPercent > 0.01
     ? `[<span style='color: var(--amber-text-color)'>☘${
       format(
@@ -1662,7 +1669,7 @@ export const visualUpdateAmbrosia = () => {
     ambrosia: format(player.ambrosia, 0, true),
     lifetimeAmbrosia: format(player.lifetimeAmbrosia, 0, true)
   })
-  /*DOMCacheGetOrSet('ambrosiaChance').innerHTML = i18next.t(
+  /* DOMCacheGetOrSet('ambrosiaChance').innerHTML = i18next.t(
     'ambrosia.blueberryGeneration',
     {
       chance: format(totalTimePerSecond, 2, true)
