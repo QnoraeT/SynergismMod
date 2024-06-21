@@ -182,7 +182,7 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
       break
     }
     case 'ambrosia': {
-      const compute = player.caches.ambrosiaGeneration.totalVal
+      const compute = G.ambrosiaCurrStats.ambrosiaGenerationSpeed
       if (compute === 0) {
         break
       }
@@ -193,26 +193,37 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
         break
       }
 
-      const ambrosiaLuck = player.caches.ambrosiaLuck.usedTotal
-      const baseBlueberryTime = player.caches.ambrosiaGeneration.totalVal
+      const ambrosiaLuck = G.ambrosiaCurrStats.ambrosiaLuck
+      const baseBlueberryTime = G.ambrosiaCurrStats.ambrosiaGenerationSpeed
       player.blueberryTime = player.blueberryTime.add(G.ambrosiaTimer.mul(8).floor().div(8).mul(baseBlueberryTime))
-      player.ultimateProgress = player.ultimateProgress.add(G.ambrosiaTimer.mul(8).floor().div(8).mul(Math.min(baseBlueberryTime, Math.pow(1000 * baseBlueberryTime, 1/2)) * 0.02))
+      let stupidShit = baseBlueberryTime
+      if (Decimal.gte(stupidShit, 1000)) {
+        stupidShit = Decimal.div(stupidShit, 1000).pow(0.5).mul(1000)
+      }
+      player.ultimateProgress = player.ultimateProgress.add(G.ambrosiaTimer.mul(8).floor().div(8).mul(Decimal.mul(stupidShit, 0.02)))
       G.ambrosiaTimer = G.ambrosiaTimer.mod(0.125)
 
       let timeToAmbrosia = calculateRequiredBlueberryTime()
 
+      const maxAccelMultiplier = (1/2) + (3/5 - 1/2) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 15) 
+      + (2/3 - 3/5) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 19)
+      + (3/4 - 2/3) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 20)
+
       while (Decimal.gte(player.blueberryTime, timeToAmbrosia)) {
         const RNG = Math.random()
-        const ambrosiaMult = Math.floor(ambrosiaLuck / 100)
-        const luckMult = RNG < ambrosiaLuck / 100 - Math.floor(ambrosiaLuck / 100) ? 1 : 0
-        const bonusAmbrosia = (player.singularityChallenges.noAmbrosiaUpgrades.rewards.bonusAmbrosia) ? 1: 0
-        const ambrosiaToGain = (ambrosiaMult + luckMult) + bonusAmbrosia
+        const ambrosiaMult = Decimal.floor(Decimal.div(ambrosiaLuck, 100))
+        const luckMult = Decimal.lt(RNG, Decimal.div(ambrosiaLuck, 100).sub(Decimal.floor(Decimal.div(ambrosiaLuck, 100)))) ? 1 : 0
+        const bonusAmbrosia = (player.singularityChallenges.noAmbrosiaUpgrades.rewards.bonusAmbrosia) ? 1 : 0
+        const ambrosiaToGain = Decimal.add(ambrosiaMult, luckMult).add(bonusAmbrosia)
 
-        player.ambrosia += ambrosiaToGain
-        player.lifetimeAmbrosia += ambrosiaToGain
+        player.ambrosia = Decimal.add(player.ambrosia, ambrosiaToGain)
+        player.lifetimeAmbrosia = Decimal.add(player.lifetimeAmbrosia, ambrosiaToGain)
         player.blueberryTime = player.blueberryTime.sub(timeToAmbrosia)
 
-        G.ambrosiaTimer = G.ambrosiaTimer.add(ambrosiaToGain * 0.2 * player.shopUpgrades.shopAmbrosiaAccelerator)
+        timeToAmbrosia = calculateRequiredBlueberryTime()
+        const secondsToNextAmbrosia = Decimal.div(timeToAmbrosia, G.ambrosiaCurrStats.ambrosiaGenerationSpeed)
+
+        G.ambrosiaTimer = G.ambrosiaTimer.add(Decimal.mul(ambrosiaToGain, player.shopUpgrades.shopAmbrosiaAccelerator).mul(0.2).min(Decimal.mul(secondsToNextAmbrosia, maxAccelMultiplier)))
         timeToAmbrosia = calculateRequiredBlueberryTime()
       }
 

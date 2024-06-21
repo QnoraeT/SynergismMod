@@ -509,6 +509,13 @@ export const Globals: GlobalVariables = {
   ambrosiaTimer: new Decimal(0),
   TIME_PER_AMBROSIA: new Decimal(600),
 
+  ambrosiaCurrStats: {
+    ambrosiaAdditiveLuckMult: 1,
+    ambrosiaLuck: 100,
+    ambrosiaBlueberries: 0,
+    ambrosiaGenerationSpeed: 1,
+  },
+
   currentSingChallenge: undefined
 }
 

@@ -1,5 +1,5 @@
 import '@ungap/custom-elements'
-import Decimal, { type DecimalSource } from 'break_eternity.js'
+import Decimal from 'break_eternity.js'
 import LZString from 'lz-string'
 
 import {
@@ -14,7 +14,7 @@ import {
   highestChallengeRewards,
   runChallengeSweep
 } from './Challenges'
-import { btoa, cleanString, isDecimal, sortWithIndices, sumContentsNumber, sumContentsDecimal } from './Utility'
+import { btoa, cleanString, sortWithIndices, sumContentsNumber, sumContentsDecimal } from './Utility'
 import { blankGlobals, Globals as G } from './Variables'
 
 import {
@@ -135,12 +135,10 @@ import {
   upgradeupdate
 } from './Upgrades'
 // import { LegacyShopUpgrades } from './types/LegacySynergism';
-
 import i18next from 'i18next'
 import localforage from 'localforage'
 import { BlueberryUpgrade, blueberryUpgradeData } from './BlueberryUpgrades'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { checkVariablesOnLoad } from './CheckVariables'
 import { lastUpdated, prod, testing, version } from './Config'
 import { WowCubes, WowHypercubes, WowPlatonicCubes, WowTesseracts } from './CubeExperimental'
 import { eventCheck } from './Event'
@@ -162,6 +160,8 @@ import { handleLogin } from './Login'
 import { octeractData, OcteractUpgrade } from './Octeracts'
 import { updatePlatonicUpgradeBG } from './Platonic'
 import { QuarkHandler } from './Quark'
+import { playerJsonSchema } from './saves/PlayerJsonSchema'
+import { playerSchema } from './saves/PlayerSchema'
 import { getFastForwardTotalMultiplier, singularityData, SingularityUpgrade } from './singularity'
 import { SingularityChallenge, singularityChallengeData } from './SingularityChallenges'
 import {
@@ -188,142 +188,142 @@ export const player: Player = {
   firstOwnedCoin: new Decimal(0),
   firstGeneratedCoin: new Decimal(0),
   firstCostCoin: new Decimal(100),
-  firstProduceCoin: 0.25,
+  firstProduceCoin: new Decimal(0.25),
 
   secondOwnedCoin: new Decimal(0),
   secondGeneratedCoin: new Decimal(0),
   secondCostCoin: new Decimal(1000),
-  secondProduceCoin: 2.5,
+  secondProduceCoin: new Decimal(2.5),
 
   thirdOwnedCoin: new Decimal(0),
   thirdGeneratedCoin: new Decimal(0),
-  thirdCostCoin: new Decimal('2e4'),
-  thirdProduceCoin: 25,
+  thirdCostCoin: new Decimal(2e4),
+  thirdProduceCoin: new Decimal(25),
 
   fourthOwnedCoin: new Decimal(0),
   fourthGeneratedCoin: new Decimal(0),
-  fourthCostCoin: new Decimal('4e5'),
-  fourthProduceCoin: 250,
+  fourthCostCoin: new Decimal(4e5),
+  fourthProduceCoin: new Decimal(250),
 
   fifthOwnedCoin: new Decimal(0),
   fifthGeneratedCoin: new Decimal(0),
-  fifthCostCoin: new Decimal('8e6'),
-  fifthProduceCoin: 2500,
+  fifthCostCoin: new Decimal(8e6),
+  fifthProduceCoin: new Decimal(2500),
 
   firstOwnedDiamonds: new Decimal(0),
   firstGeneratedDiamonds: new Decimal(0),
   firstCostDiamonds: new Decimal(100),
-  firstProduceDiamonds: 0.05,
+  firstProduceDiamonds: new Decimal(0.05),
 
   secondOwnedDiamonds: new Decimal(0),
   secondGeneratedDiamonds: new Decimal(0),
-  secondCostDiamonds: new Decimal('1e5'),
-  secondProduceDiamonds: 0.0005,
+  secondCostDiamonds: new Decimal(1e5),
+  secondProduceDiamonds: new Decimal(0.0005),
 
   thirdOwnedDiamonds: new Decimal(0),
   thirdGeneratedDiamonds: new Decimal(0),
-  thirdCostDiamonds: new Decimal('1e15'),
-  thirdProduceDiamonds: 0.00005,
+  thirdCostDiamonds: new Decimal(1e15),
+  thirdProduceDiamonds: new Decimal(0.00005),
 
   fourthOwnedDiamonds: new Decimal(0),
   fourthGeneratedDiamonds: new Decimal(0),
-  fourthCostDiamonds: new Decimal('1e40'),
-  fourthProduceDiamonds: 0.000005,
+  fourthCostDiamonds: new Decimal(1e40),
+  fourthProduceDiamonds: new Decimal(0.000005),
 
   fifthOwnedDiamonds: new Decimal(0),
   fifthGeneratedDiamonds: new Decimal(0),
   fifthCostDiamonds: new Decimal(1e100),
-  fifthProduceDiamonds: 0.000005,
+  fifthProduceDiamonds: new Decimal(0.000005),
 
   firstOwnedMythos: new Decimal(0),
   firstGeneratedMythos: new Decimal(0),
   firstCostMythos: new Decimal(1),
-  firstProduceMythos: 1,
+  firstProduceMythos: new Decimal(1),
 
   secondOwnedMythos: new Decimal(0),
   secondGeneratedMythos: new Decimal(0),
   secondCostMythos: new Decimal(100),
-  secondProduceMythos: 0.01,
+  secondProduceMythos: new Decimal(0.01),
 
   thirdOwnedMythos: new Decimal(0),
   thirdGeneratedMythos: new Decimal(0),
   thirdCostMythos: new Decimal(1e4),
-  thirdProduceMythos: 0.001,
+  thirdProduceMythos: new Decimal(0.001),
 
   fourthOwnedMythos: new Decimal(0),
   fourthGeneratedMythos: new Decimal(0),
   fourthCostMythos: new Decimal(1e8),
-  fourthProduceMythos: 0.0002,
+  fourthProduceMythos: new Decimal(0.0002),
 
   fifthOwnedMythos: new Decimal(0),
   fifthGeneratedMythos: new Decimal(0),
   fifthCostMythos: new Decimal(1e16),
-  fifthProduceMythos: 0.00004,
+  fifthProduceMythos: new Decimal(0.00004),
 
   firstOwnedParticles: new Decimal(0),
   firstGeneratedParticles: new Decimal(0),
   firstCostParticles: new Decimal(1),
-  firstProduceParticles: 0.25,
+  firstProduceParticles: new Decimal(0.25),
 
   secondOwnedParticles: new Decimal(0),
   secondGeneratedParticles: new Decimal(0),
   secondCostParticles: new Decimal(100),
-  secondProduceParticles: 0.2,
+  secondProduceParticles: new Decimal(0.2),
 
   thirdOwnedParticles: new Decimal(0),
   thirdGeneratedParticles: new Decimal(0),
   thirdCostParticles: new Decimal(1e4),
-  thirdProduceParticles: 0.15,
+  thirdProduceParticles: new Decimal(0.15),
 
   fourthOwnedParticles: new Decimal(0),
   fourthGeneratedParticles: new Decimal(0),
   fourthCostParticles: new Decimal(1e8),
-  fourthProduceParticles: 0.1,
+  fourthProduceParticles: new Decimal(0.1),
 
   fifthOwnedParticles: new Decimal(0),
   fifthGeneratedParticles: new Decimal(0),
   fifthCostParticles: new Decimal(1e16),
-  fifthProduceParticles: 0.5,
+  fifthProduceParticles: new Decimal(0.5),
 
   firstOwnedAnts: new Decimal(0),
   firstGeneratedAnts: new Decimal(0),
   firstCostAnts: new Decimal('1e700'),
-  firstProduceAnts: 0.0001,
+  firstProduceAnts: new Decimal(0.0001),
 
   secondOwnedAnts: new Decimal(0),
   secondGeneratedAnts: new Decimal(0),
-  secondCostAnts: new Decimal('3'),
-  secondProduceAnts: 0.00005,
+  secondCostAnts: new Decimal(3),
+  secondProduceAnts: new Decimal(0.00005),
 
   thirdOwnedAnts: new Decimal(0),
   thirdGeneratedAnts: new Decimal(0),
   thirdCostAnts: new Decimal(100),
-  thirdProduceAnts: 0.00002,
+  thirdProduceAnts: new Decimal(0.00002),
 
   fourthOwnedAnts: new Decimal(0),
   fourthGeneratedAnts: new Decimal(0),
   fourthCostAnts: new Decimal(1e4),
-  fourthProduceAnts: 0.00001,
+  fourthProduceAnts: new Decimal(0.00001),
 
   fifthOwnedAnts: new Decimal(0),
   fifthGeneratedAnts: new Decimal(0),
   fifthCostAnts: new Decimal(1e12),
-  fifthProduceAnts: 0.000005,
+  fifthProduceAnts: new Decimal(0.000005),
 
   sixthOwnedAnts: new Decimal(0),
   sixthGeneratedAnts: new Decimal(0),
   sixthCostAnts: new Decimal(1e36),
-  sixthProduceAnts: 0.000002,
+  sixthProduceAnts: new Decimal(0.000002),
 
   seventhOwnedAnts: new Decimal(0),
   seventhGeneratedAnts: new Decimal(0),
   seventhCostAnts: new Decimal(1e100),
-  seventhProduceAnts: 0.000001,
+  seventhProduceAnts: new Decimal(0.000001),
 
   eighthOwnedAnts: new Decimal(0),
   eighthGeneratedAnts: new Decimal(0),
   eighthCostAnts: new Decimal(1e300),
-  eighthProduceAnts: 0.00000001,
+  eighthProduceAnts: new Decimal(0.00000001),
 
   ascendBuilding1: {
     cost: new Decimal(1),
@@ -615,7 +615,7 @@ export const player: Player = {
     shopAmbrosiaLuck4: 0,
     shopCashGrabUltra: 0,
     shopAmbrosiaAccelerator: 0,
-    shopEXUltra: 0,
+    shopEXUltra: 0
   },
   shopBuyMaxToggle: false,
   shopHideToggle: false,
@@ -770,10 +770,10 @@ export const player: Player = {
     0,
     0
   ],
-  wowCubes: new WowCubes(0),
-  wowTesseracts: new WowTesseracts(0),
-  wowHypercubes: new WowHypercubes(0),
-  wowPlatonicCubes: new WowPlatonicCubes(0),
+  wowCubes: new WowCubes(new Decimal(0)),
+  wowTesseracts: new WowTesseracts(new Decimal(0)),
+  wowHypercubes: new WowHypercubes(new Decimal(0)),
+  wowPlatonicCubes: new WowPlatonicCubes(new Decimal(0)),
   saveOfferingToggle: false,
   wowAbyssals: new Decimal(0),
   wowOcteracts: new Decimal(0),
@@ -1395,8 +1395,8 @@ export const player: Player = {
     )
   },
 
-  ambrosia: 0,
-  lifetimeAmbrosia: 0,
+  ambrosia: new Decimal(0),
+  lifetimeAmbrosia: new Decimal(0),
   blueberryTime: new Decimal(0),
   visitedAmbrosiaSubtab: false,
   spentBlueberries: 0,
@@ -1514,69 +1514,9 @@ export const saveSynergy = async (button?: boolean): Promise<boolean> => {
   player.loaded1009 = true
   player.loaded1009hotfix1 = true
 
-  // shallow hold, doesn't modify OG object nor is affected by modifications to OG
-  const p = Object.assign({}, player, {
-    codes: Array.from(player.codes),
-    worlds: player.worlds.QUARKS,
-    wowCubes: player.wowCubes.value,
-    wowTesseracts: player.wowTesseracts.value,
-    wowHypercubes: player.wowHypercubes.value,
-    wowPlatonicCubes: player.wowPlatonicCubes.value,
-    singularityUpgrades: Object.fromEntries(
-      Object.entries(player.singularityUpgrades).map(([key, value]) => {
-        return [
-          key,
-          {
-            level: value.level,
-            goldenQuarksInvested: value.goldenQuarksInvested,
-            toggleBuy: value.toggleBuy,
-            freeLevels: value.freeLevels
-          }
-        ]
-      })
-    ),
-    octeractUpgrades: Object.fromEntries(
-      Object.entries(player.octeractUpgrades).map(([key, value]) => {
-        return [
-          key,
-          {
-            level: value.level,
-            octeractsInvested: value.octeractsInvested,
-            toggleBuy: value.toggleBuy,
-            freeLevels: value.freeLevels
-          }
-        ]
-      })
-    ),
-    singularityChallenges: Object.fromEntries(
-      Object.entries(player.singularityChallenges).map(([key, value]) => {
-        return [
-          key,
-          {
-            completions: value.completions,
-            highestSingularityCompleted: value.highestSingularityCompleted,
-            enabled: value.enabled
-          }
-        ]
-      })
-    ),
-    blueberryUpgrades: Object.fromEntries(
-      Object.entries(player.blueberryUpgrades).map(([key, value]) => {
-        return [
-          key,
-          {
-            level: value.level,
-            ambrosiaInvested: value.ambrosiaInvested,
-            blueberriesInvested: value.blueberriesInvested,
-            toggleBuy: value.toggleBuy,
-            freeLevels: value.freeLevels
-          }
-        ]
-      })
-    )
-  })
-
+  const p = playerJsonSchema.parse(player)
   const save = btoa(JSON.stringify(p))
+
   if (save !== null) {
     const saveBlob = new Blob([save], { type: 'text/plain' })
 
@@ -1600,33 +1540,6 @@ export const saveSynergy = async (button?: boolean): Promise<boolean> => {
 
   return true
 }
-
-/**
- * Map of properties on the Player object to adapt
- */
-const toAdapt = new Map<keyof Player, (data: PlayerSave) => unknown>([
-  [
-    'worlds',
-    (data) =>
-      new QuarkHandler({
-        quarks: Number(data.worlds) || new Decimal(0),
-        bonus: player.worlds.BONUS
-      })
-  ],
-  ['wowCubes', (data) => new WowCubes(Number(data.wowCubes) || 0)],
-  [
-    'wowTesseracts',
-    (data) => new WowTesseracts(Number(data.wowTesseracts) || 0)
-  ],
-  [
-    'wowHypercubes',
-    (data) => new WowHypercubes(Number(data.wowHypercubes) || 0)
-  ],
-  [
-    'wowPlatonicCubes',
-    (data) => new WowPlatonicCubes(Number(data.wowPlatonicCubes) || 0)
-  ]
-])
 
 const loadSynergy = async () => {
   const save = (await localforage.getItem<Blob>('Synergysave2'))
@@ -1657,11 +1570,6 @@ const loadSynergy = async () => {
       return Alert(i18next.t('testing.saveInLive2'))
     }
 
-    const oldCodesUsed = Array.from(
-      { length: 24 }, // old codes only went up to 24
-      (_, i) => `offerpromo${i + 1}used`
-    )
-
     // size before loading
     const size = player.codes.size
 
@@ -1674,38 +1582,17 @@ const loadSynergy = async () => {
       })
     }
 
-    Object.keys(data).forEach((stringProp) => {
-      const prop = stringProp as keyof Player
-      if (!(prop in player)) {
-        return
-      } else if (toAdapt.has(prop)) {
-        return ((player[prop] as unknown) = toAdapt.get(prop)!(data))
-      } else if (isDecimal(player[prop])) {
-        return ((player[prop] as Decimal) = new Decimal(
-          data[prop] as DecimalSource
-        ))
-      } else if (prop === 'codes') {
-        const codes = data[prop]
-        if (codes != null) {
-          return (player.codes = new Map(codes))
-        }
-      } else if (oldCodesUsed.includes(prop)) {
-        return
-      } else if (Array.isArray(data[prop])) {
-        const arr = data[prop] as unknown[]
-        // in old savefiles, some arrays may be 1-based instead of 0-based (newer)
-        // so if the lengths of the savefile key is greater than that of the player obj
-        // it means a key was removed; likely a 1-based index where array[0] was null
-        // so we can get rid of it entirely.
-        if ((player[prop] as unknown[]).length < arr.length) {
-          return ((player[prop] as unknown[]) = arr.slice(
-            arr.length - (player[prop] as unknown[]).length
-          ))
-        }
-      }
+    const validatedPlayer = playerSchema.safeParse(data)
 
-      return ((player[prop] as unknown) = data[prop])
-    })
+    if (validatedPlayer.success) {
+      Object.assign(player, validatedPlayer.data)
+    } else {
+      console.error(validatedPlayer.error)
+      console.warn("PLAYER DATA:")
+      console.log(data)
+      clearTimers()
+      return
+    }
 
     player.lastExportedSave = data.lastExportedSave ?? 0
 
@@ -1904,42 +1791,42 @@ const loadSynergy = async () => {
       player.firstOwnedAnts = new Decimal(0)
       player.firstGeneratedAnts = new Decimal(0)
       player.firstCostAnts = new Decimal('1e700')
-      player.firstProduceAnts = 0.0001
+      player.firstProduceAnts = new Decimal(0.0001)
 
       player.secondOwnedAnts = new Decimal(0)
       player.secondGeneratedAnts = new Decimal(0)
-      player.secondCostAnts = new Decimal('3')
-      player.secondProduceAnts = 0.00005
+      player.secondCostAnts = new Decimal(3)
+      player.secondProduceAnts = new Decimal(0.00005)
 
       player.thirdOwnedAnts = new Decimal(0)
       player.thirdGeneratedAnts = new Decimal(0)
       player.thirdCostAnts = new Decimal(100)
-      player.thirdProduceAnts = 0.00002
+      player.thirdProduceAnts = new Decimal(0.00002)
 
       player.fourthOwnedAnts = new Decimal(0)
       player.fourthGeneratedAnts = new Decimal(0)
       player.fourthCostAnts = new Decimal(1e4)
-      player.fourthProduceAnts = 0.00001
+      player.fourthProduceAnts = new Decimal(0.00001)
 
       player.fifthOwnedAnts = new Decimal(0)
       player.fifthGeneratedAnts = new Decimal(0)
       player.fifthCostAnts = new Decimal(1e12)
-      player.fifthProduceAnts = 0.000005
+      player.fifthProduceAnts = new Decimal(0.000005)
 
       player.sixthOwnedAnts = new Decimal(0)
       player.sixthGeneratedAnts = new Decimal(0)
       player.sixthCostAnts = new Decimal(1e36)
-      player.sixthProduceAnts = 0.000002
+      player.sixthProduceAnts = new Decimal(0.000002)
 
       player.seventhOwnedAnts = new Decimal(0)
       player.seventhGeneratedAnts = new Decimal(0)
       player.seventhCostAnts = new Decimal(1e100)
-      player.seventhProduceAnts = 0.000001
+      player.seventhProduceAnts = new Decimal(0.000001)
 
       player.eighthOwnedAnts = new Decimal(0)
       player.eighthGeneratedAnts = new Decimal(0)
       player.eighthCostAnts = new Decimal(1e300)
-      player.eighthProduceAnts = 0.00000001
+      player.eighthProduceAnts = new Decimal(0.00000001)
 
       player.achievements.push(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
       player.antPoints = new Decimal(1)
@@ -2025,7 +1912,8 @@ const loadSynergy = async () => {
       player.firstOwnedAnts = new Decimal(0)
     }
 
-    checkVariablesOnLoad(data)
+    // checkVariablesOnLoad(data)
+
     if (data.ascensionCount === undefined || player.ascensionCount.eq(0)) {
       player.ascensionCount = new Decimal(0)
       if (player.ascensionCounter.eq(0) && player.prestigeCount.gt(0)) {
@@ -2042,10 +1930,10 @@ const loadSynergy = async () => {
       if (player.singularityCount === 0) {
         player.cubeUpgrades = [...blankSave.cubeUpgrades]
       }
-      player.wowCubes = new WowCubes(0)
-      player.wowTesseracts = new WowTesseracts(0)
-      player.wowHypercubes = new WowHypercubes(0)
-      player.wowPlatonicCubes = new WowPlatonicCubes(0)
+      player.wowCubes = new WowCubes(new Decimal(0))
+      player.wowTesseracts = new WowTesseracts(new Decimal(0))
+      player.wowHypercubes = new WowHypercubes(new Decimal(0))
+      player.wowPlatonicCubes = new WowPlatonicCubes(new Decimal(0))
       player.cubeBlessings = {
         accelerator: new Decimal(0),
         multiplier: new Decimal(0),

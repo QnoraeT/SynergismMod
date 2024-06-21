@@ -15,6 +15,7 @@ import type {
   BlueberryInventoryCache
 } from '../StatCache'
 import type { Tabs } from '../Tabs'
+import { DecimalSource } from 'break_eternity.js'
 
 export interface Player {
   firstPlayed: string
@@ -28,142 +29,142 @@ export interface Player {
   firstOwnedCoin: Decimal
   firstGeneratedCoin: Decimal
   firstCostCoin: Decimal
-  firstProduceCoin: number
+  firstProduceCoin: Decimal
 
   secondOwnedCoin: Decimal
   secondGeneratedCoin: Decimal
   secondCostCoin: Decimal
-  secondProduceCoin: number
+  secondProduceCoin: Decimal
 
   thirdOwnedCoin: Decimal
   thirdGeneratedCoin: Decimal
   thirdCostCoin: Decimal
-  thirdProduceCoin: number
+  thirdProduceCoin: Decimal
 
   fourthOwnedCoin: Decimal
   fourthGeneratedCoin: Decimal
   fourthCostCoin: Decimal
-  fourthProduceCoin: number
+  fourthProduceCoin: Decimal
 
   fifthOwnedCoin: Decimal
   fifthGeneratedCoin: Decimal
   fifthCostCoin: Decimal
-  fifthProduceCoin: number
+  fifthProduceCoin: Decimal
 
   firstOwnedDiamonds: Decimal
   firstGeneratedDiamonds: Decimal
   firstCostDiamonds: Decimal
-  firstProduceDiamonds: number
+  firstProduceDiamonds: Decimal
 
   secondOwnedDiamonds: Decimal
   secondGeneratedDiamonds: Decimal
   secondCostDiamonds: Decimal
-  secondProduceDiamonds: number
+  secondProduceDiamonds: Decimal
 
   thirdOwnedDiamonds: Decimal
   thirdGeneratedDiamonds: Decimal
   thirdCostDiamonds: Decimal
-  thirdProduceDiamonds: number
+  thirdProduceDiamonds: Decimal
 
   fourthOwnedDiamonds: Decimal
   fourthGeneratedDiamonds: Decimal
   fourthCostDiamonds: Decimal
-  fourthProduceDiamonds: number
+  fourthProduceDiamonds: Decimal
 
   fifthOwnedDiamonds: Decimal
   fifthGeneratedDiamonds: Decimal
   fifthCostDiamonds: Decimal
-  fifthProduceDiamonds: number
+  fifthProduceDiamonds: Decimal
 
   firstOwnedMythos: Decimal
   firstGeneratedMythos: Decimal
   firstCostMythos: Decimal
-  firstProduceMythos: number
+  firstProduceMythos: Decimal
 
   secondOwnedMythos: Decimal
   secondGeneratedMythos: Decimal
   secondCostMythos: Decimal
-  secondProduceMythos: number
+  secondProduceMythos: Decimal
 
   thirdOwnedMythos: Decimal
   thirdGeneratedMythos: Decimal
   thirdCostMythos: Decimal
-  thirdProduceMythos: number
+  thirdProduceMythos: Decimal
 
   fourthOwnedMythos: Decimal
   fourthGeneratedMythos: Decimal
   fourthCostMythos: Decimal
-  fourthProduceMythos: number
+  fourthProduceMythos: Decimal
 
   fifthOwnedMythos: Decimal
   fifthGeneratedMythos: Decimal
   fifthCostMythos: Decimal
-  fifthProduceMythos: number
+  fifthProduceMythos: Decimal
 
   firstOwnedParticles: Decimal
   firstGeneratedParticles: Decimal
   firstCostParticles: Decimal
-  firstProduceParticles: number
+  firstProduceParticles: Decimal
 
   secondOwnedParticles: Decimal
   secondGeneratedParticles: Decimal
   secondCostParticles: Decimal
-  secondProduceParticles: number
+  secondProduceParticles: Decimal
 
   thirdOwnedParticles: Decimal
   thirdGeneratedParticles: Decimal
   thirdCostParticles: Decimal
-  thirdProduceParticles: number
+  thirdProduceParticles: Decimal
 
   fourthOwnedParticles: Decimal
   fourthGeneratedParticles: Decimal
   fourthCostParticles: Decimal
-  fourthProduceParticles: number
+  fourthProduceParticles: Decimal
 
   fifthOwnedParticles: Decimal
   fifthGeneratedParticles: Decimal
   fifthCostParticles: Decimal
-  fifthProduceParticles: number
+  fifthProduceParticles: Decimal
 
   firstOwnedAnts: Decimal
   firstGeneratedAnts: Decimal
   firstCostAnts: Decimal
-  firstProduceAnts: number
+  firstProduceAnts: Decimal
 
   secondOwnedAnts: Decimal
   secondGeneratedAnts: Decimal
   secondCostAnts: Decimal
-  secondProduceAnts: number
+  secondProduceAnts: Decimal
 
   thirdOwnedAnts: Decimal
   thirdGeneratedAnts: Decimal
   thirdCostAnts: Decimal
-  thirdProduceAnts: number
+  thirdProduceAnts: Decimal
 
   fourthOwnedAnts: Decimal
   fourthGeneratedAnts: Decimal
   fourthCostAnts: Decimal
-  fourthProduceAnts: number
+  fourthProduceAnts: Decimal
 
   fifthOwnedAnts: Decimal
   fifthGeneratedAnts: Decimal
   fifthCostAnts: Decimal
-  fifthProduceAnts: number
+  fifthProduceAnts: Decimal
 
   sixthOwnedAnts: Decimal
   sixthGeneratedAnts: Decimal
   sixthCostAnts: Decimal
-  sixthProduceAnts: number
+  sixthProduceAnts: Decimal
 
   seventhOwnedAnts: Decimal
   seventhGeneratedAnts: Decimal
   seventhCostAnts: Decimal
-  seventhProduceAnts: number
+  seventhProduceAnts: Decimal
 
   eighthOwnedAnts: Decimal
   eighthGeneratedAnts: Decimal
   eighthCostAnts: Decimal
-  eighthProduceAnts: number
+  eighthProduceAnts: Decimal
 
   ascendBuilding1: {
     cost: Decimal
@@ -623,8 +624,8 @@ export interface Player {
     SingularityChallenge
   >
 
-  ambrosia: number
-  lifetimeAmbrosia: number
+  ambrosia: Decimal
+  lifetimeAmbrosia: Decimal
   blueberryTime: Decimal
   visitedAmbrosiaSubtab: boolean
   spentBlueberries: number
@@ -996,6 +997,13 @@ export interface GlobalVariables {
   ambrosiaTimer: Decimal
   TIME_PER_AMBROSIA: Decimal
 
+  ambrosiaCurrStats: {
+    ambrosiaAdditiveLuckMult: DecimalSource
+    ambrosiaLuck: DecimalSource
+    ambrosiaBlueberries: DecimalSource
+    ambrosiaGenerationSpeed: DecimalSource
+  }
+
   currentSingChallenge: keyof Player['singularityChallenges'] | undefined
 }
 
@@ -1043,3 +1051,5 @@ export type ZeroToSeven = ZeroToFour | 5 | 6 | 7
 export type FirstToFifth = GlobalVariables['ordinals'][ZeroToFour]
 
 export type FirstToEighth = GlobalVariables['ordinals'][ZeroToSeven]
+
+export type SaveSupplier<K extends keyof Player = keyof Player> = Map<K, (value: unknown) => Player[K]>

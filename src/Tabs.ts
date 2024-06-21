@@ -1,13 +1,14 @@
 import { DOMCacheGetOrSet } from './Cache/DOM'
+import { calculateAmbrosiaGenerationSpeed } from './Calculate'
 import { pressedKeys } from './Hotkeys'
 import { player } from './Synergism'
 import {
   setActiveSettingScreen,
   toggleBuildingScreen,
+  toggleChallengesScreen,
   toggleCorruptionLoadoutsStats,
   toggleCubeSubTab,
   toggleRuneScreen,
-  toggleChallengesScreen,
   toggleSingularityScreen
 } from './Toggles'
 import { changeTabColor, hideStuff, revealStuff } from './UpdateHTML'
@@ -146,7 +147,7 @@ const subtabInfo: Record<Tabs, SubTab> = {
       }
     ]
   },
-  [Tabs.Challenges]: { 
+  [Tabs.Challenges]: {
     tabSwitcher: () => toggleChallengesScreen,
     subTabList: [
       { subTabID: '1', unlocked: true, buttonID: 'toggleChallengesSubTab1' },
@@ -156,8 +157,8 @@ const subtabInfo: Record<Tabs, SubTab> = {
           return player.highestSingularityCount >= 25
         },
         buttonID: 'toggleChallengesSubTab2'
-      },
-    ] 
+      }
+    ]
   },
   [Tabs.Research]: { subTabList: [] },
   [Tabs.AntHill]: { subTabList: [] },
@@ -661,7 +662,7 @@ export const changeSubTab = (tabs: Tabs, { page, step }: SubTabSwitchOptions) =>
     subTabs.tabSwitcher?.()(subTabList.subTabID)
     if (tab.getType() === Tabs.Singularity && page === 3) {
       player.visitedAmbrosiaSubtab = true
-      player.caches.ambrosiaGeneration.updateVal('DefaultVal')
+      G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
     }
   }
 }

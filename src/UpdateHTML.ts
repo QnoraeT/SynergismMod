@@ -493,8 +493,7 @@ export const revealStuff = () => {
       ? 'block'
       : 'none'
   //Hide Challenge Subtabs until Exalts are unlocked
-  DOMCacheGetOrSet('challengesTabsToggle').style.display =
-    player.highestSingularityCount >= 25
+  DOMCacheGetOrSet('challengesTabsToggle').style.display = player.highestSingularityCount >= 25
       ? 'flex'
       : 'none'
 

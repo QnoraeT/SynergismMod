@@ -62,7 +62,7 @@ const getTalismanResourceInfo = (
   const maxBuyObtainium = Decimal.max(1, Decimal.floor(player.researchPoints.div(obtainiumCost)))
   const maxBuyOffering = Decimal.max(1, Decimal.floor(player.runeshards.div(offeringCost)))
   const amountToBuy = Decimal.max(1, Decimal.floor(Decimal.mul(percentage, Decimal.min(maxBuyObtainium, maxBuyOffering)).div(100)))
-  const canBuy = (Decimal.lte(obtainiumCost, player.researchPoints) && Decimal.lte(offeringCost, player.runeshards))
+  const canBuy = Decimal.lte(obtainiumCost, player.researchPoints) && Decimal.lte(offeringCost, player.runeshards)
   return {
     canBuy, // Boolean, if false will not buy any fragments
     buyAmount: amountToBuy, // Integer, will buy as specified above.

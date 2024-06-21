@@ -167,7 +167,7 @@ export abstract class Cube {
 }
 
 export class WowCubes extends Cube {
-  constructor (amount = Number(player.wowCubes)) {
+  constructor (amount = player.wowCubes.value) {
     super('wowCubes', amount)
   }
 
@@ -232,7 +232,7 @@ export class WowCubes extends Cube {
 }
 
 export class WowTesseracts extends Cube {
-  constructor (amount = Number(player.wowTesseracts)) {
+  constructor (amount = player.wowTesseracts.value) {
     super('wowTesseracts', amount)
   }
 
@@ -275,7 +275,7 @@ export class WowTesseracts extends Cube {
 }
 
 export class WowHypercubes extends Cube {
-  constructor (amount = Number(player.wowHypercubes)) {
+  constructor (amount = player.wowHypercubes.value) {
     super('wowHypercubes', amount)
   }
 
@@ -318,7 +318,7 @@ export class WowHypercubes extends Cube {
 }
 
 export class WowPlatonicCubes extends Cube {
-  constructor (amount = Number(player.wowPlatonicCubes)) {
+  constructor (amount = player.wowPlatonicCubes.value) {
     super('wowPlatonicCubes', amount)
   }
 
