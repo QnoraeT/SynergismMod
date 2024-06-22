@@ -399,11 +399,15 @@ export class AmbrosiaGenerationCache extends MultiplicationCache<AmbrosiaGenerat
 }
 
 export class BlueberryInventoryCache extends AdditionCache<BlueberryInventory> {
-  vals: Record<BlueberryInventory, number>
-  public totalVal: number
+  vals!: Record<BlueberryInventory, number>
+  totalVal!: number
 
   constructor () {
     super()
+    this.reset()
+  }
+
+  reset () {
     this.vals = {
       Exalt1: 0,
       SingularityUpgrade: 0,

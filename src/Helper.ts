@@ -205,9 +205,10 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
 
       let timeToAmbrosia = calculateRequiredBlueberryTime()
 
-      const maxAccelMultiplier = (1/2) + (3/5 - 1/2) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 15) 
-      + (2/3 - 3/5) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 19)
-      + (3/4 - 2/3) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 20)
+      const maxAccelMultiplier = (1 / 2)
+        + (3 / 5 - 1 / 2) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 15)
+        + (2 / 3 - 3 / 5) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 19)
+        + (3 / 4 - 2 / 3) * +(player.singularityChallenges.noAmbrosiaUpgrades.completions >= 20)
 
       while (Decimal.gte(player.blueberryTime, timeToAmbrosia)) {
         const RNG = Math.random()
@@ -223,7 +224,10 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
         timeToAmbrosia = calculateRequiredBlueberryTime()
         const secondsToNextAmbrosia = Decimal.div(timeToAmbrosia, G.ambrosiaCurrStats.ambrosiaGenerationSpeed)
 
-        G.ambrosiaTimer = G.ambrosiaTimer.add(Decimal.mul(ambrosiaToGain, player.shopUpgrades.shopAmbrosiaAccelerator).mul(0.2).min(Decimal.mul(secondsToNextAmbrosia, maxAccelMultiplier)))
+        G.ambrosiaTimer = G.ambrosiaTimer.add(
+          Decimal.mul(ambrosiaToGain, player.shopUpgrades.shopAmbrosiaAccelerator).mul(0.2)
+          .min(Decimal.mul(secondsToNextAmbrosia, maxAccelMultiplier))
+        )
         timeToAmbrosia = calculateRequiredBlueberryTime()
       }
 

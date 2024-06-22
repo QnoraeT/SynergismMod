@@ -19,6 +19,7 @@ import type { resetNames } from './types/Synergism'
 import { Alert, Prompt } from './UpdateHTML'
 import { productContentsDecimal, productContentsNumber, sumContentsNumber, sumContentsDecimal, smoothPoly } from './Utility'
 import { Globals as G } from './Variables'
+import { getRuneEffective } from './Runes'
 
 const CASH_GRAB_ULTRA_QUARK = 0.08
 const CASH_GRAB_ULTRA_CUBE = 1.2
@@ -113,7 +114,7 @@ export const calculateTotalAcceleratorBoost = () => {
   }
 
   b = b.add(Decimal.floor(Decimal.add(G.rune1level, G.rune2level).add(G.rune3level).add(G.rune4level).add(G.rune5level).div(20)).mul(player.researches[93]))
-  b = b.add(Decimal.mul(Decimal.add(0.01, G.rune1level), G.effectiveLevelMult).div(20).floor())
+  b = b.add(getRuneEffective(1).div(10).floor())
   b = b.mul(CalcECC('ascension', player.challengecompletions[14]).div(2).add(1).mul(player.researches[3]).mul(0.2).add(1))
   b = b.mul(1 + (1 / 20) * player.researches[16] + (1 / 20) * player.researches[17])
   b = b.mul(1 + (1 / 20) * player.researches[88])

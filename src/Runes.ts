@@ -43,9 +43,9 @@ export const displayRuneInformation = (i: number, updatelevelup = true) => {
 
   if (i === 1) {
     options = {
-      bonus: format(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.25))),
-      percent: format(getRuneEffective(1).div(4), 2, true),
-      boost: format(Decimal.floor(getRuneEffective(1).div(20)))
+      bonus: format(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.5))),
+      percent: format(getRuneEffective(1).div(2), 2, true),
+      boost: format(Decimal.floor(getRuneEffective(1).div(10)))
     }
   } else if (i === 2) {
     options = {
@@ -104,7 +104,7 @@ export const displayRuneInformation = (i: number, updatelevelup = true) => {
 }
 
 export const resetofferings = (input: resetNames) => {
-  player.runeshards = Decimal.min(1e300, Decimal.add(player.runeshards, calculateOfferings(input)))
+  player.runeshards = Decimal.add(player.runeshards, calculateOfferings(input))
 }
 
 export const unlockedRune = (runeIndexPlusOne: number) => {

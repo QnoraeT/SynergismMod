@@ -25,13 +25,13 @@ const arrayStartingWithNull = (s: ZodType) =>
     .refine((arr) => arr.length > 0 && arr[0] === null, {
       message: 'First element must be null'
     })
-    .refine((arr) => arr.slice(1).every((element) => typeof element === 'number'), {
-      message: 'All elements after the first must be numbers'
-    })
+    // .refine((arr) => arr.slice(1).every((element) => typeof element === 'number' || typeof element === 'Decimal'), {
+    //   message: 'All elements after the first must be numbers or decimals'
+    // })
 
-const arrayExtend = (array: number[], k: keyof Player) => {
+const arrayExtend = <K extends keyof Player, Value extends Player[K]>(array: Value, k: K) => {
   if (array.length < blankSave[k].length) {
-    array.push(...Array(blankSave[k].length - array.length).fill(0))
+    array.push(...blankSave[k].slice(array.length))
   }
   return array
 }
@@ -78,7 +78,7 @@ const hepteractCraftSchema = z.object({
 
 export const playerSchema = z.object({
   firstPlayed: z.string().datetime().optional().default(() => new Date().toISOString()),
-  worlds: z.number().transform((quarks) => new QuarkHandler({ quarks })),
+  worlds: decimalSchema.transform((quarks) => new QuarkHandler({ quarks })),
 
   coins: decimalSchema,
   coinsThisPrestige: decimalSchema,
@@ -249,10 +249,6 @@ export const playerSchema = z.object({
     return array
   }),
 
-  prestigeCount: z.number(),
-  transcendCount: z.number(),
-  reincarnationCount: z.number(),
-
   prestigePoints: decimalSchema,
   transcendPoints: decimalSchema,
   reincarnationPoints: decimalSchema,
@@ -264,24 +260,24 @@ export const playerSchema = z.object({
   toggles: toggleSchema,
 
   challengecompletions: z.union([
-    z.number().array(),
-    z.record(z.string(), z.number()).transform((value) => {
+    decimalSchema.array(),
+    z.record(z.string(), decimalSchema).transform((value) => {
       const challengeCompletions = Object.values(value)
       padArray(
         challengeCompletions,
-        0,
+        new Decimal(0),
         blankSave.challengecompletions.length
       )
       return challengeCompletions
     })
   ]),
   highestchallengecompletions: z.union([
-    z.union([z.number(), z.null()]).array(),
-    z.record(z.string(), z.number()).transform((value) => {
+    z.union([decimalSchema, z.null()]).array(),
+    z.record(z.string(), decimalSchema).transform((value) => {
       const highestChallengeCompletions = Object.values(value)
       padArray(
         highestChallengeCompletions,
-        0,
+        new Decimal(0),
         blankSave.highestchallengecompletions.length
       )
       return highestChallengeCompletions
@@ -299,13 +295,13 @@ export const playerSchema = z.object({
       ascension: z.number()
     }).default(() => ({ ...blankSave.currentChallenge }))
   ]),
-  researchPoints: z.number(),
-  obtainiumtimer: z.number(),
+  researchPoints: decimalSchema,
+  obtainiumtimer: decimalSchema,
   obtainiumpersecond: decimalSchema.default(() => blankSave.obtainiumpersecond),
   maxobtainiumpersecond: decimalSchema.default(() => blankSave.maxobtainiumpersecond),
   maxobtainium: decimalSchema.default(() => blankSave.maxobtainium),
 
-  researches: z.number().array(),
+  researches: z.number().array().transform((array) => arrayExtend(array, 'researches')),
 
   unlocks: z.record(z.string(), z.boolean()),
   achievements: z.number().array().transform((array) => arrayExtend(array, 'achievements')),
@@ -326,27 +322,27 @@ export const playerSchema = z.object({
   reincarnatenocoinprestigeortranscendupgrades: z.boolean(),
   reincarnatenocoinprestigetranscendorgeneratorupgrades: z.boolean(),
 
-  crystalUpgrades: z.number().array(),
+  crystalUpgrades: decimalSchema.array(),
   crystalUpgradesCost: decimalSchema.array().default(() => [...blankSave.crystalUpgradesCost]),
 
-  runelevels: z.number().array(),
-  runeexp: z.union([z.number(), z.null()]).array().transform((value) => value.map((val) => val === null ? 0 : val)),
-  runeshards: z.number(),
+  runelevels: decimalSchema.array(),
+  runeexp: z.union([decimalSchema, z.null()]).array().transform((value) => value.map((val) => val === null ? 0 : val)),
+  runeshards: decimalSchema,
   maxofferings: decimalSchema.default(() => blankSave.maxofferings),
   offeringpersecond: decimalSchema.default(() => blankSave.offeringpersecond),
 
-  prestigecounter: z.number(),
-  transcendcounter: z.number(),
-  reincarnationcounter: z.number(),
+  prestigecounter: decimalSchema,
+  transcendcounter: decimalSchema,
+  reincarnationcounter: decimalSchema,
   offlinetick: z.number(),
 
   prestigeamount: z.union([decimalSchema, decimalStringSchema]).default(() => blankSave.prestigeamount),
   transcendamount: z.union([decimalSchema, decimalStringSchema]).default(() => blankSave.transcendamount),
   reincarnationamount: z.union([decimalSchema, decimalStringSchema]).default(() => blankSave.reincarnationamount),
 
-  fastestprestige: z.number(),
-  fastesttranscend: z.number(),
-  fastestreincarnate: z.number(),
+  fastestprestige: decimalSchema,
+  fastesttranscend: decimalSchema,
+  fastestreincarnate: decimalSchema,
 
   resettoggle1: z.number().default(() => blankSave.resettoggle1),
   resettoggle2: z.number().default(() => blankSave.resettoggle2),
@@ -408,7 +404,7 @@ export const playerSchema = z.object({
   goldenQuarksTimer: decimalSchema.default(() => blankSave.goldenQuarksTimer),
 
   antPoints: decimalSchema,
-  antUpgrades: z.union([z.number().array(), arrayStartingWithNull(z.number()).transform((array) => array.slice(1))])
+  antUpgrades: z.union([decimalSchema.array(), arrayStartingWithNull(decimalSchema).transform((array) => array.slice(1))])
     .default(() => [...blankSave.antUpgrades]),
   antSacrificePoints: z.union([decimalSchema, z.null().transform(() => Number.MAX_VALUE)]).default(() =>
     blankSave.antSacrificePoints
@@ -446,8 +442,8 @@ export const playerSchema = z.object({
   ascensionCounter: decimalSchema.default(() => blankSave.ascensionCounter),
   ascensionCounterReal: decimalSchema.default(() => blankSave.ascensionCounterReal),
   ascensionCounterRealReal: decimalSchema.default(() => blankSave.ascensionCounterRealReal),
-  cubeUpgrades: arrayStartingWithNull(z.number())
-    .transform((array) => arrayExtend(array, 'cubeUpgrades'))
+  cubeUpgrades: arrayStartingWithNull(decimalSchema)
+    .transform((array) => arrayExtend(array as [null, ...Decimal[]], 'cubeUpgrades'))
     .default(() => [...blankSave.cubeUpgrades]),
   cubeUpgradesBuyMaxToggle: z.boolean().default(() => blankSave.cubeUpgradesBuyMaxToggle),
   autoCubeUpgradesToggle: z.boolean().default(() => blankSave.autoCubeUpgradesToggle),
@@ -520,7 +516,7 @@ export const playerSchema = z.object({
   ),
   corruptionShowStats: z.boolean().default(() => blankSave.corruptionShowStats),
 
-  constantUpgrades: arrayStartingWithNull(z.number()).default(() => [...blankSave.constantUpgrades]),
+  constantUpgrades: arrayStartingWithNull(decimalSchema).default(() => [...blankSave.constantUpgrades]),
   // TODO: real types
   history: z.object({
     ants: z.any().array(),
@@ -585,7 +581,7 @@ export const playerSchema = z.object({
   promoCodeTiming: z.record(z.string(), z.number()).default(() => ({ time: Date.now() - 60 * 1000 * 15 })),
   singularityCount: z.number().default(() => blankSave.singularityCount),
   highestSingularityCount: z.number().default(() => blankSave.highestSingularityCount),
-  singularityCounter: z.number().default(() => blankSave.singularityCount),
+  singularityCounter: decimalSchema.default(() => blankSave.singularityCounter),
   goldenQuarks: decimalSchema.default(() => blankSave.goldenQuarks),
   quarksThisSingularity: decimalSchema.nullable().default(() => blankSave.quarksThisSingularity),
   totalQuarksEver: decimalSchema.default(() => blankSave.totalQuarksEver),
@@ -622,11 +618,7 @@ export const playerSchema = z.object({
         })
       )
     )
-    .default(() => {
-      const v = JSON.parse(JSON.stringify(blankSave.singularityUpgrades))
-      console.log('DEFAULT SING UPGRADES', v)
-      return v
-    }),
+    .default(() => JSON.parse(JSON.stringify(blankSave.singularityUpgrades))),
   octeractUpgrades: z.record(z.string(), singularityUpgradeSchema('octeractsInvested'))
   .transform((upgrades) =>
     Object.fromEntries(
@@ -739,11 +731,11 @@ export const playerSchema = z.object({
   // TODO: what type?
   caches: z.record(z.string(), z.any())
     .transform(() => {
-      // Object.values(blankSave.caches).map((cache) => cache.reset())
+      Object.values(blankSave.caches).map((cache) => cache.reset())
       return blankSave.caches
     })
     .default(() => {
-      // Object.values(blankSave.caches).map((cache) => cache.reset())
+      Object.values(blankSave.caches).map((cache) => cache.reset())
       return blankSave.caches
     }),
 

@@ -137,7 +137,7 @@ import {
 // import { LegacyShopUpgrades } from './types/LegacySynergism';
 import i18next from 'i18next'
 import localforage from 'localforage'
-import { BlueberryUpgrade, blueberryUpgradeData } from './BlueberryUpgrades'
+import { BlueberryUpgrade, blueberryUpgradeData, updateLoadoutHoverClasses } from './BlueberryUpgrades'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { lastUpdated, prod, testing, version } from './Config'
 import { WowCubes, WowHypercubes, WowPlatonicCubes, WowTesseracts } from './CubeExperimental'
@@ -1582,6 +1582,7 @@ const loadSynergy = async () => {
       })
     }
 
+    console.log(playerSchema.safeParse(data))
     const validatedPlayer = playerSchema.safeParse(data)
 
     if (validatedPlayer.success) {
@@ -1593,6 +1594,8 @@ const loadSynergy = async () => {
       clearTimers()
       return
     }
+
+    updateLoadoutHoverClasses()
 
     player.lastExportedSave = data.lastExportedSave ?? 0
 
@@ -1636,12 +1639,6 @@ const loadSynergy = async () => {
     }
     if (data.loaded10101 === undefined) {
       player.loaded10101 = false
-    }
-
-    // Fix dumb shop stuff
-    // First, if shop isn't even defined we just define it as so
-    if (data.shopUpgrades === undefined) {
-      player.shopUpgrades = Object.assign({}, blankSave.shopUpgrades)
     }
 
     if (typeof player.researches[76] === 'undefined') {
@@ -1914,9 +1911,8 @@ const loadSynergy = async () => {
 
     // checkVariablesOnLoad(data)
 
-    if (data.ascensionCount === undefined || player.ascensionCount.eq(0)) {
-      player.ascensionCount = new Decimal(0)
-      if (player.ascensionCounter.eq(0) && player.prestigeCount.gt(0)) {
+    if (Decimal.eq(player.ascensionCount, 0)) {
+      if (Decimal.gt(player.prestigeCount, 0)) {
         player.ascensionCounter = new Decimal(86400 * 90)
       }
       /*player.cubeUpgrades = [null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -1946,12 +1942,6 @@ const loadSynergy = async () => {
         talismanBonus: new Decimal(0),
         globalSpeed: new Decimal(0)
       }
-    }
-    if (data.autoAntSacTimer == null) {
-      player.autoAntSacTimer = 900
-    }
-    if (data.autoAntSacrificeMode === undefined) {
-      player.autoAntSacrificeMode = 0
     }
 
     if (player.transcendCount.lt(0)) {
@@ -1991,25 +1981,6 @@ const loadSynergy = async () => {
         rrow3: false,
         rrow4: false
       }
-    }
-
-    if (data.history === undefined) {
-      player.history = { ants: [], ascend: [], reset: [], singularity: [] }
-    } else {
-      // See: https://discord.com/channels/677271830838640680/964168000360038481/964168002071330879
-      const keys = Object.keys(
-        blankSave.history
-      ) as (keyof (typeof blankSave)['history'])[]
-
-      for (const historyKey of keys) {
-        if (!(historyKey in player.history)) {
-          player.history[historyKey] = []
-        }
-      }
-    }
-
-    if (data.historyShowPerSecond === undefined) {
-      player.historyShowPerSecond = false
     }
 
     // ! this check always fails for some reason and rolls back
@@ -2993,8 +2964,8 @@ export const updateAllTick = (): void => {
   a = a.add(Decimal.add(G.cubeBonusMultiplier[1], 4).add(2 * player.researches[18]).add(2 * player.researches[19]).add(3 * player.researches[20]).mul(G.totalAcceleratorBoost)
 )
   if (player.unlocks.prestige) {
-    a = a.add(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.25)))
-    a = a.mul(getRuneEffective(1).div(400).add(1))
+    a = a.add(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.5)))
+    a = a.mul(getRuneEffective(1).div(200).add(1))
   }
 
   calculateAcceleratorMultiplier()
