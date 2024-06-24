@@ -649,11 +649,11 @@ export const generateEventHandlers = () => {
   DOMCacheGetOrSet('open1Cube').addEventListener('click', () => player.wowCubes.open(1, false))
   DOMCacheGetOrSet('open20Cube').addEventListener(
     'click',
-    () => player.wowCubes.open(Math.floor(Number(player.wowCubes) / 10), false)
+    () => player.wowCubes.open(Decimal.floor(player.wowCubes.value.div(10)), false)
   )
   DOMCacheGetOrSet('open1000Cube').addEventListener(
     'click',
-    () => player.wowCubes.open(Math.floor(Number(player.wowCubes) / 2), false)
+    () => player.wowCubes.open(Decimal.floor(player.wowCubes.value.div(2)), false)
   )
   DOMCacheGetOrSet('openCustomCube').addEventListener('click', () => player.wowCubes.openCustom())
   DOMCacheGetOrSet('openMostCube').addEventListener('click', () => player.wowCubes.open(0, true))

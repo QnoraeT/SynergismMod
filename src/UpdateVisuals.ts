@@ -1048,7 +1048,10 @@ export const visualUpdateCubes = () => {
       accuracy = [null, 2, 2, 2, 2, 2, 2, 2, 1, 4, 3]
       for (let i = 1; i <= 10; i++) {
         let augmentAccuracy = 0
-        if (Decimal.gte(cubeArray[i]!, 1000) && i !== 6) {
+
+        let start = new Decimal(1000)
+        start = start.mul(constantEffects().cubeSoftcap)
+        if (Decimal.gte(cubeArray[i]!, start) && i !== 6) {
           augmentAccuracy += 2
         }
         const aestheticMultiplier = i === 1 || i === 8 || i === 9 ? 1 : 100

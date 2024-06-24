@@ -276,22 +276,23 @@ const checkPlatonicUpgrade = (
     abyssals: false,
     canBuy: false
   }
-  let priceMultiplier = 1
+  let priceMultiplier = new Decimal(1)
   if (platUpgradeBaseCosts[index].priceMult) {
-    priceMultiplier = Math.pow(
+    priceMultiplier = Decimal.pow(
       platUpgradeBaseCosts[index].priceMult!,
-      Math.pow(player.platonicUpgrades[index] / (platUpgradeBaseCosts[index].maxLevel - 1), 1.25)
+      Decimal.div(player.platonicUpgrades[index], Decimal.sub(platUpgradeBaseCosts[index].maxLevel, 1)).pow(1.25)
     )
   }
-  priceMultiplier *= calculateSingularityDebuff('Platonic Costs')
+  priceMultiplier = Decimal.mul(priceMultiplier, calculateSingularityDebuff('Platonic Costs'))
 
   for (let i = 0; i < resources.length - 1; i++) {
     if (auto && (resources[i] === 'obtainium' || resources[i] === 'offerings')) {
       checksum++
       checks[resources[i]] = true
-    } else if (
-      Decimal.lte(Math.floor(platUpgradeBaseCosts[index][resources[i]] * priceMultiplier), player[resourceNames[i]] as Decimal)
-    ) {
+    } else if (Decimal.lte(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)), player[resourceNames[i] as "researchPoints" | "runeshards"])) {
+      checksum++
+      checks[resources[i]] = true
+    } else if (Decimal.lte(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)), player[resourceNames[i] as "wowCubes" | "wowTesseracts" | "wowHypercubes" | "wowPlatonicCubes"].value)) {
       checksum++
       checks[resources[i]] = true
     }
@@ -299,13 +300,13 @@ const checkPlatonicUpgrade = (
 
   if (
     Decimal.gte(player.hepteractCrafts.abyss.BAL, Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)))
-    || platUpgradeBaseCosts[index].abyssals === 0
+    || Decimal.eq(platUpgradeBaseCosts[index].abyssals, 0)
   ) {
     checksum++
     checks.abyssals = true
   }
 
-  if (checksum === resources.length && player.platonicUpgrades[index] < platUpgradeBaseCosts[index].maxLevel) {
+  if (checksum === resources.length && Decimal.lt(player.platonicUpgrades[index], platUpgradeBaseCosts[index].maxLevel)) {
     checks.canBuy = true
   }
   return checks

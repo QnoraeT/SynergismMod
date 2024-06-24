@@ -45,7 +45,9 @@ export const constantEffects = () => {
   }
   const AMT = player.ascendShards.max(0)
 
-  EFF.tax = AMT.add(1).log10().add(1).pow(Decimal.sub(G.platonicBonusMultiplier[5], 1).add(0.2 * player.platonicUpgrades[10]).add(0.1 * player.platonicUpgrades[5]).add(Decimal.mul(player.challengecompletions[10], player.upgrades[125]).div(300)).add(1))
+  EFF.tax = AMT.add(1).log10().add(1)
+  EFF.tax = EFF.tax.pow(Decimal.sub(G.platonicBonusMultiplier[5], 1).add(0.2 * player.platonicUpgrades[10]).add(0.1 * player.platonicUpgrades[5]).add(Decimal.mul(player.challengecompletions[10], player.upgrades[125]).div(300)).add(1))
+
   if (AMT.gte(1e3)) {
     EFF.antSoftcap = AMT.log10().div(3).pow(0.4).sub(1).mul(12).pow10()
   }
@@ -56,18 +58,18 @@ export const constantEffects = () => {
     EFF.buildingSlowDown = AMT.log10().div(10).ln().add(1)
   }
   if (AMT.gte(1e30)) {
-    EFF.c3Effect = AMT.log10().div(30).log2().pow(2)
+    EFF.c3Effect = AMT.log10().div(30).pow(2)
   }
   if (AMT.gte(1e100)) {
     EFF.cubeSoftcap = AMT.log10().log10().div(2).pow(3)
   }
   if (AMT.gte(1e308)) {
     EFF.accelScale[0] = AMT.log10().div(308).sqrt()
-    EFF.accelScale[1] = AMT.log10().div(154).sqrt()
+    EFF.accelScale[1] = AMT.log10().div(154).pow(0.5849625007211561).div(1.5)
   }
   if (AMT.gte("1e616")) {
     EFF.multScale[0] = AMT.log10().div(616).sqrt()
-    EFF.multScale[1] = AMT.log10().div(308).sqrt()
+    EFF.multScale[1] = AMT.log10().div(308).pow(0.5849625007211561).div(1.5)
   }
   if (AMT.gte("1e1000")) {
     EFF.boostScale = AMT.log10().cbrt().div(10)
@@ -698,7 +700,6 @@ export const calculateObtainium = () => {
   G.obtainiumGain = G.obtainiumGain.mul(calculateEXUltraObtainiumBonus())
   G.obtainiumGain = G.obtainiumGain.mul(calculateEXALTBonusMult())
 
-  G.obtainiumGain = Decimal.min(1e300, G.obtainiumGain) // capppp
   G.obtainiumGain = G.obtainiumGain.div(calculateSingularityDebuff('Obtainium'))
 
   if (player.usedCorruptions[5] >= 15) {
@@ -1461,8 +1462,10 @@ export const calculateCubeBlessings = () => {
     let amt = cubeArray[i - 1]
     
     if (i !== 6) {
-      if (Decimal.gte(cubeArray[i - 1], 1000)) {
-        amt = Decimal.div(amt, 1000).pow(scPow).sub(1).mul(1000).div(scPow).add(1000)
+      let start = new Decimal(1000)
+      start = start.mul(constantEffects().cubeSoftcap)
+      if (Decimal.gte(cubeArray[i - 1], start)) {
+        amt = Decimal.div(amt, start).pow(scPow).sub(1).mul(start).div(scPow).add(start)
       }
     } else {
       amt = Decimal.pow(amt, 2.25)
@@ -1726,7 +1729,7 @@ export const calculateHypercubeMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1e7)).div(1e6)), 0.75),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(1e8)).div(1e7)), 0.75),
     // Global Multiplier
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
@@ -1771,7 +1774,7 @@ export const calculatePlatonicMultiplier = (score = new Decimal(-1)) => {
 
   const arr = [
     // Ascension Score Multiplier
-    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(2666e8)).div(2666e7)), 0.85),
+    Decimal.pow(Decimal.add(1, Decimal.max(0, score.sub(2666e7)).div(2666e6)), 0.85),
     // Global Multipliers
     calculateAllCubeMultiplier().mult,
     // Season Pass 2
@@ -2643,12 +2646,12 @@ export const CalcCorruptionStuff = () => {
   tesseractGain = tesseractGain.mul(oneMindModifier)
 
   // Calculation of Hypercubes :)))
-  let hypercubeGain = effectiveScore.gte(1e9) ? new Decimal(1) : new Decimal(0)
+  let hypercubeGain = effectiveScore.gte(1e8) ? new Decimal(1) : new Decimal(0)
   hypercubeGain = hypercubeGain.mul(calculateHypercubeMultiplier(effectiveScore).mult)
   hypercubeGain = hypercubeGain.mul(oneMindModifier)
 
   // Calculation of Platonic Cubes :))))
-  let platonicGain = effectiveScore.gte(2.666e12) ? new Decimal(1) : new Decimal(0)
+  let platonicGain = effectiveScore.gte(2.666e10) ? new Decimal(1) : new Decimal(0)
   platonicGain = platonicGain.mul(calculatePlatonicMultiplier(effectiveScore).mult)
   platonicGain = platonicGain.mul(oneMindModifier)
 

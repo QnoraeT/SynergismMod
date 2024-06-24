@@ -159,6 +159,7 @@ export const Globals: GlobalVariables = {
 
   mythosBuildingPower: new Decimal(1),
   challengeThreeMultiplier: new Decimal(1),
+  challengeThreeSoftcap: new Decimal(1),
   totalMythosOwned: new Decimal(0),
 
   prestigePointGain: new Decimal(0),

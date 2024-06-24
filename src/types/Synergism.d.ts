@@ -17,6 +17,8 @@ import type {
 import type { Tabs } from '../Tabs'
 import { DecimalSource } from 'break_eternity.js'
 
+type ArrayStartingWithNull<T> = [null, ...T[]]
+
 export interface Player {
   firstPlayed: string
   worlds: QuarkHandler
@@ -423,20 +425,20 @@ export interface Player {
   goldenQuarksTimer: Decimal
 
   antPoints: Decimal
-  antUpgrades: (null | Decimal)[]
+  antUpgrades: Decimal[]
   antSacrificePoints: Decimal
   antSacrificeTimer: Decimal
   antSacrificeTimerReal: Decimal
 
   talismanLevels: number[]
   talismanRarity: number[]
-  talismanOne: (null | number)[]
-  talismanTwo: (null | number)[]
-  talismanThree: (null | number)[]
-  talismanFour: (null | number)[]
-  talismanFive: (null | number)[]
-  talismanSix: (null | number)[]
-  talismanSeven: (null | number)[]
+  talismanOne: ArrayStartingWithNull<number>
+  talismanTwo: ArrayStartingWithNull<number>
+  talismanThree: ArrayStartingWithNull<number>
+  talismanFour: ArrayStartingWithNull<number>
+  talismanFive: ArrayStartingWithNull<number>
+  talismanSix: ArrayStartingWithNull<number>
+  talismanSeven: ArrayStartingWithNull<number>
   talismanShards: Decimal
   commonFragments: Decimal
   uncommonFragments: Decimal
@@ -464,7 +466,7 @@ export interface Player {
   openHypercubes: number
   autoOpenPlatonicsCubes: boolean
   openPlatonicsCubes: number
-  cubeUpgrades: [null, ...Decimal[]]
+  cubeUpgrades: ArrayStartingWithNull<Decimal>
   cubeUpgradesBuyMaxToggle: boolean
   autoCubeUpgradesToggle: boolean
   autoPlatonicUpgradesToggle: boolean
@@ -536,7 +538,7 @@ export interface Player {
   corruptionLoadoutNames: string[]
   corruptionShowStats: boolean
 
-  constantUpgrades: [null, ...Decimal[]]
+  constantUpgrades: ArrayStartingWithNull<Decimal>
   history: Record<Category, ResetHistoryEntryUnion[]>
   historyShowPerSecond: boolean
 
@@ -706,6 +708,7 @@ export interface GlobalVariables {
 
   mythosBuildingPower: Decimal
   challengeThreeMultiplier: Decimal
+  challengeThreeSoftcap: Decimal
   totalMythosOwned: Decimal
 
   prestigePointGain: Decimal
@@ -837,13 +840,13 @@ export interface GlobalVariables {
   rune4Talisman: Decimal
   rune5Talisman: Decimal
 
-  talisman1Effect: [null, ...Decimal[]]
-  talisman2Effect: [null, ...Decimal[]]
-  talisman3Effect: [null, ...Decimal[]]
-  talisman4Effect: [null, ...Decimal[]]
-  talisman5Effect: [null, ...Decimal[]]
-  talisman6Effect: [null, ...Decimal[]]
-  talisman7Effect: [null, ...Decimal[]]
+  talisman1Effect: ArrayStartingWithNull<Decimal>
+  talisman2Effect: ArrayStartingWithNull<Decimal>
+  talisman3Effect: ArrayStartingWithNull<Decimal>
+  talisman4Effect: ArrayStartingWithNull<Decimal>
+  talisman5Effect: ArrayStartingWithNull<Decimal>
+  talisman6Effect: ArrayStartingWithNull<Decimal>
+  talisman7Effect: ArrayStartingWithNull<Decimal>
 
   talisman6Power: number
   talisman7Quarks: number
@@ -856,21 +859,21 @@ export interface GlobalVariables {
 
   talismanLevelCostMultiplier: number[]
 
-  talismanPositiveModifier: [null, ...number[]]
-  talismanNegativeModifier: [null, ...number[]]
+  talismanPositiveModifier: ArrayStartingWithNull<number>
+  talismanNegativeModifier: ArrayStartingWithNull<number>
 
-  commonTalismanEnhanceCost: [null, ...number[]]
-  uncommonTalismanEnchanceCost: [null, ...number[]]
-  rareTalismanEnchanceCost: [null, ...number[]]
-  epicTalismanEnhanceCost: [null, ...number[]]
-  legendaryTalismanEnchanceCost: [null, ...number[]]
-  mythicalTalismanEnchanceCost: [null, ...number[]]
+  commonTalismanEnhanceCost: ArrayStartingWithNull<number>
+  uncommonTalismanEnchanceCost: ArrayStartingWithNull<number>
+  rareTalismanEnchanceCost: ArrayStartingWithNull<number>
+  epicTalismanEnhanceCost: ArrayStartingWithNull<number>
+  legendaryTalismanEnchanceCost: ArrayStartingWithNull<number>
+  mythicalTalismanEnchanceCost: ArrayStartingWithNull<number>
 
   talismanRespec: number
 
   obtainiumGain: Decimal
 
-  mirrorTalismanStats: [null, ...number[]]
+  mirrorTalismanStats: ArrayStartingWithNull<number>
   antELO: Decimal
   effectiveELO: Decimal
 
@@ -893,19 +896,19 @@ export interface GlobalVariables {
 
   buildingSubTab: BuildingSubtab
   // number000 of each before Diminishing Returns
-  blessingbase: [null, ...number[]]
-  blessingDRPower: [null, ...number[]]
+  blessingbase: ArrayStartingWithNull<number>
+  blessingDRPower: ArrayStartingWithNull<number>
   giftbase: number[]
   giftDRPower: number[]
-  benedictionbase: [null, ...number[]]
-  benedictionDRPower: [null, ...number[]]
+  benedictionbase: ArrayStartingWithNull<number>
+  benedictionDRPower: ArrayStartingWithNull<number>
   // 10 Million of each before Diminishing returns on first number 200k for second, and 10k for the last few
   platonicCubeBase: number[]
   platonicDRPower: number[]
 
-  cubeBonusMultiplier: [null, ...Decimal[]]
-  tesseractBonusMultiplier: [null, ...Decimal[]]
-  hypercubeBonusMultiplier: [null, ...Decimal[]]
+  cubeBonusMultiplier: ArrayStartingWithNull<Decimal>
+  tesseractBonusMultiplier: ArrayStartingWithNull<Decimal>
+  hypercubeBonusMultiplier: ArrayStartingWithNull<Decimal>
   platonicBonusMultiplier: Decimal[]
 
   autoOfferingCounter: Decimal
@@ -936,7 +939,7 @@ export interface GlobalVariables {
   acceleratorMultiplier: Decimal
   multiplierMultiplier: Decimal
 
-  constUpgradeCosts: [null, ...number[]]
+  constUpgradeCosts: ArrayStartingWithNull<number>
 
   globalConstantMult: Decimal
   autoTalismanTimer: number

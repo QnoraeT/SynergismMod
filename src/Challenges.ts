@@ -172,6 +172,9 @@ export const challengeDisplay = (i: number, changefocus = true) => {
       case 3: {
         current1 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.04), 2, true)
         current2 = `${format(CalcECC('transcend', player.challengecompletions[3]).mul(0.5), 2, true)}%, (${format(G.challengeThreeMultiplier, 2, true)}x Grandmaster production total)`
+        if (G.challengeThreeSoftcap.neq(1)) {
+          current2 += ` Softcap hit! This reduces it's effect by ^${format(G.challengeThreeSoftcap, 4)}! `
+        }
         current3 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.01), 2, true)
         break
       }
@@ -442,7 +445,7 @@ export const calculateChallengeRequirementMultiplier = (
       }
 
       if (Decimal.gte(i, 25)) {
-        i = Decimal.div(i, 25).pow(3).mul(25)
+        i = Decimal.div(i, 25).pow(2).mul(25)
       }
 
       requirementMultiplier = requirementMultiplier.mul(Decimal.pow(2, i.pow(0.75)))

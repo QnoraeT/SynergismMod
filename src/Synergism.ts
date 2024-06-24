@@ -3058,6 +3058,10 @@ export const updateAllTick = (): void => {
   ) {
     G.generatorPower = Decimal.pow(1.02, G.totalAccelerator)
   }
+
+  if (Decimal.gte(player.ascendShards, 1e100)) {
+    calculateCubeBlessings()
+  }
 }
 
 export const updateAllMultiplier = (): void => {
@@ -3591,9 +3595,12 @@ export const multipliers = (): void => {
   G.challengeThreeMultiplier = Decimal.pow(G.mythosBuildingPower, G.totalMythosOwned)
 
   let softcapStart = new Decimal("ee7")
+  G.challengeThreeSoftcap = new Decimal(1)
   softcapStart = softcapStart.pow(constantEffects().c3Effect)
   if (G.challengeThreeMultiplier.gte(softcapStart)) {
+    let prev = G.challengeThreeMultiplier
     G.challengeThreeMultiplier = G.challengeThreeMultiplier.log(softcapStart).pow(0.4).pow_base(softcapStart)
+    G.challengeThreeSoftcap = G.challengeThreeMultiplier.log(prev)
   }
 
   G.grandmasterMultiplier = G.grandmasterMultiplier.mul(

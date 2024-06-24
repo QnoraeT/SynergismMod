@@ -239,7 +239,7 @@ export const autoBuyCubeUpgrades = () => {
         const maxLevel = getCubeMax(value[0].toNumber())
         const metaData = getCubeCost(value[0].toNumber(), true)
         if (
-          Decimal.gte(Number(player.wowCubes), metaData.cost) && Decimal.lt(player.cubeUpgrades[value[0].toNumber()]!, maxLevel)
+          Decimal.gte(player.wowCubes.value, metaData.cost) && Decimal.lt(player.cubeUpgrades[value[0].toNumber()]!, maxLevel)
           && (player.cubeUpgradesBuyMaxToggle || Decimal.eq(maxLevel, metaData.levelCanBuy))
         ) {
           buyCubeUpgrades(value[0].toNumber(), true, true)

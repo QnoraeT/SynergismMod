@@ -51,7 +51,7 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
 
   const posOwnedType = `${pos}Owned${type}` as const
   const posCostType = `${pos}Cost${type}` as const
-  if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player[tag], Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).sub(9).floor().max(player[posOwnedType])
     player[posCostType] = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     for (let i = 0; i < 10; i++) {
@@ -171,7 +171,7 @@ export const buyParticleBuilding = (
   const pos = G.ordinals[zeroIndex]
   const key = `${pos}OwnedParticles` as const
 
-  if (getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.reincarnationPoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).sub(9).floor().max(player[key])
     player[`${pos}CostParticles` as const] = getParticleCostq(boughtPartBuild, originalCost)
     for (let i = 0; i < 10; i++) {
@@ -534,6 +534,8 @@ export const getAccelScaling = (): Array<Decimal> => {
   scaling[0] = scaling[0].add(Decimal.mul(5, CalcECC('transcend', player.challengecompletions[4])))
   scaling[1] = scaling[1].add(Decimal.mul(5, CalcECC('transcend', player.challengecompletions[4])))
 
+  scaling[0] = scaling[0].mul(constantEffects().accelScale[0])
+  scaling[1] = scaling[1].mul(constantEffects().accelScale[1])
   return scaling
 }
 
@@ -542,6 +544,8 @@ export const getMulScaling = (): Array<Decimal> => {
   scaling[0] = scaling[0].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
   scaling[1] = scaling[1].add(Decimal.mul(2, CalcECC('transcend', player.challengecompletions[4])))
 
+  scaling[0] = scaling[0].mul(constantEffects().multScale[0])
+  scaling[1] = scaling[1].mul(constantEffects().multScale[1])
   return scaling
 }
 
@@ -758,7 +762,7 @@ export const inverseQuad = (x: Decimal, a: Decimal, b: Decimal, c: Decimal): Dec
 }
 
 export const buyMaxAccels = () => {
-  if (getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtAccel = getAccelTarget(player.coins).sub(9).floor().max(player.acceleratorBought)
     player.acceleratorCost = getAccelCost(boughtAccel)
     for (let i = 0; i < 10; i++) {
@@ -806,7 +810,7 @@ export const buyMaxAccels = () => {
 }
 
 export const buyMaxMuls = () => {
-  if (getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtMul = getMulTarget(player.coins).sub(9).floor().max(player.multiplierBought)
     player.multiplierCost = getMulCost(boughtMul)
     for (let i = 0; i < 10; i++) {
@@ -854,7 +858,7 @@ export const buyMaxMuls = () => {
 }
 
 export const buyMaxBoostAccel = () => {
-  if (getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.prestigePoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).sub(9).floor().max(player.acceleratorBoostBought)
     player.acceleratorBoostCost = getAccelBoostCost(boughtAccelBoost)
     for (let i = 0; i < 10; i++) {
