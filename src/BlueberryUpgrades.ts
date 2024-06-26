@@ -1,6 +1,6 @@
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateAmbrosiaGenerationSpeed, calculateAmbrosiaLuck } from './Calculate'
+import { calculateAmbrosiaLuck } from './Calculate'
 import { DynamicUpgrade } from './DynamicUpgrade'
 import type { IUpgradeData } from './DynamicUpgrade'
 import { exportData, saveFilename } from './ImportExport'
@@ -95,7 +95,7 @@ export class BlueberryUpgrade extends DynamicUpgrade {
         )
       )
 
-      if (isNaN(buy) || !isFinite(buy) || !Number.isInteger(buy)) {
+      if (Decimal.isNaN(buy) || !Decimal.isFinite(buy) || Decimal.floor(buy).neq(buy)) {
         // nan + Infinity checks
         return Alert(i18next.t('general.validation.finite'))
       }

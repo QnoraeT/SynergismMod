@@ -3509,8 +3509,7 @@ export const multipliers = (): void => {
       Decimal.min(
           new Decimal(0.12)
             .add(0.88 * player.upgrades[122])
-            .add(player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001))
-              ,
+            .add(player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001)),
           Decimal.mul(0.001, player.crystalUpgrades[2])
         ).add(1),
       Decimal.add(player.firstOwnedDiamonds, player.secondOwnedDiamonds)
@@ -3598,7 +3597,7 @@ export const multipliers = (): void => {
   G.challengeThreeSoftcap = new Decimal(1)
   softcapStart = softcapStart.pow(constantEffects().c3Effect)
   if (G.challengeThreeMultiplier.gte(softcapStart)) {
-    let prev = G.challengeThreeMultiplier
+    const prev = G.challengeThreeMultiplier
     G.challengeThreeMultiplier = G.challengeThreeMultiplier.log(softcapStart).pow(0.4).pow_base(softcapStart)
     G.challengeThreeSoftcap = G.challengeThreeMultiplier.log(prev)
   }
@@ -4236,6 +4235,11 @@ export const resetCurrency = (): void => {
   }
 
   G.prestigePointGain = G.prestigePointGain.pow(G.deflationMultiplier[player.usedCorruptions[6]])
+
+  if (player.usedCorruptions[6] > 10 && player.platonicUpgrades[11] > 0) {
+    G.prestigePointGain = G.prestigePointGain.add(G.reincarnationPointGain)
+  }
+
   // Transcend Point Formulae
   G.transcendPointGain = Decimal.floor(Decimal.pow(player.coinsThisTranscension.div(1e100), transcendPow))
 

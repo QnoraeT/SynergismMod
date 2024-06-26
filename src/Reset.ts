@@ -1192,7 +1192,6 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   hold.goldenQuarks = player.goldenQuarks
   hold.shopUpgrades = player.shopUpgrades
   player.worlds.reset()
-  hold.worlds = hold.worlds
   // Exclude potentially non-latin1 characters from the save
   hold.singularityUpgrades = Object.fromEntries(
     Object.entries(player.singularityUpgrades).map(([key, value]) => {

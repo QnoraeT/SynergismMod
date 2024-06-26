@@ -549,6 +549,12 @@ export const getMulScaling = (): Array<Decimal> => {
   return scaling
 }
 
+export const getBoostScaling = (): Decimal => {
+  let scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
+  scaling = scaling.mul(constantEffects().boostScale)
+  return scaling
+}
+
 export const getAccelCost = (bought: number | Decimal): Decimal => {
   let i = new Decimal(bought)
   const scaling = getAccelScaling()
@@ -653,7 +659,7 @@ export const getMulTarget = (amt: Decimal): Decimal => {
 
 export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
   let i = new Decimal(bought)
-  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
+  const scaling = getBoostScaling()
 
   if (i.gte(1e15)) {
       i = i.div(1e15).pow(7/3).mul(1e15)
@@ -669,7 +675,7 @@ export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
 export const getAccelBoostTarget = (amt: Decimal): Decimal => {
   if (amt.lt(1000)) { return new Decimal(0) }
   let i = Decimal.mul(8, amt.log10()).add(417).sqrt().mul(0.5).sub(10.5)
-  const scaling = Decimal.mul(G.effectiveRuneBlessingPower[4], 2).add(1).mul(1000)
+  const scaling = getBoostScaling()
 
   if (i.gte(scaling)) {
       i = i.div(scaling).root(3).mul(scaling)
@@ -677,7 +683,7 @@ export const getAccelBoostTarget = (amt: Decimal): Decimal => {
 
   if (i.gte(1e15)) {
     i = i.div(1e15).root(7/3).mul(1e15)
-}
+  }
 
   return i
 }

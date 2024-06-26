@@ -16,15 +16,15 @@ import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt } from './UpdateHTML'
 
 export interface IHepteractCraft {
-  BASE_CAP: DecimalSource
-  HEPTERACT_CONVERSION: DecimalSource
-  OTHER_CONVERSIONS: Record<string, DecimalSource>
+  BASE_CAP: Decimal
+  HEPTERACT_CONVERSION: Decimal
+  OTHER_CONVERSIONS: Record<string, Decimal>
   HTML_STRING: string
   AUTO?: boolean
   UNLOCKED?: boolean
-  BAL?: DecimalSource
-  CAP?: DecimalSource
-  DISCOUNT?: DecimalSource
+  BAL?: Decimal
+  CAP?: Decimal
+  DISCOUNT?: Decimal
 }
 
 export const hepteractTypeList = [
@@ -49,19 +49,19 @@ export class HepteractCraft {
   /**
    * Current Inventory (amount) of craft you possess
    */
-  BAL: DecimalSource = new Decimal(0)
+  BAL: Decimal = new Decimal(0)
 
   /**
    * Maximum Inventory (amount) of craft you can hold
    * base_cap is the smallest capacity for such item.
    */
-  CAP: DecimalSource = new Decimal(0)
-  BASE_CAP: DecimalSource = new Decimal(0)
+  CAP: Decimal = new Decimal(0)
+  BASE_CAP: Decimal = new Decimal(0)
 
   /**
    * Conversion rate of hepteract to synthesized items
    */
-  HEPTERACT_CONVERSION: DecimalSource = new Decimal(0)
+  HEPTERACT_CONVERSION: Decimal = new Decimal(0)
 
   /**
    * Automatic crafting toggle. If on, allows crafting to be done automatically upon ascension.
@@ -81,7 +81,7 @@ export class HepteractCraft {
    * Discount Factor (number from [0, 1))
    * revamp: Discount from 1 to Infinity
    */
-  DISCOUNT: DecimalSource = new Decimal(1)
+  DISCOUNT: Decimal = new Decimal(1)
 
   /**
    * String Prefix used for HTML DOM manipulation
@@ -191,13 +191,13 @@ export class HepteractCraft {
           return // If no return, then it will just give another message
         }
       }
-      craftAmount = Number(craftingPrompt)
+      craftAmount = new Decimal(craftingPrompt)
     } else {
       craftAmount = heptCap
     }
 
     // Check these lol
-    if (Decimal.isNaN(craftAmount) || !Decimal.isFinite(craftAmount) || Decimal.floor(craftAmount).eq(craftAmount)) { // nan + Infinity checks
+    if (Decimal.isNaN(craftAmount) || !Decimal.isFinite(craftAmount) || Decimal.floor(craftAmount).neq(craftAmount)) { // nan + Infinity checks
       return Alert(i18next.t('general.validation.finite'))
     } else if (Decimal.lte(craftAmount, 0)) { // 0 or less selected
       return Alert(i18next.t('general.validation.zeroOrLess'))
@@ -217,7 +217,7 @@ export class HepteractCraft {
       }
     }
 
-    this.BAL = Decimal.min(heptCap, Decimal.add(this.BAL, amountToCraft)).toNumber()
+    this.BAL = Decimal.min(heptCap, Decimal.add(this.BAL, amountToCraft))
 
     // Subtract spent items from player
     player.wowAbyssals = player.wowAbyssals.sub(Decimal.mul(amountToCraft, this.HEPTERACT_CONVERSION).mul(craftCostMulti))
@@ -231,8 +231,8 @@ export class HepteractCraft {
         (player[item] as number) -= Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!).toNumber()
       }
 
-      if ((player[item] as number) < 0) {
-        (player[item] as number) = 0
+      if (Decimal.lt(player[item] as Decimal, 0)) {
+        (player[item] as Decimal) = new Decimal(0)
       } else if (player[item] instanceof Cube) {
         (player[item] as Cube).sub(
           Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!)
@@ -644,12 +644,12 @@ export const tradeHepteractToOverfluxOrb = async (buyMax?: boolean) => {
       }
     }
 
-    toUse = new Decimal(Number(hepteractInput))
+    toUse = new Decimal(hepteractInput)
     if (
       Decimal.isNaN(toUse)
       || !Decimal.isFinite(toUse)
-      || !(toUse.floor().eq(toUse))
-      || toUse.lte(0)
+      || Decimal.floor(toUse).neq(toUse)
+      || Decimal.lte(toUse, 0)
     ) {
       return Alert(i18next.t('general.validation.invalidNumber'))
     }
@@ -805,67 +805,67 @@ export const getAutoHepteractCrafts = () => {
 
 // Hepteract of Chronos [UNLOCKED]
 export const ChronosHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 1e4,
-  OTHER_CONVERSIONS: { researchPoints: 1e115 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(1e4),
+  OTHER_CONVERSIONS: { researchPoints: new Decimal(1e115) },
   HTML_STRING: 'chronos',
   UNLOCKED: true
 })
 
 // Hepteract of Hyperrealism [UNLOCKED]
 export const HyperrealismHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 1e4,
-  OTHER_CONVERSIONS: { runeshards: 1e80 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(1e4),
+  OTHER_CONVERSIONS: { runeshards: new Decimal(1e80) },
   HTML_STRING: 'hyperrealism',
   UNLOCKED: true
 })
 
 // Hepteract of Too Many Quarks [UNLOCKED]
 export const QuarkHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 1e4,
-  OTHER_CONVERSIONS: { worlds: 100 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(1e4),
+  OTHER_CONVERSIONS: { worlds: new Decimal(100) },
   HTML_STRING: 'quark',
   UNLOCKED: true
 })
 
 // Hepteract of Challenge [LOCKED]
 export const ChallengeHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 5e4,
-  OTHER_CONVERSIONS: { wowPlatonicCubes: 1e11, wowCubes: 1e22 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(5e4),
+  OTHER_CONVERSIONS: { wowPlatonicCubes: new Decimal(1e11), wowCubes: new Decimal(1e22) },
   HTML_STRING: 'challenge'
 })
 
 // Hepteract of The Abyssal [LOCKED]
 export const AbyssHepteract = new HepteractCraft({
-  BASE_CAP: 1,
-  HEPTERACT_CONVERSION: 1e8,
-  OTHER_CONVERSIONS: { wowCubes: 69 },
+  BASE_CAP: new Decimal(1),
+  HEPTERACT_CONVERSION: new Decimal(1e8),
+  OTHER_CONVERSIONS: { wowCubes: new Decimal(69) },
   HTML_STRING: 'abyss'
 })
 
 // Hepteract of Too Many Accelerator [LOCKED]
 export const AcceleratorHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 1e5,
-  OTHER_CONVERSIONS: { wowTesseracts: 1e14 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(1e5),
+  OTHER_CONVERSIONS: { wowTesseracts: new Decimal(1e14) },
   HTML_STRING: 'accelerator'
 })
 
 // Hepteract of Too Many Accelerator Boost [LOCKED]
 export const AcceleratorBoostHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 2e5,
-  OTHER_CONVERSIONS: { wowHypercubes: 1e10 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(2e5),
+  OTHER_CONVERSIONS: { wowHypercubes: new Decimal(1e10) },
   HTML_STRING: 'acceleratorBoost'
 })
 
 // Hepteract of Too Many Multiplier [LOCKED]
 export const MultiplierHepteract = new HepteractCraft({
-  BASE_CAP: 1000,
-  HEPTERACT_CONVERSION: 3e5,
-  OTHER_CONVERSIONS: { researchPoints: 1e130 },
+  BASE_CAP: new Decimal(1000),
+  HEPTERACT_CONVERSION: new Decimal(3e5),
+  OTHER_CONVERSIONS: { researchPoints: new Decimal(1e130) },
   HTML_STRING: 'multiplier'
 })

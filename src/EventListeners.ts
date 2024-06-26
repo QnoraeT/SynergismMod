@@ -661,12 +661,12 @@ export const generateEventHandlers = () => {
   DOMCacheGetOrSet('open1Tesseract').addEventListener('click', () => player.wowTesseracts.open(1, false))
   DOMCacheGetOrSet('open20Tesseract').addEventListener('click', () =>
     player.wowTesseracts.open(
-      Math.floor(Number(player.wowTesseracts) / 10),
+      Decimal.floor(Decimal.div(player.wowTesseracts.value, 10)),
       false
     ))
   DOMCacheGetOrSet('open1000Tesseract').addEventListener('click', () =>
     player.wowTesseracts.open(
-      Math.floor(Number(player.wowTesseracts) / 2),
+      Decimal.floor(Decimal.div(player.wowTesseracts.value, 2)),
       false
     ))
   DOMCacheGetOrSet('openCustomTesseract').addEventListener('click', () => player.wowTesseracts.openCustom())
@@ -675,12 +675,12 @@ export const generateEventHandlers = () => {
   DOMCacheGetOrSet('open1Hypercube').addEventListener('click', () => player.wowHypercubes.open(1, false))
   DOMCacheGetOrSet('open20Hypercube').addEventListener('click', () =>
     player.wowHypercubes.open(
-      Math.floor(Number(player.wowHypercubes) / 10),
+      Decimal.floor(Decimal.div(player.wowHypercubes.value, 10)),
       false
     ))
   DOMCacheGetOrSet('open1000Hypercube').addEventListener('click', () =>
     player.wowHypercubes.open(
-      Math.floor(Number(player.wowHypercubes) / 2),
+      Decimal.floor(Decimal.div(player.wowHypercubes.value, 2)),
       false
     ))
   DOMCacheGetOrSet('openCustomHypercube').addEventListener('click', () => player.wowHypercubes.openCustom())
@@ -689,12 +689,12 @@ export const generateEventHandlers = () => {
   DOMCacheGetOrSet('open1PlatonicCube').addEventListener('click', () => player.wowPlatonicCubes.open(1, false))
   DOMCacheGetOrSet('open40kPlatonicCube').addEventListener('click', () =>
     player.wowPlatonicCubes.open(
-      Math.floor(Number(player.wowPlatonicCubes) / 10),
+      Decimal.floor(Decimal.div(player.wowPlatonicCubes.value, 10)),
       false
     ))
   DOMCacheGetOrSet('open1mPlatonicCube').addEventListener('click', () =>
     player.wowPlatonicCubes.open(
-      Math.floor(Number(player.wowPlatonicCubes) / 2),
+      Decimal.floor(Decimal.div(player.wowPlatonicCubes.value, 2)),
       false
     ))
   DOMCacheGetOrSet('openCustomPlatonicCube').addEventListener('click', () => player.wowPlatonicCubes.openCustom())

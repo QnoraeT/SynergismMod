@@ -1,4 +1,3 @@
-import type Decimal from 'break_eternity.js'
 import type { BlueberryUpgrade } from '../BlueberryUpgrades'
 import type { WowCubes, WowHypercubes, WowPlatonicCubes, WowTesseracts } from '../CubeExperimental'
 import type { HepteractCraft } from '../Hepteracts'
@@ -15,7 +14,7 @@ import type {
   BlueberryInventoryCache
 } from '../StatCache'
 import type { Tabs } from '../Tabs'
-import { DecimalSource } from 'break_eternity.js'
+import type { Decimal, DecimalSource } from 'break_eternity.js'
 
 type ArrayStartingWithNull<T> = [null, ...T[]]
 

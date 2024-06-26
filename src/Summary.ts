@@ -36,7 +36,7 @@ export const generateExportSummary = async (): Promise<void> => {
   let resources = '===== RESOURCES =====\n'
   resources = resources
     + (player.reincarnationCount.gt(0) || player.highestSingularityCount > 0
-      ? `Quarks: ${format(Number(player.worlds), 0, true)}\n`
+      ? `Quarks: ${format(player.worlds.QUARKS, 0, true)}\n`
       : '')
   resources = resources
     + (player.highestSingularityCount > 0 ? `Golden Quarks: ${format(player.goldenQuarks, 2, true)}\n` : '')

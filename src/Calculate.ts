@@ -478,7 +478,7 @@ export function calculateOfferings (
   }
   c = c.add(0.2 * player.researches[24])
   c = c.add(Decimal.mul(G.rune5level, G.effectiveLevelMult).mul(1 + player.researches[85] / 200).div(200))
-  c = c.mul(Decimal.pow(Decimal.log(player.prestigeShards.add(1), 10), 1 / 2).div(5).add(1))
+  c = c.mul(player.prestigeShards.max(0).add(1).log10().sqrt().div(5).add(1))
   c = c.mul(CalcECC('reincarnation', player.challengecompletions[6]).div(50).add(1))
   c = c.mul(Decimal.min(Decimal.pow(player.prestigecounter.div(10), 2), 1))
   if (player.prestigeCount.gte(5)) {
@@ -1172,9 +1172,12 @@ export const calculateAntSacrificeRewards = (): IAntSacRewards => {
 }
 
 export const timeWarp = async () => {
-  const time = await Prompt(i18next.t('calculate.timePrompt'))
-  const timeUse = Number(time)
-  if (Number.isNaN(timeUse) || timeUse <= 0) {
+  let time = await Prompt(i18next.t('calculate.timePrompt'))
+  if (time === null) {
+    time = "0"
+  }
+  const timeUse = new Decimal(time)
+  if (Decimal.isNaN(timeUse) || Decimal.lte(timeUse, 0)) {
     return Alert(i18next.t('calculate.timePromptError'))
   }
 
@@ -1183,7 +1186,7 @@ export const timeWarp = async () => {
   await calculateOffline(timeUse)
 }
 
-export const calculateOffline = async (forceTime = 0) => {
+export const calculateOffline = async (forceTime = new Decimal(0)) => {
   disableHotkeys()
 
   G.timeWarp = true

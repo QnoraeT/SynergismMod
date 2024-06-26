@@ -57,17 +57,18 @@ const toggleSchema = z.record(z.string(), z.boolean()).transform((record) => {
 const decimalStringSchema = z.string().regex(/^|-?\d+(\.\d{1,2})?$/)
 const integerStringSchema = z.string().regex(/^\d+$/)
 
-const hepteractCraftSchema = z.object({
-  AUTO: z.boolean(),
-  BAL: decimalSchema,
-  BASE_CAP: decimalSchema,
-  CAP: decimalSchema,
-  DISCOUNT: decimalSchema,
-  HEPTERACT_CONVERSION: decimalSchema,
-  HTML_STRING: z.string(),
-  OTHER_CONVERSIONS: z.record(z.string(), decimalSchema),
-  UNLOCKED: z.boolean()
-})
+const hepteractCraftSchema = (k: keyof Player['hepteractCrafts']) =>
+  z.object({
+    AUTO: z.boolean().default(() => blankSave.hepteractCrafts[k].AUTO),
+    BAL: decimalSchema.default(() => blankSave.hepteractCrafts[k].BAL),
+    BASE_CAP: decimalSchema,
+    CAP: decimalSchema.default(() => blankSave.hepteractCrafts[k].CAP),
+    DISCOUNT: decimalSchema.default(() => blankSave.hepteractCrafts[k].DISCOUNT),
+    HEPTERACT_CONVERSION: decimalSchema,
+    HTML_STRING: z.string().default(() => blankSave.hepteractCrafts[k].HTML_STRING),
+    OTHER_CONVERSIONS: z.record(z.string(), decimalSchema),
+    UNLOCKED: z.boolean().default(() => blankSave.hepteractCrafts[k].UNLOCKED)
+  })
 
 export const playerSchema = z.object({
   firstPlayed: z.string().datetime().optional().default(() => new Date().toISOString()),
@@ -462,14 +463,14 @@ export const playerSchema = z.object({
   platonicBlessings: z.record(z.string(), decimalSchema).default(() => ({ ...blankSave.platonicBlessings })),
 
   hepteractCrafts: z.object({
-    chronos: hepteractCraftSchema,
-    hyperrealism: hepteractCraftSchema,
-    quark: hepteractCraftSchema,
-    challenge: hepteractCraftSchema,
-    abyss: hepteractCraftSchema,
-    accelerator: hepteractCraftSchema,
-    acceleratorBoost: hepteractCraftSchema,
-    multiplier: hepteractCraftSchema
+    chronos: hepteractCraftSchema('chronos'),
+    hyperrealism: hepteractCraftSchema('hyperrealism'),
+    quark: hepteractCraftSchema('quark'),
+    challenge: hepteractCraftSchema('challenge'),
+    abyss: hepteractCraftSchema('abyss'),
+    accelerator: hepteractCraftSchema('accelerator'),
+    acceleratorBoost: hepteractCraftSchema('acceleratorBoost'),
+    multiplier: hepteractCraftSchema('multiplier')
   }).transform((crafts) => {
     return Object.fromEntries(
       Object.entries(blankSave.hepteractCrafts).map(([key, value]) => {
