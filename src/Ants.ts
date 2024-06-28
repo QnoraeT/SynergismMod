@@ -137,16 +137,30 @@ export const updateAntDescription = (i: number) => {
   })
 }
 
+const getAntScaling = () => {
+  let start = new Decimal(6.9e7)
+  let pow = new Decimal(2)
+  return {start: start, pow: pow}
+}
+
 const getAntProdCost = (bought: DecimalSource, baseCost: DecimalSource, index: number) => {
+  const scaling = getAntScaling()
   let i = new Decimal(bought)
+  if (i.gte(scaling.start)) {
+    i = i.div(scaling.start).root(scaling.pow).pow_base(scaling.start).sub(scaling.start).div(scaling.start.ln()).mul(scaling.pow).add(scaling.start)
+  }
   i = Decimal.pow(G.antCostGrowth[index - 1], bought).mul(baseCost).add(bought)
   return i
 }
 
 const getAntProdTarget = (amt: Decimal, baseCost: DecimalSource, index: number) => {
   if (amt.lt(baseCost)) { return new Decimal(0) }
+  const scaling = getAntScaling()
   let i = amt
   i = amt.div(baseCost).log(G.antCostGrowth[index - 1])
+  if (i.gte(scaling.start)) {
+    i.sub(scaling.start).div(scaling.pow).mul(scaling.start.ln()).add(scaling.start).log(scaling.start).pow(scaling.pow).mul(scaling.start)
+  }
   return i
 }
 
@@ -203,9 +217,9 @@ export const buyMaxProdAnts = (pos: FirstToEighth, baseCost: DecimalSource, inde
   }
 
   // why is this cap here
-  if (Decimal.gt(player.firstOwnedAnts, 6.9e7)) {
-    player.firstOwnedAnts = new Decimal(6.9e7)
-  }
+  // if (Decimal.gt(player.firstOwnedAnts, 6.9e7)) {
+  //   player.firstOwnedAnts = new Decimal(6.9e7)
+  // }
 }
 
 export const buyAntProducers = (pos: FirstToEighth, originalCost: DecimalSource, index: number) => {
