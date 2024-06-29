@@ -11,46 +11,23 @@ export const calculatetax = () => {
   let exp = new Decimal(1)
   let compareB = new Decimal(0)
   let compareC = new Decimal(0)
-  G.produceFirst = (player.firstGeneratedCoin.add(player.firstOwnedCoin)).times(G.globalCoinMultiplier).times(
-    G.coinOneMulti
-  )
-    .times(player.firstProduceCoin)
-  G.produceSecond = (player.secondGeneratedCoin.add(player.secondOwnedCoin)).times(G.globalCoinMultiplier).times(
-    G.coinTwoMulti
-  )
-    .times(player.secondProduceCoin)
-  G.produceThird = (player.thirdGeneratedCoin.add(player.thirdOwnedCoin)).times(G.globalCoinMultiplier).times(
-    G.coinThreeMulti
-  )
-    .times(player.thirdProduceCoin)
-  G.produceFourth = (player.fourthGeneratedCoin.add(player.fourthOwnedCoin)).times(G.globalCoinMultiplier).times(
-    G.coinFourMulti
-  )
-    .times(player.fourthProduceCoin)
-  G.produceFifth = (player.fifthGeneratedCoin.add(player.fifthOwnedCoin)).times(G.globalCoinMultiplier).times(
-    G.coinFiveMulti
-  )
-    .times(player.fifthProduceCoin)
-  G.produceTotal = G.produceFirst.add(G.produceSecond).add(G.produceThird).add(G.produceFourth)
-    .add(G.produceFifth)
+  G.produceFirst  = (player.firstGeneratedCoin.add(player.firstOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinOneMulti).mul(player.firstProduceCoin).max(0)
+  G.produceSecond = (player.secondGeneratedCoin.add(player.secondOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinTwoMulti).mul(player.secondProduceCoin).max(0)
+  G.produceThird  = (player.thirdGeneratedCoin.add(player.thirdOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinThreeMulti).mul(player.thirdProduceCoin).max(0)
+  G.produceFourth = (player.fourthGeneratedCoin.add(player.fourthOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinFourMulti).mul(player.fourthProduceCoin).max(0)
+  G.produceFifth  = (player.fifthGeneratedCoin.add(player.fifthOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinFiveMulti).mul(player.fifthProduceCoin).max(0)
 
-  if (G.produceFirst.lte(.0001)) {
-    G.produceFirst = new Decimal(0)
-  }
-  if (G.produceSecond.lte(.0001)) {
-    G.produceSecond = new Decimal(0)
-  }
-  if (G.produceThird.lte(.0001)) {
-    G.produceThird = new Decimal(0)
-  }
-  if (G.produceFourth.lte(.0001)) {
-    G.produceFourth = new Decimal(0)
-  }
-  if (G.produceFifth.lte(.0001)) {
-    G.produceFifth = new Decimal(0)
+  G.produceTotal = G.produceFirst.add(G.produceSecond).add(G.produceThird).add(G.produceFourth).add(G.produceFifth)
+  const sc = {start: new Decimal(1e24), pow: new Decimal(0.4)}
+  if (G.produceTotal.gte(sc.start)) {
+    const prev = G.produceTotal
+    G.produceTotal = G.produceTotal.log10().log(sc.start).pow(sc.pow).pow_base(sc.start).pow10()
+    G.coinSC1Eff = G.produceTotal.log10().log(prev.log10())
   }
 
-  G.producePerSecond = G.produceTotal.times(40)
+  G.coinAfterSc1 = G.produceTotal
+
+  G.producePerSecond = G.produceTotal.mul(40)
 
   if (player.currentChallenge.reincarnation === 6) {
     exp = new Decimal(Decimal.div(player.challengecompletions[6], 25).add(1).pow(2).mul(3))

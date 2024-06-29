@@ -174,6 +174,10 @@ export const Globals: GlobalVariables = {
   produceFourth: new Decimal(0),
   produceFifth: new Decimal(0),
   produceTotal: new Decimal(0),
+
+  coinSC1Eff: new Decimal(1),
+  coinAfterSc1: new Decimal(1),
+  
   coinProduceTrue: new Decimal(0),
 
   produceFirstDiamonds: new Decimal(0),

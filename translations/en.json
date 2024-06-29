@@ -2710,6 +2710,7 @@
     "autoTesseract": "Auto buyer will save at least {{tesseracts}} tesseracts. [Enter number above].",
     "autoAscensionTesseract": "On Ascension, Auto buyer will save at least {{percent}}% of your current amount of tesseracts. [Enter number above].",
     "excessiveWealth": "Due to your excessive wealth, coin production is divided by {{div}} to pay taxes! {{- warning}} {{- rooted}}",
+    "softcappedWealth": "Past e1.000 Dc, your wealth is dilated to the ^{{root}}! (Down to {{result}})",
     "constantHover": "Hover over an icon for a description of the upgrade. Click to buy it!"
   },
   "octeract": {

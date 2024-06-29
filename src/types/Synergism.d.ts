@@ -722,6 +722,10 @@ export interface GlobalVariables {
   produceFourth: Decimal
   produceFifth: Decimal
   produceTotal: Decimal
+  
+  coinSC1Eff: Decimal
+  coinAfterSc1: Decimal
+  
   coinProduceTrue: Decimal
 
   produceFirstDiamonds: Decimal

@@ -83,13 +83,6 @@ export const buyProducer = (
   pos: FirstToFifth,
   type: keyof typeof buyProducerTypes
 ) => {
-  // let r = 1
-  // r += (G.rune4level * G.effectiveLevelMult) / 160
-  // r += (player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
-  //   + player.researches[60]) / 200
-  // r += CalcECC('transcend', player.challengecompletions[4]) / 200
-  // r += (3 * (G.bonusant7 + player.antUpgrades[7 - 1]!)) / 100
-
   const fckYou = {
     first: 1,
     second: 2,
@@ -97,7 +90,12 @@ export const buyProducer = (
     fourth: 4,
     fifth: 5
   }
-  buyMax(fckYou[pos] as OneToFive, type)
+
+  if (type === 'Particles') {
+    buyParticleBuilding(fckYou[pos] as OneToFive)
+  } else {
+    buyMax(fckYou[pos] as OneToFive, type)
+  }
 }
 
 export const buyUpgrades = (type: Upgrade, pos: number, state?: boolean) => {

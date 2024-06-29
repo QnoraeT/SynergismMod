@@ -96,7 +96,7 @@ export class HepteractCraft {
     this.UNLOCKED = data.UNLOCKED ?? false // This would basically always be true if this parameter is provided
     this.BAL = data.BAL ?? new Decimal(0)
     this.CAP = data.CAP ?? this.BASE_CAP // This sets cap either as previous value or keeps it to default.
-    this.DISCOUNT = data.DISCOUNT ?? new Decimal(0)
+    this.DISCOUNT = data.DISCOUNT ?? new Decimal(1)
     this.AUTO = data.AUTO ?? false
 
     void this.toggleAutomatic(this.AUTO)
@@ -124,6 +124,9 @@ export class HepteractCraft {
 
   // Add to balance through crafting.
   craft = async (max = false): Promise<HepteractCraft | void> => {
+    if (Decimal.lt(this.DISCOUNT, 1)) {
+      this.DISCOUNT = new Decimal(1)
+    }
     let craftAmount = null
     const heptCap = this.computeActualCap()
     const craftCostMulti = calculateSingularityDebuff('Hepteract Costs')
@@ -276,7 +279,7 @@ export class HepteractCraft {
     }
 
     // Below capacity
-    if (this.BAL < this.CAP) {
+    if (Decimal.lt(this.BAL, this.CAP)) {
       if (player.toggles[35]) {
         return Alert(i18next.t('hepteracts.notEnough'))
       } else {

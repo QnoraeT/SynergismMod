@@ -183,7 +183,7 @@ export const buyMaxProdAnts = (pos: FirstToEighth, baseCost: DecimalSource, inde
   const tag = index === 1 ? 'reincarnationPoints' : 'antPoints'
   const key = `${pos}OwnedAnts` as const
 
-  if (getAntProdTarget(player[tag], baseCost, index).lt(Number.MAX_SAFE_INTEGER)) {
+  if (getAntProdTarget(player[tag], baseCost, index).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player[tag], Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
     let boughtAnt = getAntProdTarget(player[tag], baseCost, index).sub(9).floor().max(player[key])
     let cost = getAntProdCost(boughtAnt, baseCost, index)
 

@@ -486,7 +486,7 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
       ascensionAchievementCheck(1, 0)
     }
 
-    player.researchPoints = Decimal.min(1e300, Decimal.add(player.researchPoints, G.obtainiumGain))
+    player.researchPoints = Decimal.add(player.researchPoints, G.obtainiumGain)
 
     const opscheck = Decimal.div(G.obtainiumGain, player.reincarnationcounter.add(1))
     if (opscheck.gt(player.obtainiumpersecond)) {

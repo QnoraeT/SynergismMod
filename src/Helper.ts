@@ -267,10 +267,7 @@ export const automaticTools = (input: AutoToolInput, time: Decimal) => {
       calculateObtainium()
       const obtainiumGain = calculateAutomaticObtainium()
       // Add Obtainium
-      player.researchPoints = Decimal.min(
-        1e300,
-        player.researchPoints.add(Decimal.mul(obtainiumGain, timeMultiplier).mul(time))
-      )
+      player.researchPoints = player.researchPoints.add(Decimal.mul(obtainiumGain, timeMultiplier).mul(time))
       // Update visual displays if appropriate
       if (G.currentTab === Tabs.Research) {
         visualUpdateResearch()
@@ -282,10 +279,7 @@ export const automaticTools = (input: AutoToolInput, time: Decimal) => {
       // As well as cube upgrade 1x2 (2).
       G.autoOfferingCounter = G.autoOfferingCounter.add(time)
       // Any time this exceeds 1 it adds an offering
-      player.runeshards = Decimal.min(
-        1e300,
-        Decimal.add(player.runeshards, Decimal.floor(G.autoOfferingCounter))
-      )
+      player.runeshards = Decimal.add(player.runeshards, Decimal.floor(G.autoOfferingCounter))
       G.autoOfferingCounter = G.autoOfferingCounter.mod(1)
       break
     case 'runeSacrifice':
@@ -361,7 +355,7 @@ export const automaticTools = (input: AutoToolInput, time: Decimal) => {
         && player.antSacrificeTimerReal.gt(0.1)
         && player.researches[124] === 1
         && player.autoAntSacrifice
-        && player.antPoints.gte('1e40')
+        && player.antPoints.gte(1e40)
       ) {
         void sacrificeAnts(true)
       }

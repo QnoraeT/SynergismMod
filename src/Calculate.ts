@@ -713,7 +713,7 @@ export const calculateObtainium = () => {
   if (player.currentChallenge.ascension === 14) {
     G.obtainiumGain = new Decimal(0)
   }
-  player.obtainiumpersecond = Decimal.min(1e300, G.obtainiumGain).div(player.reincarnationcounter.add(0.1))
+  player.obtainiumpersecond =  Decimal.div(G.obtainiumGain, player.reincarnationcounter.add(0.1))
   player.maxobtainiumpersecond = Decimal.max(
     player.maxobtainiumpersecond,
     player.obtainiumpersecond
@@ -2671,14 +2671,11 @@ export const CalcCorruptionStuff = () => {
     Decimal.floor(baseScore),
     corruptionMultiplier,
     Decimal.floor(effectiveScore),
-    Decimal.min(1e300, Decimal.floor(cubeGain)),
-    Decimal.min(
-      1e300,
-      Decimal.max(player.singularityCount, Decimal.floor(tesseractGain))
-    ),
-    Decimal.min(1e300, Decimal.floor(hypercubeGain)),
-    Decimal.min(1e300, Decimal.floor(platonicGain)),
-    Decimal.min(1e300, Decimal.floor(hepteractGain)),
+    Decimal.floor(cubeGain),
+    Decimal.max(player.singularityCount, Decimal.floor(tesseractGain)),
+    Decimal.floor(hypercubeGain),
+    Decimal.floor(platonicGain),
+    Decimal.floor(hepteractGain),
     bonusMultiplier
   ]
 }

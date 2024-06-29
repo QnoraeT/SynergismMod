@@ -195,6 +195,15 @@ export const visualUpdateBuildings = () => {
         rooted
       }
     )
+
+    DOMCacheGetOrSet('sc1info').style.display = Decimal.gte(G.globalCoinMultiplier, "ee20") ? 'block' : 'none'
+    DOMCacheGetOrSet('sc1info').textContent = i18next.t(
+      'buildings.softcappedWealth',
+      {
+        root: format(G.coinSC1Eff, 4),
+        result: format(G.coinAfterSc1)
+      }
+    )
   } else if (G.buildingSubTab === 'diamond') {
     // For the display of Diamond Buildings
     const upper = [
