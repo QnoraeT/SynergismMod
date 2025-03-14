@@ -5,7 +5,9 @@ import {
   calculateOfferings,
   calculateRuneExpGiven,
   calculateRuneExpToLevel,
-  calculateRuneLevels
+  calculateRuneLevels,
+  getRuneXPReq,
+  getRuneXPTarget
 } from './Calculate'
 import { format, player } from './Synergism'
 import { Globals as G } from './Variables'
@@ -22,7 +24,10 @@ export const thriftRuneEffect = () => {
 }
 
 export const siEffective = () => {
-  let i = Decimal.mul(player.researches[84], Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1))
+  let i = Decimal.mul(
+    player.researches[84],
+    Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1)
+  )
   i = i.div(200).add(1)
   return i
 }
@@ -49,13 +54,18 @@ export const displayRuneInformation = (i: number, updatelevelup = true) => {
     }
   } else if (i === 2) {
     options = {
-      mult1: format(Decimal.floor(getRuneEffective(2).div(10)).mul(Decimal.floor(getRuneEffective(2).div(10).add(1))).div(2)),
+      mult1: format(
+        Decimal.floor(getRuneEffective(2).div(10)).mul(Decimal.floor(getRuneEffective(2).div(10).add(1))).div(2)
+      ),
       mult2: format(getRuneEffective(2).div(4), 1, true),
       tax: Decimal.sub(1, getRuneEffective(2).div(-1000).pow_base(6)).mul(99.9).toNumber().toPrecision(4)
     }
   } else if (i === 3) {
     options = {
-      mult: format(Decimal.pow(getRuneEffective(3).div(2), 2).times(Decimal.pow(2, getRuneEffective(3).div(2).sub(8))).add(1), 3),
+      mult: format(
+        Decimal.pow(getRuneEffective(3).div(2), 2).times(Decimal.pow(2, getRuneEffective(3).div(2).sub(8))).add(1),
+        3
+      ),
       gain: format(Decimal.floor(getRuneEffective(3).div(16)))
     }
   } else if (i === 4) {
@@ -149,7 +159,10 @@ export const redeemShards = (runeIndexPlusOne: number, auto = false, cubeUpgrade
     levelsToAdd = Decimal.min(1e4, calculateMaxRunes(runeIndex + 1)) // limit to max 10k levels per call so the execution doesn't take too long if things get stuck
   }
   let levelsAdded = 0
-  if (player.runeshards.gt(0) && Decimal.lt(player.runelevels[runeIndex], calculateMaxRunes(runeIndex + 1))&& unlockedRune(runeIndex + 1)) {
+  if (
+    player.runeshards.gt(0) && Decimal.lt(player.runelevels[runeIndex], calculateMaxRunes(runeIndex + 1))
+    && unlockedRune(runeIndex + 1)
+  ) {
     let all = new Decimal(0)
     const maxLevel = calculateMaxRunes(runeIndex + 1)
     const amountArr = calculateOfferingsToLevelXTimes(runeIndex, player.runelevels[runeIndex], levelsToAdd)
@@ -159,30 +172,64 @@ export const redeemShards = (runeIndexPlusOne: number, auto = false, cubeUpgrade
     }
     const fact = calculateRuneExpGiven(runeIndex, false, player.runelevels[runeIndex], true)
     const a = player.upgrades[71] / 25
-    const add =  Decimal.sub(fact[0], Decimal.mul(player.runelevels[runeIndex], a))
-    const mult = fact.slice(1, fact.length).reduce((x, y) => x * y, 1)
-    while (toSpendTotal.gt(0) && Decimal.lt(levelsAdded, levelsToAdd) && Decimal.lt(player.runelevels[runeIndex], maxLevel)) {
-      const exp = Decimal.sub(calculateRuneExpToLevel(runeIndex, player.runelevels[runeIndex]), player.runeexp[runeIndex])
-      const expPerOff = Decimal.mul(player.runelevels[runeIndex], a).add(add).mul(mult)
-      let toSpend = Decimal.min(toSpendTotal, Decimal.ceil(Decimal.div(exp, expPerOff)))
-      if (Decimal.isNaN(toSpend)) {
-        toSpend = toSpendTotal
-      }
-      toSpendTotal = toSpendTotal.sub(toSpend)
-      player.runeshards = player.runeshards.sub(toSpend)
-      player.runeexp[runeIndex] = Decimal.add(player.runeexp[runeIndex], Decimal.mul(toSpend, expPerOff))
-      all = all.add(toSpend)
+    const add = Decimal.sub(fact[0], Decimal.mul(player.runelevels[runeIndex], a))
+    const mult = fact.slice(1, fact.length).reduce((x, y) => Decimal.mul(x, y), new Decimal(1))
+
+    const exp = Decimal.sub(calculateRuneExpToLevel(runeIndex, player.runelevels[runeIndex]), player.runeexp[runeIndex])
+    const expPerOff = Decimal.mul(player.runelevels[runeIndex], a).add(add).mul(mult)
+
+    let iter = 0
+    if (
+      Decimal.mul(player.runeshards, expPerOff).gte(1e300) && maxLevel.gte(40000)
+      && !(runeIndex === 5 || runeIndex === 6)
+    ) {
+      player.runeexp[runeIndex] = Decimal.max(player.runeexp[runeIndex], Decimal.mul(player.runeshards, expPerOff)).min(
+        getRuneXPReq(maxLevel)
+      )
+      player.runelevels[runeIndex] = getRuneXPTarget(Decimal.mul(player.runeshards, expPerOff)).floor().add(1).min(
+        maxLevel
+      )
+    } else {
       while (
-        Decimal.gte(player.runeexp[runeIndex], calculateRuneExpToLevel(runeIndex)) && Decimal.lt(player.runelevels[runeIndex], maxLevel)
+        toSpendTotal.gt(0) && Decimal.lt(levelsAdded, levelsToAdd) && Decimal.lt(player.runelevels[runeIndex], maxLevel)
+        && iter < 10000
       ) {
-        player.runelevels[runeIndex] = Decimal.add(player.runelevels[runeIndex], 1)
-        levelsAdded++
+        iter++
+        let toSpend = Decimal.min(toSpendTotal, Decimal.ceil(Decimal.div(exp, expPerOff)))
+        if (Decimal.isNaN(toSpend)) {
+          toSpend = toSpendTotal
+        }
+        toSpendTotal = toSpendTotal.sub(toSpend)
+        player.runeshards = player.runeshards.sub(toSpend)
+        player.runeexp[runeIndex] = Decimal.add(player.runeexp[runeIndex], Decimal.mul(toSpend, expPerOff))
+        all = all.add(toSpend)
+        while (
+          Decimal.gte(player.runeexp[runeIndex], calculateRuneExpToLevel(runeIndex))
+          && Decimal.lt(player.runelevels[runeIndex], maxLevel)
+        ) {
+          player.runelevels[runeIndex] = Decimal.add(player.runelevels[runeIndex], 1)
+          levelsAdded++
+        }
+      }
+      if (iter >= 10000) {
+        console.warn('rune took too long')
+        if (!(runeIndex === 5 || runeIndex === 6)) {
+          player.runeexp[runeIndex] = Decimal.max(player.runeexp[runeIndex], Decimal.mul(player.runeshards, expPerOff))
+            .min(getRuneXPReq(maxLevel))
+          player.runelevels[runeIndex] = getRuneXPTarget(Decimal.mul(player.runeshards, expPerOff)).floor().add(1).min(
+            maxLevel
+          )
+        }
       }
     }
+
     for (let runeToUpdate = 0; runeToUpdate < 5; ++runeToUpdate) {
       if (unlockedRune(runeToUpdate + 1)) {
         if (runeToUpdate !== runeIndex) {
-          player.runeexp[runeToUpdate] = Decimal.add(player.runeexp[runeToUpdate], Decimal.mul(all, calculateRuneExpGiven(runeToUpdate, true)))
+          player.runeexp[runeToUpdate] = Decimal.add(
+            player.runeexp[runeToUpdate],
+            Decimal.mul(all, calculateRuneExpGiven(runeToUpdate, true))
+          )
         }
         while (
           Decimal.gte(player.runeexp[runeToUpdate], calculateRuneExpToLevel(runeToUpdate))
@@ -212,15 +259,17 @@ export const calculateOfferingsToLevelXTimes = (runeIndex: number, runeLevel: De
   const fact = calculateRuneExpGiven(runeIndex, false, runeLevel, true)
   const a = player.upgrades[71] / 25
   const add = Decimal.sub(fact[0], Decimal.mul(runeLevel, a))
-  const mult = fact.slice(1, fact.length).reduce((x, y) => x * y, 1)
+  const mult = fact.slice(1, fact.length).reduce((x, y) => Decimal.mul(x, y), new Decimal(1))
   while (Decimal.lt(levelsAdded, levels) && Decimal.add(runeLevel, levelsAdded).lt(maxLevel) && Decimal.lt(sum, off)) {
     const expPerOff = Decimal.add(runeLevel, levelsAdded).mul(a).add(add).mul(mult)
     const amount = Decimal.ceil(Decimal.div(exp, expPerOff))
     sum = sum.add(amount)
     arr.push(amount)
     levelsAdded += 1
-    exp = Decimal.sub(calculateRuneExpToLevel(runeIndex, Decimal.add(runeLevel, levelsAdded))
-      , calculateRuneExpToLevel(runeIndex, Decimal.add(runeLevel, levelsAdded).sub(1)))
+    exp = Decimal.sub(
+      calculateRuneExpToLevel(runeIndex, Decimal.add(runeLevel, levelsAdded)),
+      calculateRuneExpToLevel(runeIndex, Decimal.add(runeLevel, levelsAdded).sub(1))
+    )
   }
   return arr
 }

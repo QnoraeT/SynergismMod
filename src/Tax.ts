@@ -1,7 +1,7 @@
+import { constantEffects } from './Calculate'
 import { player } from './Synergism'
 import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
-import { constantEffects } from './Calculate'
 
 import Decimal from 'break_eternity.js'
 import { achievementaward } from './Achievements'
@@ -11,14 +11,26 @@ export const calculatetax = () => {
   let exp = new Decimal(1)
   let compareB = new Decimal(0)
   let compareC = new Decimal(0)
-  G.produceFirst  = (player.firstGeneratedCoin.add(player.firstOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinOneMulti).mul(player.firstProduceCoin).max(0)
-  G.produceSecond = (player.secondGeneratedCoin.add(player.secondOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinTwoMulti).mul(player.secondProduceCoin).max(0)
-  G.produceThird  = (player.thirdGeneratedCoin.add(player.thirdOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinThreeMulti).mul(player.thirdProduceCoin).max(0)
-  G.produceFourth = (player.fourthGeneratedCoin.add(player.fourthOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinFourMulti).mul(player.fourthProduceCoin).max(0)
-  G.produceFifth  = (player.fifthGeneratedCoin.add(player.fifthOwnedCoin)).mul(G.globalCoinMultiplier).mul(G.coinFiveMulti).mul(player.fifthProduceCoin).max(0)
+  G.produceFirst = (player.firstGeneratedCoin.add(player.firstOwnedCoin)).mul(G.globalCoinMultiplier).mul(
+    G.coinOneMulti
+  ).mul(player.firstProduceCoin).max(0)
+  G.produceSecond = (player.secondGeneratedCoin.add(player.secondOwnedCoin)).mul(G.globalCoinMultiplier).mul(
+    G.coinTwoMulti
+  ).mul(player.secondProduceCoin).max(0)
+  G.produceThird = (player.thirdGeneratedCoin.add(player.thirdOwnedCoin)).mul(G.globalCoinMultiplier).mul(
+    G.coinThreeMulti
+  ).mul(player.thirdProduceCoin).max(0)
+  G.produceFourth = (player.fourthGeneratedCoin.add(player.fourthOwnedCoin)).mul(G.globalCoinMultiplier).mul(
+    G.coinFourMulti
+  ).mul(player.fourthProduceCoin).max(0)
+  G.produceFifth = (player.fifthGeneratedCoin.add(player.fifthOwnedCoin)).mul(G.globalCoinMultiplier).mul(
+    G.coinFiveMulti
+  ).mul(player.fifthProduceCoin).max(0)
 
   G.produceTotal = G.produceFirst.add(G.produceSecond).add(G.produceThird).add(G.produceFourth).add(G.produceFifth)
-  const sc = {start: new Decimal(1e24), pow: new Decimal(0.4)}
+
+  const sc = { start: new Decimal(1e24), pow: new Decimal(0.4) }
+  G.coinSC1Start = sc.start
   if (G.produceTotal.gte(sc.start)) {
     const prev = G.produceTotal
     G.produceTotal = G.produceTotal.log10().log(sc.start).pow(sc.pow).pow_base(sc.start).pow10()
@@ -41,10 +53,12 @@ export const calculatetax = () => {
   // im doing this to spite xander, basically changes w5x9 to not impact tax scaling in c13 || Sean#7236
   const c13effcompletions = Decimal.max(
     0,
-    Decimal.sub(sumContentsDecimal(player.challengecompletions), player.challengecompletions[11]).sub(player.challengecompletions[12])
-    .sub(player.challengecompletions[13]).sub(player.challengecompletions[14]).sub(player.challengecompletions[15])
-    .sub(Decimal.mul(player.cubeUpgrades[49], 3)).sub(((player.singularityCount >= 15) ? 4 : 0))
-    .sub(((player.singularityCount >= 20) ? 1 : 0))
+    Decimal.sub(sumContentsDecimal(player.challengecompletions), player.challengecompletions[11]).sub(
+      player.challengecompletions[12]
+    )
+      .sub(player.challengecompletions[13]).sub(player.challengecompletions[14]).sub(player.challengecompletions[15])
+      .sub(Decimal.mul(player.cubeUpgrades[49], 3)).sub((player.singularityCount >= 15) ? 4 : 0)
+      .sub((player.singularityCount >= 20) ? 1 : 0)
   )
   if (player.currentChallenge.ascension === 13) {
     exp = exp.mul(Decimal.div(player.challengecompletions[13], 6).add(1).mul(700))
@@ -54,25 +68,48 @@ export const calculatetax = () => {
     exp = exp.div(1.075)
   }
   let exponent = exp
-  exponent = exponent.mul(Decimal.sub(1, Decimal.div(player.researches[51], 20).add(Decimal.div(player.researches[52], 40)).add(Decimal.div(player.researches[53], 80)).add(Decimal.div(player.researches[54], 160)).add(Decimal.div(player.researches[55], 320))))
-  exponent = exponent.mul(Decimal.sub(1, Decimal.add(player.achievements[45], player.achievements[46]).add(Decimal.mul(2, player.achievements[47])).mul(Decimal.min(player.prestigecounter, 1800)).mul(0.05 / 1800)))
+  exponent = exponent.mul(
+    Decimal.sub(
+      1,
+      Decimal.div(player.researches[51], 20).add(Decimal.div(player.researches[52], 40)).add(
+        Decimal.div(player.researches[53], 80)
+      ).add(Decimal.div(player.researches[54], 160)).add(Decimal.div(player.researches[55], 320))
+    )
+  )
+  exponent = exponent.mul(
+    Decimal.sub(
+      1,
+      Decimal.add(player.achievements[45], player.achievements[46]).add(Decimal.mul(2, player.achievements[47])).mul(
+        Decimal.min(player.prestigecounter, 1800)
+      ).mul(0.05 / 1800)
+    )
+  )
   exponent = exponent.mul(Decimal.pow(0.965, CalcECC('reincarnation', player.challengecompletions[6])))
-  exponent = exponent.mul(Decimal.pow(6, Decimal.mul(G.rune2level, G.effectiveLevelMult).div(-1000)).mul(0.999).add(0.001))
+  exponent = exponent.mul(
+    Decimal.pow(6, Decimal.mul(G.rune2level, G.effectiveLevelMult).div(-1000)).mul(0.999).add(0.001)
+  )
   exponent = exponent.mul(Decimal.pow(4, Decimal.min(0, Decimal.sub(400, G.rune4level).div(1100))).mul(0.99).add(0.01))
 
-  exponent = exponent.mul(1 - 0.04 * player.achievements[82] - 0.04 * player.achievements[89] - 0.04 * player.achievements[96]
-    - 0.04 * player.achievements[103] - 0.04 * player.achievements[110] - 0.0566 * player.achievements[117]
-    - 0.0566 * player.achievements[124] - 0.0566 * player.achievements[131])
+  exponent = exponent.mul(
+    1 - 0.04 * player.achievements[82] - 0.04 * player.achievements[89] - 0.04 * player.achievements[96]
+      - 0.04 * player.achievements[103] - 0.04 * player.achievements[110] - 0.0566 * player.achievements[117]
+      - 0.0566 * player.achievements[124] - 0.0566 * player.achievements[131]
+  )
   exponent = exponent.mul(Decimal.pow(
     0.9925,
-    Decimal.mul(player.achievements[118], Decimal.add(player.challengecompletions[6], player.challengecompletions[7]).add(player.challengecompletions[8])
-      .add(player.challengecompletions[9]).add(player.challengecompletions[10]))
+    Decimal.mul(
+      player.achievements[118],
+      Decimal.add(player.challengecompletions[6], player.challengecompletions[7]).add(player.challengecompletions[8])
+        .add(player.challengecompletions[9]).add(player.challengecompletions[10])
+    )
   ))
   exponent = exponent.mul(Decimal.pow(0.99, Decimal.add(player.antUpgrades[2]!, G.bonusant3)).mul(0.995).add(0.005))
   exponent = exponent.div(constantEffects().tax)
   exponent = exponent.mul(Decimal.sub(1, Decimal.sub(player.talismanRarity[1 - 1], 1).mul(0.1)))
-  exponent = exponent.mul(Decimal.pow(0.98, Decimal.add(player.rareFragments, 1).log10().mul(player.researches[159]).mul(0.6)))
-  
+  exponent = exponent.mul(
+    Decimal.pow(0.98, Decimal.add(player.rareFragments, 1).log10().mul(player.researches[159]).mul(0.6))
+  )
+
   exponent = exponent.mul(Decimal.pow(0.966, CalcECC('ascension', player.challengecompletions[13])))
   exponent = exponent.mul(Decimal.sub(1, Decimal.div(player.researches[200], 100000).mul(0.666)))
   exponent = exponent.mul(Decimal.sub(1, Decimal.div(player.cubeUpgrades[50], 100000).mul(0.666)))
@@ -81,7 +118,7 @@ export const calculatetax = () => {
     exponent = exponent.mul(0.5)
   }
 
-  G.maxexponent = Decimal.div(275, (Decimal.log(1.01, 10).mul(exponent))).floor().sub(1)
+  G.maxexponent = Decimal.div(275, Decimal.log(1.01, 10).mul(exponent)).floor().sub(1)
   const a2 = G.maxexponent.min(G.produceTotal.add(1).log10().floor())
 
   if (player.currentChallenge.ascension === 13 && G.maxexponent.lte(99999) && player.achievements[249] < 1) {

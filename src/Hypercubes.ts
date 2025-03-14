@@ -1,6 +1,6 @@
+import Decimal from 'break_eternity.js'
 import { player } from './Synergism'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 type Bless = keyof typeof player['hypercubeBlessings']
 
@@ -18,8 +18,10 @@ export const calculateHypercubeBlessings = () => {
     if (Decimal.gte(obj, 1000)) {
       obj = Decimal.div(obj, 1000).pow(scPow).sub(1).mul(1000).div(scPow).add(1000)
     }
-  
+
     G.hypercubeBonusMultiplier[idx] = obj
-    G.hypercubeBonusMultiplier[idx] = Decimal.mul(G.hypercubeBonusMultiplier[idx]!, G.platonicBonusMultiplier[4]).mul(G.benedictionbase[idx]!).add(1)
+    G.hypercubeBonusMultiplier[idx] = Decimal.mul(G.hypercubeBonusMultiplier[idx]!, G.platonicBonusMultiplier[4]).mul(
+      G.benedictionbase[idx]!
+    ).add(1)
   }
 }

@@ -72,7 +72,7 @@ const hepteractCraftSchema = (k: keyof Player['hepteractCrafts']) =>
 
 export const playerSchema = z.object({
   firstPlayed: z.string().datetime().optional().default(() => new Date().toISOString()),
-  worlds: decimalSchema.transform((quarks) => new QuarkHandler({ quarks })),
+  worlds: decimalSchema.transform((quarks) => new QuarkHandler(quarks)),
 
   coins: decimalSchema,
   coinsThisPrestige: decimalSchema,
@@ -225,6 +225,14 @@ export const playerSchema = z.object({
   ascendBuilding3: ascendBuildingSchema.default(() => deepClone(blankSave.ascendBuilding3)),
   ascendBuilding4: ascendBuildingSchema.default(() => deepClone(blankSave.ascendBuilding4)),
   ascendBuilding5: ascendBuildingSchema.default(() => deepClone(blankSave.ascendBuilding5)),
+
+  goldenFragments: decimalSchema,
+
+  gcBuilding1: ascendBuildingSchema.default(() => deepClone(blankSave.gcBuilding1)),
+  gcBuilding2: ascendBuildingSchema.default(() => deepClone(blankSave.gcBuilding2)),
+  gcBuilding3: ascendBuildingSchema.default(() => deepClone(blankSave.gcBuilding3)),
+  gcBuilding4: ascendBuildingSchema.default(() => deepClone(blankSave.gcBuilding4)),
+  gcBuilding5: ascendBuildingSchema.default(() => deepClone(blankSave.gcBuilding5)),
 
   multiplierCost: decimalSchema,
   multiplierBought: decimalSchema,
@@ -398,7 +406,10 @@ export const playerSchema = z.object({
   goldenQuarksTimer: decimalSchema.default(() => blankSave.goldenQuarksTimer),
 
   antPoints: decimalSchema,
-  antUpgrades: z.union([decimalSchema.array(), arrayStartingWithNull(decimalSchema).transform((array) => array.slice(1))])
+  antUpgrades: z.union([
+    decimalSchema.array(),
+    arrayStartingWithNull(decimalSchema).transform((array) => array.slice(1))
+  ])
     .default(() => [...blankSave.antUpgrades]),
   antSacrificePoints: z.union([decimalSchema, z.null().transform(() => Number.MAX_VALUE)]).default(() =>
     blankSave.antSacrificePoints
@@ -535,6 +546,7 @@ export const playerSchema = z.object({
   runeSpiritBuyAmount: z.number().default(() => blankSave.runeSpiritBuyAmount),
 
   autoTesseracts: z.boolean().array().default(() => [...blankSave.autoTesseracts]),
+  autoGoldenQuarks: z.boolean().array().default(() => [...blankSave.autoGoldenQuarks]),
 
   saveString: z.string().default(() => blankSave.saveString),
   exporttest: z.union([z.string(), z.boolean()]).transform((value) => {
@@ -617,28 +629,28 @@ export const playerSchema = z.object({
     )
     .default(() => JSON.parse(JSON.stringify(blankSave.singularityUpgrades))),
   octeractUpgrades: z.record(z.string(), singularityUpgradeSchema('octeractsInvested'))
-  .transform((upgrades) =>
-    Object.fromEntries(
-      Object.keys(octeractData).map((k) => {
-        const { level, octeractsInvested, toggleBuy, freeLevels } = upgrades[k] ?? octeractData[k]
+    .transform((upgrades) =>
+      Object.fromEntries(
+        Object.keys(octeractData).map((k) => {
+          const { level, octeractsInvested, toggleBuy, freeLevels } = upgrades[k] ?? octeractData[k]
 
-        return [
-          k,
-          new OcteractUpgrade({
-            maxLevel: octeractData[k].maxLevel,
-            costPerLevel: octeractData[k].costPerLevel,
-            level: level as number,
-            octeractsInvested,
-            toggleBuy: toggleBuy as number,
-            effect: octeractData[k].effect,
-            costFormula: octeractData[k].costFormula,
-            freeLevels: freeLevels as number,
-            qualityOfLife: octeractData[k].qualityOfLife,
-            cacheUpdates: octeractData[k].cacheUpdates
-          }, k)
-        ]
-      })
-    )
+          return [
+            k,
+            new OcteractUpgrade({
+              maxLevel: octeractData[k].maxLevel,
+              costPerLevel: octeractData[k].costPerLevel,
+              level: level as number,
+              octeractsInvested,
+              toggleBuy: toggleBuy as number,
+              effect: octeractData[k].effect,
+              costFormula: octeractData[k].costFormula,
+              freeLevels: freeLevels as number,
+              qualityOfLife: octeractData[k].qualityOfLife,
+              cacheUpdates: octeractData[k].cacheUpdates
+            }, k)
+          ]
+        })
+      )
     )
     .default(() => JSON.parse(JSON.stringify(blankSave.octeractUpgrades))),
 
@@ -655,33 +667,33 @@ export const playerSchema = z.object({
       enabled: z.boolean()
     })
   )
-  .transform((upgrades) =>
-    Object.fromEntries(
-      Object.keys(blankSave.singularityChallenges).map((k) => {
-        const { completions, highestSingularityCompleted, enabled } = upgrades[k]
-        ?? blankSave.singularityChallenges[k]
+    .transform((upgrades) =>
+      Object.fromEntries(
+        Object.keys(blankSave.singularityChallenges).map((k) => {
+          const { completions, highestSingularityCompleted, enabled } = upgrades[k]
+            ?? blankSave.singularityChallenges[k]
 
-        return [
-          k,
-          new SingularityChallenge({
-            baseReq: singularityChallengeData[k].baseReq,
-            completions,
-            maxCompletions: singularityChallengeData[k].maxCompletions,
-            unlockSingularity: singularityChallengeData[k].unlockSingularity,
-            HTMLTag: singularityChallengeData[k].HTMLTag,
-            highestSingularityCompleted,
-            enabled,
-            singularityRequirement: singularityChallengeData[k].singularityRequirement,
-            scalingrewardcount: singularityChallengeData[k].scalingrewardcount,
-            uniquerewardcount: singularityChallengeData[k].uniquerewardcount,
-            effect: singularityChallengeData[k].effect,
-            cacheUpdates: singularityChallengeData[k].cacheUpdates
-          }, k)
-        ]
-      })
+          return [
+            k,
+            new SingularityChallenge({
+              baseReq: singularityChallengeData[k].baseReq,
+              completions,
+              maxCompletions: singularityChallengeData[k].maxCompletions,
+              unlockSingularity: singularityChallengeData[k].unlockSingularity,
+              HTMLTag: singularityChallengeData[k].HTMLTag,
+              highestSingularityCompleted,
+              enabled,
+              singularityRequirement: singularityChallengeData[k].singularityRequirement,
+              scalingrewardcount: singularityChallengeData[k].scalingrewardcount,
+              uniquerewardcount: singularityChallengeData[k].uniquerewardcount,
+              effect: singularityChallengeData[k].effect,
+              cacheUpdates: singularityChallengeData[k].cacheUpdates
+            }, k)
+          ]
+        })
+      )
     )
-  )
-  .default(() => JSON.parse(JSON.stringify(blankSave.singularityChallenges))),
+    .default(() => JSON.parse(JSON.stringify(blankSave.singularityChallenges))),
 
   ambrosia: decimalSchema.default(() => blankSave.ambrosia),
   lifetimeAmbrosia: decimalSchema.default(() => blankSave.lifetimeAmbrosia),

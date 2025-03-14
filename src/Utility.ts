@@ -12,64 +12,71 @@ import { format } from './Synergism'
  * @param {Decimal} powScale inital value of the scaling/softcap that gets acted upon by str
  * @returns {Decimal}
  */
-export const scale = (num: Decimal, type: number | string, inverse: boolean, start: Decimal, str: Decimal, powScale: number | Decimal): Decimal => {
-  if (num.lte(start)) { return num; }
-  str = Decimal.pow(powScale, str);
+export const scale = (
+  num: Decimal,
+  type: number | string,
+  inverse: boolean,
+  start: Decimal,
+  str: Decimal,
+  powScale: number | Decimal
+): Decimal => {
+  if (num.lte(start)) return num
+  str = Decimal.pow(powScale, str)
   switch (type) {
-      // Polynomial
-      case 0:
-      case 0.1:
-      case "P":
-      case "P1":
-          return inverse
-                  ? num.sub(start).mul(str).div(start).add(1).root(str).mul(start)
-                  : num.div(start).pow(str).sub(1).mul(start).div(str).add(start)
-      case 0.2: // alemaninc
-      case "P2":
-          return inverse
-                  ? num.div(start).root(str).sub(1).mul(str).add(1).mul(start)
-                  : num.div(start).sub(1).div(str).add(1).pow(str).mul(start)
-      // Exponential
-      case 1:
-      case 1.1:
-      case "E":
-      case "E1":
-          return inverse 
-                  ? Decimal.min(num, num.div(start).log(str).add(1).mul(start))
-                  : Decimal.max(num, Decimal.pow(str, num.div(start).sub(1)).mul(start))
-      case 1.2:
-      case "E2":
-          return inverse
-                  ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
-                  : Decimal.pow(str, num.div(start).sub(1)).mul(num)
-      case 1.3: // alemaninc
-      case "E3":
-          return inverse // poly exponential scaling
-                  ? num.div(start).ln().mul(str.sub(1)).add(1).root(str.sub(1)).mul(start)
-                  : num.div(start).pow(str.sub(1)).sub(1).div(str.sub(1)).exp().mul(start)
-      // Semi-exponential
-      case 2: 
-      case 2.1:
-      case "SE":
-      case "SE1":
-          return inverse // steep scaling
-                  ? Decimal.pow(start, num.sub(start).mul(str).add(start).log(start).root(str))
-                  : Decimal.pow(start, num.log(start).pow(str)).sub(start).div(str).add(start)
-      case 2.2:
-      case "SE2": // very shallow scaling
-          return inverse
-                  ? Decimal.pow(start, num.log(start).sub(1).mul(str).add(1).root(str))
-                  : Decimal.pow(start, num.log(start).pow(str).sub(1).div(str).add(1))
-      // convergent
-      case 3: // alemaninc
-      case 3.1:
-      case "C":
-      case "C1":
-          return inverse
-                  ? str.mul(num).add(start.pow(2)).sub(start.mul(num).mul(2)).div(str.sub(num))
-                  : str.mul(num).sub(start.pow(2)).div(str.sub(start.mul(2)).add(num));
-      default:
-          throw new Error(`Scaling type ${type} doesn't exist`);
+    // Polynomial
+    case 0:
+    case 0.1:
+    case 'P':
+    case 'P1':
+      return inverse
+        ? num.sub(start).mul(str).div(start).add(1).root(str).mul(start)
+        : num.div(start).pow(str).sub(1).mul(start).div(str).add(start)
+    case 0.2: // alemaninc
+    case 'P2':
+      return inverse
+        ? num.div(start).root(str).sub(1).mul(str).add(1).mul(start)
+        : num.div(start).sub(1).div(str).add(1).pow(str).mul(start)
+    // Exponential
+    case 1:
+    case 1.1:
+    case 'E':
+    case 'E1':
+      return inverse
+        ? Decimal.min(num, num.div(start).log(str).add(1).mul(start))
+        : Decimal.max(num, Decimal.pow(str, num.div(start).sub(1)).mul(start))
+    case 1.2:
+    case 'E2':
+      return inverse
+        ? num.mul(str).mul(str.ln()).div(start).lambertw().mul(start).div(str.ln())
+        : Decimal.pow(str, num.div(start).sub(1)).mul(num)
+    case 1.3: // alemaninc
+    case 'E3':
+      return inverse // poly exponential scaling
+        ? num.div(start).ln().mul(str.sub(1)).add(1).root(str.sub(1)).mul(start)
+        : num.div(start).pow(str.sub(1)).sub(1).div(str.sub(1)).exp().mul(start)
+    // Semi-exponential
+    case 2:
+    case 2.1:
+    case 'SE':
+    case 'SE1':
+      return inverse // steep scaling
+        ? Decimal.pow(start, num.sub(start).mul(str).add(start).log(start).root(str))
+        : Decimal.pow(start, num.log(start).pow(str)).sub(start).div(str).add(start)
+    case 2.2:
+    case 'SE2': // very shallow scaling
+      return inverse
+        ? Decimal.pow(start, num.log(start).sub(1).mul(str).add(1).root(str))
+        : Decimal.pow(start, num.log(start).pow(str).sub(1).div(str).add(1))
+    // convergent
+    case 3: // alemaninc
+    case 3.1:
+    case 'C':
+    case 'C1':
+      return inverse
+        ? str.mul(num).add(start.pow(2)).sub(start.mul(num).mul(2)).div(str.sub(num))
+        : str.mul(num).sub(start.pow(2)).div(str.sub(start.mul(2)).add(num))
+    default:
+      throw new Error(`Scaling type ${type} doesn't exist`)
   }
 }
 
@@ -295,14 +302,14 @@ export const deepClone = (value: unknown) => {
 
 /**
  * ((x + start) ^ poly / (poly * start ^ (poly - 1))) - start / poly
- * @param {Decimal} x 
- * @param {Decimal} poly 
- * @param {Decimal} start 
+ * @param {Decimal} x
+ * @param {Decimal} poly
+ * @param {Decimal} start
  * @param {Boolean} inverse
  * @returns {Decimal}
  */
 export const smoothPoly = (x: Decimal, poly: Decimal, start: Decimal, inverse: boolean): Decimal => {
   return inverse
-      ? x.add(start.div(poly)).mul(poly.mul(start.pow(poly.sub(1)))).root(poly).sub(start)
-      : x.add(start).pow(poly).div(poly.mul(start.pow(poly.sub(1)))).sub(start.div(poly))
+    ? x.add(start.div(poly)).mul(poly.mul(start.pow(poly.sub(1)))).root(poly).sub(start)
+    : x.add(start).pow(poly).div(poly.mul(start.pow(poly.sub(1)))).sub(start.div(poly))
 }

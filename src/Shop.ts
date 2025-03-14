@@ -1,21 +1,21 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { 
+import {
   calculateAdditiveLuckMult,
   calculateAmbrosiaGenerationSpeed,
   calculateAmbrosiaLuck,
-  calculateCashGrabBlueberryBonus, 
-  calculateCashGrabCubeBonus, 
-  calculateCashGrabQuarkBonus, 
-  calculatePowderConversion, 
-  calculateSummationNonLinearDecimal, 
-  calculateTimeAcceleration 
+  calculateCashGrabBlueberryBonus,
+  calculateCashGrabCubeBonus,
+  calculateCashGrabQuarkBonus,
+  calculatePowderConversion,
+  calculateSummationNonLinearDecimal,
+  calculateTimeAcceleration
 } from './Calculate'
 import type { IMultiBuy } from './Cubes'
 import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Confirm, Prompt, revealStuff } from './UpdateHTML'
-import Decimal from 'break_eternity.js'
 import { Globals as G } from './Variables'
 
 /**
@@ -1191,7 +1191,9 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
       lol.innerHTML = i18next.t(
         'shop.upgradeEffects.shopOcteractAmbrosiaLuck',
         {
-          amount: format(player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck))
+          amount: format(
+            player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck)
+          )
         }
       )
       break
@@ -1253,7 +1255,13 @@ export const shopDescriptions = (input: ShopUpgradeNames) => {
     case 'shopAmbrosiaAccelerator':
       lol.innerHTML = i18next.t('shop.upgradeEffects.shopAmbrosiaAccelerator', {
         amount: format(0.2 * player.shopUpgrades.shopAmbrosiaAccelerator, 1, true),
-        amount2: format(Decimal.mul(player.shopUpgrades.shopAmbrosiaAccelerator, G.ambrosiaCurrStats.ambrosiaGenerationSpeed).mul(0.2), 0, true)
+        amount2: format(
+          Decimal.mul(player.shopUpgrades.shopAmbrosiaAccelerator, G.ambrosiaCurrStats.ambrosiaGenerationSpeed).mul(
+            0.2
+          ),
+          0,
+          true
+        )
       })
       break
     case 'shopEXUltra': {
@@ -1542,13 +1550,12 @@ export const useConsumable = async (
     if (input === 'offeringPotion') {
       if (player.shopUpgrades.offeringPotion >= used || !spend) {
         player.shopUpgrades.offeringPotion -= spend ? used : 0
-        
+
         player.runeshards = player.runeshards.add(Decimal.floor(
           Decimal.mul(player.offeringpersecond, 7200)
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
-
       }
     } else if (input === 'obtainiumPotion') {
       if (player.shopUpgrades.obtainiumPotion >= used || !spend) {
@@ -1558,7 +1565,6 @@ export const useConsumable = async (
             .mul(calculateTimeAcceleration().mult)
             .mul(multiplier)
         ))
-
       }
     }
   }

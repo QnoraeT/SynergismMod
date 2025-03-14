@@ -2107,7 +2107,7 @@
       "zeroOrLess": "Only numbers greater than zero, please!",
       "moreThanPlayerHas": "You can't afford this yet!",
       "fraction": "Yeah, that isn't an integer. We don't accept fractions here!",
-      "goldenQuarksTooMany": "Sorry, I cannnot sell you this many Golden Quarks! Try buying fewer of them or typing -1 to buy max!",
+      "goldenQuarksTooMany": "Sorry, I cannot sell you this many Golden Quarks! Try buying fewer of them or typing -1 to buy max!",
       "finiteInt": "Value must be a finite, non-decimal number!",
       "invalidNumber": "Hey! That's not a valid number!"
     },
@@ -2434,7 +2434,8 @@
       "diamond": "Diamond Buildings",
       "mythos": "Mythos Buildings",
       "particle": "Particle Buildings",
-      "tesseract": "Tesseract Buildings"
+      "tesseract": "Tesseract Buildings",
+      "gq": "Golden Quark Buildings"
     },
     "runes": {
       "runes": "Runes",
@@ -2653,7 +2654,12 @@
       "vector": "Vector: {{amount}} [+{{gain}}]",
       "threeSpace": "Three-Space: {{amount}} [+{{gain}}]",
       "bentTime": "Bent Time: {{amount}} [+{{gain}}]",
-      "hilbertSpace": "Hilbert Space: {{amount}} [+{{gain}}]"
+      "hilbertSpace": "Hilbert Space: {{amount}} [+{{gain}}]",
+      "gq1": "What: {{amount}} [+{{gain}}]",
+      "gq2": "The: {{amount}} [+{{gain}}]",
+      "gq3": "F!ck: {{amount}} [+{{gain}}]",
+      "gq4": "Is: {{amount}} [+{{gain}}]",
+      "gq5": "This?: {{amount}} [+{{gain}}]"
     },
     "crystalMult": "You have {{crystals}} Crystals, multiplying Coin production by {{gain}}.",
     "hoverCrystalUpgrade": "Hover over a crystal upgrade to get information!",
@@ -2678,7 +2684,12 @@
       "dot": "Dot/sec: {{amount}}",
       "vector": "Vector/sec: {{amount}}",
       "threeSpace": "Three-Space/sec: {{amount}}",
-      "bentTime": "Bent Time/sec: {{amount}}"
+      "bentTime": "Bent Time/sec: {{amount}}",
+      "fragments": "Fragments/sec: {{amount}}",
+      "gq1": "What/sec: {{amount}}",
+      "gq2": "The/sec: {{amount}}",
+      "gq3": "F!ck/sec: {{amount}}",
+      "gq4": "Is/sec: {{amount}}"
     },
     "crystalUpgrades": {
       "currentLevel": "Current Level: <<lightblue|{{amount}}>>",
@@ -2707,11 +2718,17 @@
     "constantEff10": "At 1e100,000 constant, your constant boosts SI Rune's exponent by ^{{x}}",
     "constantEff11": "At e10.000M constant, your constant increases Particle Upgrade 7's effect by {{x}}x times.",
     "costTesseracts": "Cost: {{tesseracts}} Tesseracts",
+    "costGoldenQuarks": "Cost: {{goldenQuarks}} GQs",
     "autoTesseract": "Auto buyer will save at least {{tesseracts}} tesseracts. [Enter number above].",
     "autoAscensionTesseract": "On Ascension, Auto buyer will save at least {{percent}}% of your current amount of tesseracts. [Enter number above].",
     "excessiveWealth": "Due to your excessive wealth, coin production is divided by {{div}} to pay taxes! {{- warning}} {{- rooted}}",
-    "softcappedWealth": "Past e1.000 Dc, your wealth is dilated to the ^{{root}}! (Down to {{result}})",
-    "constantHover": "Hover over an icon for a description of the upgrade. Click to buy it!"
+    "softcappedWealth": "Past {{start}}, your wealth is dilated to the ^{{root}}! (Down to {{result}})",
+    "constantHover": "Hover over an icon for a description of the upgrade. Click to buy it!",
+    "gfragYouHave": "You have {{frag}} golden fragments.",
+    "gqsYouHave": "You have {{gqs}} golden quarks. Gain more through completing singularities.",
+    "gqEff1": "Your golden fragments make {{x}} Golden Quarks per second.",
+    "gqEff2": "At 1.000 M Golden fragments, they also boost quark gain by {{x}}%.",
+    "gqEff3": "At 10.000 B Golden fragments, they also boost global speed by {{x}}x."
   },
   "octeract": {
     "buyLevel": {

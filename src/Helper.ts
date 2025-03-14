@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import { sacrificeAnts } from './Ants'
 import { buyAllBlessings } from './Buy'
 import {
@@ -18,7 +19,6 @@ import { Tabs } from './Tabs'
 import { buyAllTalismanResources } from './Talismans'
 import { visualUpdateAmbrosia, visualUpdateOcteracts, visualUpdateResearch } from './UpdateVisuals'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 type TimerInput =
   | 'prestige'
@@ -82,7 +82,9 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
       player.quarkstimer = player.quarkstimer.add(Decimal.mul(time, timeMultiplier))
       // Checks if this new time is greater than maximum, in which it will default to that time.
       // Otherwise returns itself.
-      player.quarkstimer = Decimal.gt(player.quarkstimer, maxQuarkTimer) ? new Decimal(maxQuarkTimer) : player.quarkstimer
+      player.quarkstimer = Decimal.gt(player.quarkstimer, maxQuarkTimer)
+        ? new Decimal(maxQuarkTimer)
+        : player.quarkstimer
       break
     }
     case 'goldenQuarks': {
@@ -200,7 +202,9 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
       if (Decimal.gte(stupidShit, 1000)) {
         stupidShit = Decimal.div(stupidShit, 1000).pow(0.5).mul(1000)
       }
-      player.ultimateProgress = player.ultimateProgress.add(G.ambrosiaTimer.mul(8).floor().div(8).mul(Decimal.mul(stupidShit, 0.02)))
+      player.ultimateProgress = player.ultimateProgress.add(
+        G.ambrosiaTimer.mul(8).floor().div(8).mul(Decimal.mul(stupidShit, 0.02))
+      )
       G.ambrosiaTimer = G.ambrosiaTimer.mod(0.125)
 
       let timeToAmbrosia = calculateRequiredBlueberryTime()
@@ -213,7 +217,8 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
       while (Decimal.gte(player.blueberryTime, timeToAmbrosia)) {
         const RNG = Math.random()
         const ambrosiaMult = Decimal.floor(Decimal.div(ambrosiaLuck, 100))
-        const luckMult = Decimal.lt(RNG, Decimal.div(ambrosiaLuck, 100).sub(Decimal.floor(Decimal.div(ambrosiaLuck, 100)))) ? 1 : 0
+        const luckMult =
+          Decimal.lt(RNG, Decimal.div(ambrosiaLuck, 100).sub(Decimal.floor(Decimal.div(ambrosiaLuck, 100)))) ? 1 : 0
         const bonusAmbrosia = (player.singularityChallenges.noAmbrosiaUpgrades.rewards.bonusAmbrosia) ? 1 : 0
         const ambrosiaToGain = Decimal.add(ambrosiaMult, luckMult).add(bonusAmbrosia)
 
@@ -226,7 +231,7 @@ export const addTimers = (input: TimerInput, time: Decimal | number) => {
 
         G.ambrosiaTimer = G.ambrosiaTimer.add(
           Decimal.mul(ambrosiaToGain, player.shopUpgrades.shopAmbrosiaAccelerator).mul(0.2)
-          .min(Decimal.mul(secondsToNextAmbrosia, maxAccelMultiplier))
+            .min(Decimal.mul(secondsToNextAmbrosia, maxAccelMultiplier))
         )
         timeToAmbrosia = calculateRequiredBlueberryTime()
       }

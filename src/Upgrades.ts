@@ -12,15 +12,18 @@ import { Globals as G, Upgrade } from './Variables'
 const crystalupgdesc: Record<number, () => Record<string, string>> = {
   3: () => ({
     max: format(
-      player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001).add(Decimal.mul(0.88, player.upgrades[122]).add(0.12)).mul(100)
-      ,
+      player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001).add(
+        Decimal.mul(0.88, player.upgrades[122]).add(0.12)
+      ).mul(100),
       2,
       true
     )
   }),
   4: () => ({
     max: format(
-      player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.05).add(10).add(Decimal.mul(calculateCorruptionPoints(), G.effectiveRuneSpiritPower[3]).div(20))
+      player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.05).add(10).add(
+        Decimal.mul(calculateCorruptionPoints(), G.effectiveRuneSpiritPower[3]).div(20)
+      )
     )
   })
 }
@@ -30,7 +33,7 @@ const constantUpgDesc: Record<number, () => Record<string, string>> = {
   2: () => ({
     max: format(
       Decimal.add(player.achievements[270], player.shopUpgrades.constantEX)
-      .add(G.challenge15Rewards.exponent.sub(1).mul(100))
+        .add(G.challenge15Rewards.exponent.sub(1).mul(100))
         .add(Decimal.mul(0.3, player.platonicUpgrades[18]))
         .add(10),
       2,
@@ -64,7 +67,7 @@ const upgradetexts = [
   () => format(Decimal.pow(1.15, G.freeAccelerator), 2),
   () => {
     let i = G.acceleratorEffect.root(3)
-    if (i.gte("e1000")) {
+    if (i.gte('e1000')) {
       i = i.log10().log10().div(3).pow(0.75).mul(3).pow10().pow10()
     }
     return format(i, 2)
@@ -72,7 +75,8 @@ const upgradetexts = [
   () => null,
   () => format(Decimal.min(1e125, player.transcendShards.add(1))),
   () => format(Decimal.min(1e200, player.transcendPoints.times(1e30).add(1))),
-  () => format(Decimal.mul((G.totalCoinOwned.add(1)), Decimal.min(1e30, Decimal.pow(1.008, G.totalCoinOwned))).pow(10), 2),
+  () =>
+    format(Decimal.mul(G.totalCoinOwned.add(1), Decimal.min(1e30, Decimal.pow(1.008, G.totalCoinOwned))).pow(10), 2),
   () => ({
     x: format(Decimal.floor(G.freeMultiplier.div(101).add(1))),
     y: format(Decimal.floor(G.freeAccelerator.div(101).add(5)))
@@ -103,7 +107,9 @@ const upgradetexts = [
       Decimal.min(
         1000,
         Decimal.floor(
-          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(160)
+          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(
+            player.fourthOwnedCoin
+          ).add(player.fifthOwnedCoin).div(160)
         )
       )
     ),
@@ -112,19 +118,23 @@ const upgradetexts = [
       Decimal.floor(
         Decimal.min(
           2000,
-          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(80)
+          Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(
+            player.fourthOwnedCoin
+          ).add(player.fifthOwnedCoin).div(80)
         )
       )
     ),
   () =>
     format(
-      Decimal.min(75, Decimal.floor(player.coins.add(1).log10().div(10))).add(Decimal.min(925, Decimal.floor(player.coins.add(1).log10().div(30))))
+      Decimal.min(75, Decimal.floor(player.coins.add(1).log10().div(10))).add(
+        Decimal.min(925, Decimal.floor(player.coins.add(1).log10().div(30)))
+      )
     ),
   () => format(Decimal.floor(G.totalCoinOwned.div(2000))),
   () => format(Decimal.min(500, Decimal.floor(player.prestigePoints.add(1).log10().div(25)))),
   () => format(G.totalAcceleratorBoost),
-  () => format(Decimal.floor(G.freeMultiplier.mul(3/103))),
-  () => format(Decimal.floor(G.freeMultiplier.mul(2/102))),
+  () => format(Decimal.floor(G.freeMultiplier.mul(3 / 103))),
+  () => format(Decimal.floor(G.freeMultiplier.mul(2 / 102))),
   () => format(Decimal.min('1e5000', Decimal.pow(player.prestigePoints, 1 / 500)), 2),
   () => format(Decimal.pow(Decimal.log(player.prestigePoints.add(10), 10), 2), 2),
   () => null,
@@ -160,15 +170,19 @@ const upgradetexts = [
     format(
       Decimal.pow(
         1.03,
-        player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(player.fourthOwnedParticles).add(player.fifthOwnedParticles)
+        player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(
+          player.fourthOwnedParticles
+        ).add(player.fifthOwnedParticles)
       ),
       2
     ),
   () => format(G.taxdivisor.log10().div(1000).floor().min(2500)),
   () => {
     const a = player.upgrades[69] > 0
-                ? G.reincarnationPointGain.max(10).log10().sqrt().max(G.reincarnationPointGain.max(10).log10().mul(1.5).pow(0.06).sub(1).pow10())
-                : G.reincarnationPointGain.max(10).log10().log10().add(1)
+      ? G.reincarnationPointGain.max(10).log10().sqrt().max(
+        G.reincarnationPointGain.max(10).log10().mul(1.5).pow(0.06).sub(1).pow10()
+      )
+      : G.reincarnationPointGain.max(10).log10().log10().add(1)
     const b = G.reincarnationPointGain.add(10).log10().sqrt()
     return {
       x: format(a, 2),
@@ -180,8 +194,10 @@ const upgradetexts = [
   () =>
     format(Decimal.min(
       50,
-      new Decimal(0.5).add(player.challengecompletions[6]).add(player.challengecompletions[7]).add(player.challengecompletions[8])
-      .add(player.challengecompletions[9]).add(player.challengecompletions[10]).mul(2)
+      new Decimal(0.5).add(player.challengecompletions[6]).add(player.challengecompletions[7]).add(
+        player.challengecompletions[8]
+      )
+        .add(player.challengecompletions[9]).add(player.challengecompletions[10]).mul(2)
     )),
   () => null,
   () => format(player.maxofferings.div(1e5).sqrt().min(1).mul(4).add(1), 2),
@@ -191,9 +207,10 @@ const upgradetexts = [
     format(
       Decimal.pow(
         Decimal.mul(player.researches[96], 0.00004).add(1.004),
-        Decimal.add(player.firstOwnedAnts, player.secondOwnedAnts).add(player.thirdOwnedAnts).add(player.fourthOwnedAnts).add(player.fifthOwnedAnts).add(player.sixthOwnedAnts).add(player.seventhOwnedAnts).add(player.eighthOwnedAnts)
-      )
-      ,
+        Decimal.add(player.firstOwnedAnts, player.secondOwnedAnts).add(player.thirdOwnedAnts).add(
+          player.fourthOwnedAnts
+        ).add(player.fifthOwnedAnts).add(player.sixthOwnedAnts).add(player.seventhOwnedAnts).add(player.eighthOwnedAnts)
+      ),
       3
     ),
   () => format(player.maxofferings.add(1).log10().pow(2).mul(0.005).add(1), 2, true),
@@ -369,11 +386,15 @@ const crystalupgeffect: Record<number, () => Record<string, string>> = {
     x: format(
       Decimal.pow(
         Decimal.min(
-Decimal.mul(0.88, player.upgrades[122]).add(Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.001)).add(0.12)
-            , Decimal.mul(player.crystalUpgrades[2], 0.001)
-          ).add(1),
-        Decimal.add(player.firstOwnedDiamonds, player.secondOwnedDiamonds).add(player.thirdOwnedDiamonds).add(player.fourthOwnedDiamonds)
-        .add(player.fifthOwnedDiamonds)
+          Decimal.mul(0.88, player.upgrades[122]).add(
+            Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.001)
+          ).add(0.12),
+          Decimal.mul(player.crystalUpgrades[2], 0.001)
+        ).add(1),
+        Decimal.add(player.firstOwnedDiamonds, player.secondOwnedDiamonds).add(player.thirdOwnedDiamonds).add(
+          player.fourthOwnedDiamonds
+        )
+          .add(player.fifthOwnedDiamonds)
       ),
       2,
       true
@@ -382,7 +403,9 @@ Decimal.mul(0.88, player.upgrades[122]).add(Decimal.mul(player.researches[129], 
   4: () => ({
     x: format(
       Decimal.min(
-        Decimal.add(player.commonFragments, 1).log(4).add(Decimal.mul(calculateCorruptionPoints(), G.effectiveRuneSpiritPower[3]).div(20)).mul(player.researches[129]).mul(0.05).add(10),
+        Decimal.add(player.commonFragments, 1).log(4).add(
+          Decimal.mul(calculateCorruptionPoints(), G.effectiveRuneSpiritPower[3]).div(20)
+        ).mul(player.researches[129]).mul(0.05).add(10),
         Decimal.mul(player.crystalUpgrades[3], 0.05)
       ),
       2,
@@ -394,7 +417,7 @@ Decimal.mul(0.88, player.upgrades[122]).add(Decimal.mul(player.researches[129], 
       Decimal.pow(
         1.01,
         (Decimal.add(player.challengecompletions[1], player.challengecompletions[2]).add(player.challengecompletions[3])
-        .add(player.challengecompletions[4]).add(player.challengecompletions[5])).mul(player.crystalUpgrades[4])
+          .add(player.challengecompletions[4]).add(player.challengecompletions[5])).mul(player.crystalUpgrades[4])
       ),
       2,
       true
@@ -410,9 +433,13 @@ const returnCrystalUpgEffect = (i: number) =>
 
 export const crystalupgradedescriptions = (i: number) => {
   const p = player.crystalUpgrades[i - 1]
-  const c = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor().add(player.upgrades[73] > 0.5 && player.currentChallenge.reincarnation !== 0 ? 10 : 0)
-  const q = Decimal.sub(player.crystalUpgrades[i - 1], c).add(0.5).pow(2).div(2).floor().mul(G.crystalUpgradeCostIncrement[i - 1]).add(G.crystalUpgradesCost[i - 1]).pow10()
-  
+  const c = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor().add(
+    player.upgrades[73] > 0.5 && player.currentChallenge.reincarnation !== 0 ? 10 : 0
+  )
+  const q = Decimal.sub(player.crystalUpgrades[i - 1], c).add(0.5).pow(2).div(2).floor().mul(
+    G.crystalUpgradeCostIncrement[i - 1]
+  ).add(G.crystalUpgradesCost[i - 1]).pow10()
+
   DOMCacheGetOrSet('crystalupgradedescription').textContent = returnCrystalUpgDesc(i)
   DOMCacheGetOrSet('crystalupgradeslevel1').innerHTML = i18next.t('buildings.crystalUpgrades.currentLevel', {
     amount: format(p, 0, true)
@@ -446,7 +473,8 @@ export const upgradeupdate = (num: number, fast?: boolean) => {
 }
 
 export const ascendBuildingDR = () => {
-  let sum = Decimal.add(player.ascendBuilding1.owned, player.ascendBuilding2.owned).add(player.ascendBuilding3.owned).add(player.ascendBuilding4.owned).add(player.ascendBuilding5.owned)
+  let sum = Decimal.add(player.ascendBuilding1.owned, player.ascendBuilding2.owned).add(player.ascendBuilding3.owned)
+    .add(player.ascendBuilding4.owned).add(player.ascendBuilding5.owned)
 
   if (sum.gte(1e5)) {
     sum = sum.div(1e5).pow(0.5).mul(1e5)
@@ -468,13 +496,13 @@ const constUpgEffect: Record<number, () => Record<string, string>> = {
   2: () => ({
     x: format(
       Decimal.pow(
-          Decimal.min(
-            Decimal.mul(10, player.achievements[270])
-          .add(Decimal.mul(player.shopUpgrades.constantEX, 10))
-          .add(Decimal.mul(player.platonicUpgrades[18], 3))
-          .add(G.challenge15Rewards.exponent.sub(1).mul(1000)).add(100)
-          
-          , player.constantUpgrades[2] ).mul(0.001).add(1),
+        Decimal.min(
+          Decimal.mul(10, player.achievements[270])
+            .add(Decimal.mul(player.shopUpgrades.constantEX, 10))
+            .add(Decimal.mul(player.platonicUpgrades[18], 3))
+            .add(G.challenge15Rewards.exponent.sub(1).mul(1000)).add(100),
+          player.constantUpgrades[2]
+        ).mul(0.001).add(1),
         ascendBuildingDR()
       ),
       2,
@@ -502,13 +530,18 @@ const constUpgEffect: Record<number, () => Record<string, string>> = {
   }),
   9: () => ({
     x: format(
-      Decimal.mul(Decimal.add(player.talismanShards, 1).log(4), Decimal.min(1, player.constantUpgrades[9])).mul(0.01).add(1),
+      Decimal.mul(Decimal.add(player.talismanShards, 1).log(4), Decimal.min(1, player.constantUpgrades[9])).mul(0.01)
+        .add(1),
       4,
       true
     )
   }),
   10: () => ({
-    x: format(player.ascendShards.add(1).log(4).mul(0.01).mul(Decimal.min(1, player.constantUpgrades[10])).add(1), 4, true)
+    x: format(
+      player.ascendShards.add(1).log(4).mul(0.01).mul(Decimal.min(1, player.constantUpgrades[10])).add(1),
+      4,
+      true
+    )
   })
 }
 

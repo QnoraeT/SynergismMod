@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateAmbrosiaGenerationSpeed } from './Calculate'
 import { pressedKeys } from './Hotkeys'
@@ -14,7 +15,6 @@ import {
 import { changeTabColor, hideStuff, revealStuff } from './UpdateHTML'
 import { assert, limitRange } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export enum Tabs {
   Buildings = 0,
@@ -109,6 +109,13 @@ const subtabInfo: Record<Tabs, SubTab> = {
           return player.achievements[183] > 0
         },
         buttonID: 'switchToTesseractBuilding'
+      },
+      {
+        subTabID: 'golden',
+        get unlocked () {
+          return Decimal.gte(player.singularityCount, 1)
+        },
+        buttonID: 'switchToGoldenQuarkBuilding'
       }
     ]
   },

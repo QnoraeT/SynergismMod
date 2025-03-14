@@ -1,5 +1,6 @@
 // August 22, 2022: Creation of Exportable Statistics.
 
+import Decimal from 'break_eternity.js'
 import ClipboardJS from 'clipboard'
 import i18next from 'i18next'
 import { totalachievementpoints } from './Achievements'
@@ -22,7 +23,6 @@ import type { Player } from './types/Synergism'
 import { Alert } from './UpdateHTML'
 import { sumContentsDecimal } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export const generateExportSummary = async (): Promise<void> => {
   const titleText = '===== SUMMARY STATS ====='
@@ -135,8 +135,12 @@ export const generateExportSummary = async (): Promise<void> => {
     octeract = `${octeract}Current Octeracts: ${format(player.wowOcteracts, 2, true)}\n`
     octeract = `${octeract}Current Per Second: ${format(octeractGainPerSecond(), 2, true)}\n`
     octeract = `${octeract}Total Generated Octeracts: ${format(player.totalWowOcteracts, 2, true)}\n`
-    octeract = `${octeract}Octeract Cube Bonus: ${format(Decimal.sub(calculateTotalOcteractCubeBonus(), 1).mul(100), 2, true)}%\n`
-    octeract = `${octeract}Octeract Quark Bonus: ${format(Decimal.sub(calculateTotalOcteractQuarkBonus(), 1).mul(100), 2, true)}%\n`
+    octeract = `${octeract}Octeract Cube Bonus: ${
+      format(Decimal.sub(calculateTotalOcteractCubeBonus(), 1).mul(100), 2, true)
+    }%\n`
+    octeract = `${octeract}Octeract Quark Bonus: ${
+      format(Decimal.sub(calculateTotalOcteractQuarkBonus(), 1).mul(100), 2, true)
+    }%\n`
   }
 
   // Singularity Subportion!

@@ -163,7 +163,7 @@ export const Globals: GlobalVariables = {
   totalMythosOwned: new Decimal(0),
 
   prestigePointGain: new Decimal(0),
-  challengeFivePower: new Decimal(1/3),
+  challengeFivePower: new Decimal(1 / 3),
 
   transcendPointGain: new Decimal(0),
   reincarnationPointGain: new Decimal(0),
@@ -175,9 +175,10 @@ export const Globals: GlobalVariables = {
   produceFifth: new Decimal(0),
   produceTotal: new Decimal(0),
 
+  coinSC1Start: new Decimal("ee33"),
   coinSC1Eff: new Decimal(1),
   coinAfterSc1: new Decimal(1),
-  
+
   coinProduceTrue: new Decimal(0),
 
   produceFirstDiamonds: new Decimal(0),
@@ -331,8 +332,22 @@ export const Globals: GlobalVariables = {
   runeBlessings: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
   runeSpirits: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
 
-  effectiveRuneBlessingPower: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
-  effectiveRuneSpiritPower: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
+  effectiveRuneBlessingPower: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
+  effectiveRuneSpiritPower: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
 
   blessingBaseCost: 1e6,
   spiritBaseCost: 1e20,
@@ -365,10 +380,55 @@ export const Globals: GlobalVariables = {
   platonicCubeBase: [2 / 4e6, 1.5 / 4e6, 1 / 4e6, 1 / 8e4, 1 / 1e4, 1 / 1e5, 1 / 1e4, 1 / 1e4],
   platonicDRPower: [1 / 5, 1 / 5, 1 / 5, 1 / 5, 1 / 16, 1 / 16, 1 / 4, 1 / 8],
 
-  cubeBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
-  tesseractBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
-  hypercubeBonusMultiplier: [null, new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
-  platonicBonusMultiplier: [new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1)],
+  cubeBonusMultiplier: [
+    null,
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1)
+  ],
+  tesseractBonusMultiplier: [
+    null,
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1)
+  ],
+  hypercubeBonusMultiplier: [
+    null,
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1)
+  ],
+  platonicBonusMultiplier: [
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1)
+  ],
 
   autoOfferingCounter: new Decimal(0),
   researchOrderByCost: [],
@@ -436,7 +496,28 @@ export const Globals: GlobalVariables = {
     0.00007
   ],
 
-  corruptionPointMultipliers: [1, 1.5, 2.1, 2.8, 3.6, 4.5, 5.5, 6.6, 7.8, 9, 10.3, 11.7, 13.2, 14.8, 16.5, 18.3, 20.1, 25, 35],
+  corruptionPointMultipliers: [
+    1,
+    1.5,
+    2.1,
+    2.8,
+    3.6,
+    4.5,
+    5.5,
+    6.6,
+    7.8,
+    9,
+    10.3,
+    11.7,
+    13.2,
+    14.8,
+    16.5,
+    18.3,
+    20.1,
+    25,
+    35
+  ],
+
   ascendBuildingProduction: {
     first: new Decimal(0),
     second: new Decimal(0),
@@ -444,6 +525,15 @@ export const Globals: GlobalVariables = {
     fourth: new Decimal(0),
     fifth: new Decimal(0)
   },
+
+  goldenQuarkBuildingProduction: {
+    first: new Decimal(0),
+    second: new Decimal(0),
+    third: new Decimal(0),
+    fourth: new Decimal(0),
+    fifth: new Decimal(0)
+  },
+
   freeUpgradeAccelerator: new Decimal(0),
   freeUpgradeMultiplier: new Decimal(0),
 
@@ -518,11 +608,10 @@ export const Globals: GlobalVariables = {
     ambrosiaAdditiveLuckMult: 1,
     ambrosiaLuck: 100,
     ambrosiaBlueberries: 0,
-    ambrosiaGenerationSpeed: 1,
+    ambrosiaGenerationSpeed: 1
   },
 
   currentSingChallenge: undefined
 }
 
 export const blankGlobals = { ...Globals }
-

@@ -136,7 +136,12 @@ export abstract class Cube {
   }
 
   /** @description Check how many cubes you need to gain an additional quark from opening */
-  checkCubesToNextQuark (base: DecimalSource, mult: DecimalSource, quarks: DecimalSource, cubes: DecimalSource): Decimal {
+  checkCubesToNextQuark (
+    base: DecimalSource,
+    mult: DecimalSource,
+    quarks: DecimalSource,
+    cubes: DecimalSource
+  ): Decimal {
     // General quark multiplier from other in-game features
     // Multiplier from passed parameter
     const multiplier = Decimal.mul(mult, quarkHandler().cubeMult)
@@ -214,7 +219,12 @@ export class WowCubes extends Cube {
 
     // If you're opening more than 20 cubes, it will consume all cubes until remainder mod 20, giving expected values.
     for (const key of keys) {
-      player.cubeBlessings[key] = Decimal.add(player.cubeBlessings[key], Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1).mul(toSpendDiv20).mul(blessings[key].weight))
+      player.cubeBlessings[key] = Decimal.add(
+        player.cubeBlessings[key],
+        Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1).mul(toSpendDiv20).mul(
+          blessings[key].weight
+        )
+      )
     }
 
     // Then, the remaining cubes will be opened, simulating the probability [RNG Element]
@@ -222,7 +232,10 @@ export class WowCubes extends Cube {
       const num = 100 * Math.random()
       for (const key of keys) {
         if (blessings[key].pdf(num)) {
-          player.cubeBlessings[key] = Decimal.add(player.cubeBlessings[key], Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1))
+          player.cubeBlessings[key] = Decimal.add(
+            player.cubeBlessings[key],
+            Decimal.floor(CalcECC('ascension', player.challengecompletions[12])).add(1)
+          )
         }
       }
     }
@@ -255,15 +268,20 @@ export class WowTesseracts extends Cube {
 
     // If you're opening more than 20 Tesseracts, it will consume all Tesseracts until remainder mod 20, giving expected values.
     for (const key in player.tesseractBlessings) {
-      player.tesseractBlessings[key as keyof Player['tesseractBlessings']] = Decimal.add(player.tesseractBlessings[key as keyof Player['tesseractBlessings']], 
-        Decimal.mul(blessings[key as keyof typeof blessings].weight, toSpendDiv20))
+      player.tesseractBlessings[key as keyof Player['tesseractBlessings']] = Decimal.add(
+        player.tesseractBlessings[key as keyof Player['tesseractBlessings']],
+        Decimal.mul(blessings[key as keyof typeof blessings].weight, toSpendDiv20)
+      )
     }
     // Then, the remaining tesseract will be opened, simulating the probability [RNG Element]
     for (let i = 0; i < toSpendModulo.toNumber(); i++) {
       const num = 100 * Math.random()
       for (const key in player.tesseractBlessings) {
         if (blessings[key as keyof typeof blessings].pdf(num)) {
-          player.tesseractBlessings[key as keyof Player['tesseractBlessings']] = Decimal.add(player.tesseractBlessings[key as keyof Player['tesseractBlessings']], 1)
+          player.tesseractBlessings[key as keyof Player['tesseractBlessings']] = Decimal.add(
+            player.tesseractBlessings[key as keyof Player['tesseractBlessings']],
+            1
+          )
         }
       }
     }
@@ -298,15 +316,20 @@ export class WowHypercubes extends Cube {
 
     // If you're opening more than 20 Hypercubes, it will consume all Hypercubes until remainder mod 20, giving expected values.
     for (const key in player.hypercubeBlessings) {
-      player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']] = Decimal.add(player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']], 
-        Decimal.mul(blessings[key as keyof typeof blessings].weight, toSpendDiv20))
+      player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']] = Decimal.add(
+        player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']],
+        Decimal.mul(blessings[key as keyof typeof blessings].weight, toSpendDiv20)
+      )
     }
     // Then, the remaining hypercubes will be opened, simulating the probability [RNG Element]
     for (let i = 0; i < toSpendModulo.toNumber(); i++) {
       const num = 100 * Math.random()
       for (const key in player.hypercubeBlessings) {
         if (blessings[key as keyof typeof blessings].pdf(num)) {
-          player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']] = Decimal.add(player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']], 1)
+          player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']] = Decimal.add(
+            player.hypercubeBlessings[key as keyof Player['hypercubeBlessings']],
+            1
+          )
         }
       }
     }
@@ -341,10 +364,15 @@ export class WowPlatonicCubes extends Cube {
 
     // If you're opening more than 40,000 Platonics, it will consume all Platonics until remainder mod 40,000, giving expected values.
     for (const key in player.platonicBlessings) {
-      player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(player.platonicBlessings[key as keyof Player['platonicBlessings']], 
-        Decimal.mul(platonicBlessings[key as keyof typeof platonicBlessings].weight, toSpendDiv40000))
+      player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(
+        player.platonicBlessings[key as keyof Player['platonicBlessings']],
+        Decimal.mul(platonicBlessings[key as keyof typeof platonicBlessings].weight, toSpendDiv40000)
+      )
       if (platonicBlessings[key as keyof typeof platonicBlessings].weight === 1 && player.cubeUpgrades[64].gt(0)) {
-        player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(player.platonicBlessings[key as keyof Player['platonicBlessings']], toSpendDiv40000) // Doubled!
+        player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(
+          player.platonicBlessings[key as keyof Player['platonicBlessings']],
+          toSpendDiv40000
+        ) // Doubled!
       }
     }
     // Then, the remaining hypercube will be opened, simulating the probability [RNG Element]
@@ -352,7 +380,10 @@ export class WowPlatonicCubes extends Cube {
     for (let i = 0; i < RNGesus.length; i++) {
       const num = Math.random()
       if (Decimal.div(toSpendModulo, 40000).gte(num) && toSpendModulo.neq(0)) {
-        player.platonicBlessings[RNGesus[i] as keyof Player['platonicBlessings']] = Decimal.add(player.platonicBlessings[RNGesus[i] as keyof Player['platonicBlessings']], 1)
+        player.platonicBlessings[RNGesus[i] as keyof Player['platonicBlessings']] = Decimal.add(
+          player.platonicBlessings[RNGesus[i] as keyof Player['platonicBlessings']],
+          1
+        )
         toSpendModulo = Decimal.sub(toSpendModulo, 1)
       }
     }
@@ -372,14 +403,17 @@ export class WowPlatonicCubes extends Cube {
       const num = 100 * Math.random()
       for (const key in player.platonicBlessings) {
         if (platonicBlessings[key as keyof typeof platonicBlessings].pdf(num)) {
-          player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(player.platonicBlessings[key as keyof Player['platonicBlessings']], 1)
+          player.platonicBlessings[key as keyof Player['platonicBlessings']] = Decimal.add(
+            player.platonicBlessings[key as keyof Player['platonicBlessings']],
+            1
+          )
         }
       }
     }
     calculatePlatonicBlessings()
     if (player.achievements[271] > 0) {
-      const extraHypercubes = 
-        Decimal.mul(toSpend, player.ascendShards.add(1).log10().sub(1e5).div(9e5).min(1).max(0)).floor()
+      const extraHypercubes = Decimal.mul(toSpend, player.ascendShards.add(1).log10().sub(1e5).div(9e5).min(1).max(0))
+        .floor()
 
       player.wowHypercubes.open(extraHypercubes, false, true)
     }

@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from '../Cache/DOM'
 import { CalcCorruptionStuff } from '../Calculate'
@@ -8,7 +9,6 @@ import { toggleAntAutoSacrifice, toggleAutoChallengeRun, toggleAutoResearch, tog
 import { visualUpdateCubes } from '../UpdateVisuals'
 import { getElementById, stripIndents } from '../Utility'
 import { Globals as G } from '../Variables'
-import Decimal from 'break_eternity.js'
 
 /**
  * An adaptation of @see {https://github.com/blaze33/synergism.dashboard/} for the new plugin/Typescript system

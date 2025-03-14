@@ -67,7 +67,7 @@ export const areward = (i: number): string => {
       Decimal.pow(
         0.9925,
         Decimal.add(player.challengecompletions[6], player.challengecompletions[7]).add(player.challengecompletions[8])
-        .add(player.challengecompletions[9]).add(player.challengecompletions[10])
+          .add(player.challengecompletions[9]).add(player.challengecompletions[10])
       ),
       4
     ),
@@ -307,7 +307,8 @@ export const challengeachievementcheck = (i: number, auto?: boolean) => {
   }
 
   if (
-    Decimal.gte(player.challengecompletions[10], 50) && i === 11 && player.usedCorruptions[7] >= 5 && player.achievements[247] < 1
+    Decimal.gte(player.challengecompletions[10], 50) && i === 11 && player.usedCorruptions[7] >= 5
+    && player.achievements[247] < 1
   ) {
     achievementaward(247)
   }

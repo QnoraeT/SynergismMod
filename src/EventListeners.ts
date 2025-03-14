@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementdescriptions, achievementpointvalues } from './Achievements'
 import {
@@ -16,10 +17,11 @@ import {
   resetBlueberryTree
 } from './BlueberryUpgrades'
 import {
-  buyMaxBoostAccel,
-  buyMaxAccels,
   buyAllBlessings,
   buyCrystalUpgrades,
+  buyGoldenQuarkBuilding,
+  buyMaxAccels,
+  buyMaxBoostAccel,
   buyMaxMuls,
   buyParticleBuilding,
   buyProducer,
@@ -94,6 +96,7 @@ import {
   toggleAutoChallengesIgnore,
   toggleautoenhance,
   toggleautofortify,
+  toggleAutoGoldenQuarks,
   toggleautoopensCubes,
   toggleAutoResearch,
   toggleAutoResearchMode,
@@ -128,7 +131,6 @@ import {
   upgradedescriptions
 } from './Upgrades'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 /* STYLE GUIDE */
 /*
@@ -242,7 +244,7 @@ export const generateEventHandlers = () => {
 
   // BUILDINGS TAB
   // Part 1: Upper portion (Subtab toggle)
-  const buildingTypes = ['Coin', 'Diamond', 'Mythos', 'Particle', 'Tesseract']
+  const buildingTypes = ['Coin', 'Diamond', 'Mythos', 'Particle', 'Tesseract', 'GoldenQuark']
   for (let index = 0; index < buildingTypes.length; index++) {
     DOMCacheGetOrSet(
       `switchTo${buildingTypes[index]}Building`
@@ -322,6 +324,18 @@ export const generateEventHandlers = () => {
       () => toggleAutoTesseracts(index + 1)
     )
   }
+
+    // GoldenQuark Buildings
+    for (let index = 0; index < 5; index++) {
+      DOMCacheGetOrSet(`buyGoldenQuarks${index + 1}`).addEventListener(
+        'click',
+        () => buyGoldenQuarkBuilding((index + 1) as OneToFive)
+      )
+      DOMCacheGetOrSet(`goldenQuarkAutoToggle${index + 1}`).addEventListener(
+        'click',
+        () => toggleAutoGoldenQuarks(index + 1)
+      )
+    }
 
   // Constant Upgrades
   for (let index = 0; index < 10; index++) {

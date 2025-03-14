@@ -212,10 +212,9 @@ export const loadStatisticsAccelerator = () => {
   }`
   DOMCacheGetOrSet('sA2').textContent = `+${
     format(
-
-      Decimal.add(G.cubeBonusMultiplier[1], 4).add(2 * player.researches[18]).add(2 * player.researches[19]).add(3 * player.researches[20]).mul(G.totalAcceleratorBoost)
-
-          ,
+      Decimal.add(G.cubeBonusMultiplier[1], 4).add(2 * player.researches[18]).add(2 * player.researches[19]).add(
+        3 * player.researches[20]
+      ).mul(G.totalAcceleratorBoost),
       0,
       false
     )
@@ -321,11 +320,11 @@ export const loadStatisticsMultiplier = () => {
   }`
   DOMCacheGetOrSet('sM2').textContent = `+${
     format(
-      Decimal.floor( 
+      Decimal.floor(
         Decimal.mul(
-          Decimal.mul(G.rune2level, G.effectiveLevelMult).div(10).floor(), 
+          Decimal.mul(G.rune2level, G.effectiveLevelMult).div(10).floor(),
           Decimal.mul(G.rune2level, G.effectiveLevelMult).div(10).add(10).floor()
-        ).div(2) 
+        ).div(2)
       ),
       0,
       true
@@ -504,8 +503,9 @@ export const loadQuarkMultiplier = () => {
   }` // Event
   DOMCacheGetOrSet('sGQM11').textContent = `x${
     format(
-      Decimal.gt(calculateEffectiveIALevel(), 0) ?
-      calculateEffectiveIALevel().mul(0.15/75).add(1.1) : 1.0,
+      Decimal.gt(calculateEffectiveIALevel(), 0)
+        ? calculateEffectiveIALevel().mul(0.15 / 75).add(1.1)
+        : 1.0,
       3,
       true
     )
@@ -611,7 +611,10 @@ export const loadQuarkMultiplier = () => {
       //     * Math.floor(
       //       1 + Math.log10(Math.max(1, player.hepteractCrafts.quark.BAL))
       //     ),
-      Decimal.mul(player.octeractUpgrades.octeractQuarkGain2.level, Decimal.div(player.octeractUpgrades.octeractQuarkGain.level, 199).floor()).mul(Decimal.max(player.hepteractCrafts.quark.BAL, 1).log10().add(1).floor()).mul(0.0001).add(1),
+      Decimal.mul(
+        player.octeractUpgrades.octeractQuarkGain2.level,
+        Decimal.div(player.octeractUpgrades.octeractQuarkGain.level, 199).floor()
+      ).mul(Decimal.max(player.hepteractCrafts.quark.BAL, 1).log10().add(1).floor()).mul(0.0001).add(1),
       3,
       true
     )
@@ -659,7 +662,7 @@ export const loadQuarkMultiplier = () => {
     )
   }`
   DOMCacheGetOrSet('sGQM31').textContent = `x${format(calculateCashGrabQuarkBonus(), 3, true)}`
-  DOMCacheGetOrSet('sGQM32').textContent = `x${format(player.highestSingularityCount === 0 ? 1.25 : 1, 2, true)}` //Buff in s0
+  DOMCacheGetOrSet('sGQM32').textContent = `x${format(player.highestSingularityCount === 0 ? 1.25 : 1, 2, true)}` // Buff in s0
   DOMCacheGetOrSet('sGQMT').textContent = `x${
     format(
       player.worlds.applyBonus(1),
@@ -744,7 +747,7 @@ export const loadStatisticsCubeMultipliers = () => {
     31: { acc: 2, desc: 'Module- Hyperflux' },
     32: { acc: 2, desc: '20 Ascensions X20 Bonus [EXALT ONLY]' },
     33: { acc: 2, desc: 'Cash Grab ULTIMATE' },
-    34: { acc: 2, desc: 'Shop EX ULTIMATE' },
+    34: { acc: 2, desc: 'Shop EX ULTIMATE' }
   }
   for (let i = 0; i < arr0.length; i++) {
     const statGCMi = DOMCacheGetOrSet(`statGCM${i + 1}`)
@@ -1046,35 +1049,38 @@ export const loadStatisticsOfferingMultipliers = () => {
 export const loadObtainiumMultipliers = () => {
   DOMCacheGetOrSet('sObt1').textContent = `x${
     format(
-      player.upgrades[69] > 0 ?
-      Math.min(
-        10,
-        new Decimal(
-          Decimal.pow(Decimal.log(G.reincarnationPointGain.add(10), 10), 0.5)
-        ).toNumber()
-      ) : 1,
+      player.upgrades[69] > 0
+        ? Math.min(
+          10,
+          new Decimal(
+            Decimal.pow(Decimal.log(G.reincarnationPointGain.add(10), 10), 0.5)
+          ).toNumber()
+        )
+        : 1,
       2
     )
   }`
   DOMCacheGetOrSet('sObt2').textContent = `x${
     format(
-      player.upgrades[72] > 0 ?
-      Decimal.min(
-        50,
-        new Decimal(1)
-          .add(Decimal.mul(player.challengecompletions[6], 2))
-          .add(Decimal.mul(player.challengecompletions[7], 2))
-          .add(Decimal.mul(player.challengecompletions[8], 2))
-          .add(Decimal.mul(player.challengecompletions[9], 2))
-          .add(Decimal.mul(player.challengecompletions[10], 2))
-      ) : 1,
+      player.upgrades[72] > 0
+        ? Decimal.min(
+          50,
+          new Decimal(1)
+            .add(Decimal.mul(player.challengecompletions[6], 2))
+            .add(Decimal.mul(player.challengecompletions[7], 2))
+            .add(Decimal.mul(player.challengecompletions[8], 2))
+            .add(Decimal.mul(player.challengecompletions[9], 2))
+            .add(Decimal.mul(player.challengecompletions[10], 2))
+        )
+        : 1,
       2
     )
   }`
   DOMCacheGetOrSet('sObt3').textContent = `x${
     format(
-      player.upgrades[74] > 0 ?
-      Decimal.min(1, Decimal.pow(Decimal.div(player.maxofferings, 100000), 0.5)).mul(4).add(1): 1,
+      player.upgrades[74] > 0
+        ? Decimal.min(1, Decimal.pow(Decimal.div(player.maxofferings, 100000), 0.5)).mul(4).add(1)
+        : 1,
       2
     )
   }`
@@ -1116,23 +1122,25 @@ export const loadObtainiumMultipliers = () => {
   }`
   DOMCacheGetOrSet('sObt10').textContent = `x${
     format(
-      Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1).mul(Decimal.div(player.researches[84], 200)).add(1).mul(Decimal.mul(G.rune5level, G.effectiveLevelMult).div(200)).add(1),
+      Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400).add(1).mul(
+        Decimal.div(player.researches[84], 200)
+      ).add(1).mul(Decimal.mul(G.rune5level, G.effectiveLevelMult).div(200)).add(1),
       3
     )
   }`
   DOMCacheGetOrSet('sObt11').textContent = `x${
     format(
       1
-    + 0.01 * player.achievements[84]
-    + 0.03 * player.achievements[91]
-    + 0.05 * player.achievements[98]
-    + 0.07 * player.achievements[105]
-    + 0.09 * player.achievements[112]
-    + 0.11 * player.achievements[119]
-    + 0.13 * player.achievements[126]
-    + 0.15 * player.achievements[133]
-    + 0.17 * player.achievements[140]
-    + 0.19 * player.achievements[147],
+        + 0.01 * player.achievements[84]
+        + 0.03 * player.achievements[91]
+        + 0.05 * player.achievements[98]
+        + 0.07 * player.achievements[105]
+        + 0.09 * player.achievements[112]
+        + 0.11 * player.achievements[119]
+        + 0.13 * player.achievements[126]
+        + 0.15 * player.achievements[133]
+        + 0.17 * player.achievements[140]
+        + 0.19 * player.achievements[147],
       2
     )
   }`
@@ -1222,15 +1230,17 @@ export const loadObtainiumMultipliers = () => {
   }`
   DOMCacheGetOrSet('sObt26').textContent = `+${
     format(
-      (Decimal.gte(player.reincarnationcounter, 2) ? 1 * player.researches[63] : 1) +
-      (Decimal.gte(player.reincarnationcounter, 5) ? 2 * player.researches[64] : 1),
+      (Decimal.gte(player.reincarnationcounter, 2) ? 1 * player.researches[63] : 1)
+        + (Decimal.gte(player.reincarnationcounter, 5) ? 2 * player.researches[64] : 1),
       2
     )
   }`
   DOMCacheGetOrSet('sObt27').textContent = `x${
     format(
-      (Decimal.gte(player.reincarnationcounter, 5) ? Decimal.max(1, Decimal.div(player.reincarnationcounter, 10)) : new Decimal(1))
-      .mul(Decimal.min(1, Decimal.pow(Decimal.div(player.reincarnationcounter, 10), 2))),
+      (Decimal.gte(player.reincarnationcounter, 5)
+        ? Decimal.max(1, Decimal.div(player.reincarnationcounter, 10))
+        : new Decimal(1))
+        .mul(Decimal.min(1, Decimal.pow(Decimal.div(player.reincarnationcounter, 10), 2))),
       3
     )
   }`
@@ -1238,14 +1248,16 @@ export const loadObtainiumMultipliers = () => {
     format(
       Decimal.pow(
         player.transcendShards.add(1).log10().div(300),
-        2,
+        2
       ),
       2
     )
   }`
   DOMCacheGetOrSet('sObt29').textContent = `^${
     format(
-      Decimal.add(player.researchPoints, 10).log10().min(100).mul(player.platonicUpgrades[9]).mul(0.09).add(1).mul(G.illiteracyPower[player.usedCorruptions[5]]).min(1),
+      Decimal.add(player.researchPoints, 10).log10().min(100).mul(player.platonicUpgrades[9]).mul(0.09).add(1).mul(
+        G.illiteracyPower[player.usedCorruptions[5]]
+      ).min(1),
       3
     )
   }`
@@ -1365,15 +1377,16 @@ export const loadObtainiumMultipliers = () => {
   }`
   DOMCacheGetOrSet('sObt49').textContent = `x${
     format(
-      player.currentChallenge.ascension === 15 ?
-      Decimal.mul(7, player.cubeUpgrades[62]).add(1) : 1,
+      player.currentChallenge.ascension === 15
+        ? Decimal.mul(7, player.cubeUpgrades[62]).add(1)
+        : 1,
       2
     )
   }`
   DOMCacheGetOrSet('sObt50').textContent = `x${
     format(
       1
-    + 0.001 * +player.blueberryUpgrades.ambrosiaObtainium1.bonus.obtainiumMult,
+        + 0.001 * +player.blueberryUpgrades.ambrosiaObtainium1.bonus.obtainiumMult,
       2
     )
   }`
@@ -1397,22 +1410,25 @@ export const loadObtainiumMultipliers = () => {
   }`
   DOMCacheGetOrSet('sObt54').textContent = `^${
     format(
-      player.usedCorruptions[5] >= 15 ?
-         1 / 4 : 1,
+      player.usedCorruptions[5] >= 15
+        ? 1 / 4
+        : 1,
       2
     )
   }`
   DOMCacheGetOrSet('sObt55').textContent = `^${
     format(
-      player.usedCorruptions[5] >= 16 ?
-        1 / 4: 1,
+      player.usedCorruptions[5] >= 16
+        ? 1 / 4
+        : 1,
       2
     )
   }`
   DOMCacheGetOrSet('sObt56').textContent = `x${
     format(
-      player.currentChallenge.ascension === 14 ?
-        0 : 1,
+      player.currentChallenge.ascension === 14
+        ? 0
+        : 1,
       2
     )
   }`
@@ -1423,7 +1439,6 @@ export const loadObtainiumMultipliers = () => {
     )
   }`
 }
-
 
 export const loadPowderMultiplier = () => {
   const arr0 = calculatePowderConversion().list
@@ -1837,7 +1852,7 @@ export const c15RewardUpdate = () => {
   if (e.gte(exponentRequirements[22])) {
     // Ascension Score [10b]
     G.challenge15Rewards[keys[22]] = e.div(1.0e10).root(4).mul(0.25).add(1)
-    if (G.challenge15Rewards[keys[22]].gte(80)){
+    if (G.challenge15Rewards[keys[22]].gte(80)) {
       G.challenge15Rewards[keys[22]] = G.challenge15Rewards[keys[22]].div(80).sqrt().mul(80)
     }
   }

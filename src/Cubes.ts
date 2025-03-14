@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateCubeBlessings, calculateCubicSumDataDecimal, calculateSummationNonLinearDecimal } from './Calculate'
@@ -7,7 +8,6 @@ import { format, player } from './Synergism'
 import { revealStuff } from './UpdateHTML'
 import { upgradeupdate } from './Upgrades'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export interface IMultiBuy {
   levelCanBuy: Decimal
@@ -239,7 +239,8 @@ export const autoBuyCubeUpgrades = () => {
         const maxLevel = getCubeMax(value[0].toNumber())
         const metaData = getCubeCost(value[0].toNumber(), true)
         if (
-          Decimal.gte(player.wowCubes.value, metaData.cost) && Decimal.lt(player.cubeUpgrades[value[0].toNumber()]!, maxLevel)
+          Decimal.gte(player.wowCubes.value, metaData.cost)
+          && Decimal.lt(player.cubeUpgrades[value[0].toNumber()]!, maxLevel)
           && (player.cubeUpgradesBuyMaxToggle || Decimal.eq(maxLevel, metaData.levelCanBuy))
         ) {
           buyCubeUpgrades(value[0].toNumber(), true, true)

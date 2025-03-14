@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateAmbrosiaGenerationSpeed, calculateAmbrosiaLuck, calculateBlueberryInventory } from './Calculate'
@@ -7,7 +8,6 @@ import { format, player } from './Synergism'
 import type { Player } from './types/Synergism'
 import { Alert, Prompt, revealStuff } from './UpdateHTML'
 import { toOrdinal } from './Utility'
-import Decimal from 'break_eternity.js'
 import { Globals as G } from './Variables'
 
 export const updateSingularityPenalties = (): void => {
@@ -1402,8 +1402,12 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaBlueberries = calculateBlueberryInventory().value},
-      () => {G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaBlueberries = calculateBlueberryInventory().value
+      },
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   },
   singAmbrosiaLuck: {
@@ -1423,7 +1427,9 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   singAmbrosiaLuck2: {
@@ -1442,7 +1448,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   singAmbrosiaLuck3: {
@@ -1461,7 +1469,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   singAmbrosiaLuck4: {
@@ -1480,7 +1490,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
+      }
     ]
   },
   singAmbrosiaGeneration: {
@@ -1500,7 +1512,9 @@ export const singularityData: Record<
     specialCostForm: 'Exponential2',
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   },
   singAmbrosiaGeneration2: {
@@ -1519,7 +1533,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   },
   singAmbrosiaGeneration3: {
@@ -1538,7 +1554,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   },
   singAmbrosiaGeneration4: {
@@ -1557,7 +1575,9 @@ export const singularityData: Record<
     },
     qualityOfLife: true,
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value}
+      () => {
+        G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
+      }
     ]
   }
 }
@@ -2408,9 +2428,11 @@ export const getGoldenQuarkCost = (): {
   costReduction = costReduction.mul(Decimal.sub(1, Decimal.mul(player.cubeUpgrades[60], 0.00003)))
   costReduction = costReduction.mul(+player.singularityUpgrades.goldenQuarks2.getEffect().bonus)
   costReduction = costReduction.mul(+player.octeractUpgrades.octeractGQCostReduce.getEffect().bonus)
-  costReduction = costReduction.mul(player.highestSingularityCount >= 100
-    ? 1 - (0.5 * player.highestSingularityCount) / 250
-    : 1)
+  costReduction = costReduction.mul(
+    player.highestSingularityCount >= 100
+      ? 1 - (0.5 * player.highestSingularityCount) / 250
+      : 1
+  )
 
   let perkDivisor = 1
   if (player.highestSingularityCount >= 200) {

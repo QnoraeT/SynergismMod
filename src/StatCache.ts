@@ -306,7 +306,9 @@ export class AmbrosiaLuckCache extends AdditionCache<AmbrosialLuck> {
         break
       }
       case 'ShopOcteractAmbrosiaLuck': {
-        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(player.shopUpgrades.shopOcteractAmbrosiaLuck).toNumber()
+        this.vals[key] = player.totalWowOcteracts.add(1).log10().floor().add(1).mul(
+          player.shopUpgrades.shopOcteractAmbrosiaLuck
+        ).toNumber()
         break
       }
       case 'Exalt5': {

@@ -186,7 +186,7 @@ export const eventCheck = async () => {
   if (G.isEvent !== updateIsEventCheck) {
     revealStuff()
     G.ambrosiaCurrStats.ambrosiaAdditiveLuckMult = calculateAdditiveLuckMult().value
-    G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value  
+    G.ambrosiaCurrStats.ambrosiaLuck = calculateAmbrosiaLuck().value
     G.ambrosiaCurrStats.ambrosiaGenerationSpeed = calculateAmbrosiaGenerationSpeed().value
   }
 }

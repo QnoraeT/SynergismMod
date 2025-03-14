@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -5,7 +6,6 @@ import { calculateRuneLevels } from './Calculate'
 import { CalcECC } from './Challenges'
 import { format, player } from './Synergism'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 const talismanResourceCosts = {
   shard: {
@@ -61,13 +61,16 @@ const getTalismanResourceInfo = (
 
   const maxBuyObtainium = Decimal.max(1, Decimal.floor(player.researchPoints.div(obtainiumCost)))
   const maxBuyOffering = Decimal.max(1, Decimal.floor(player.runeshards.div(offeringCost)))
-  const amountToBuy = Decimal.max(1, Decimal.floor(Decimal.mul(percentage, Decimal.min(maxBuyObtainium, maxBuyOffering)).div(100)))
+  const amountToBuy = Decimal.max(
+    1,
+    Decimal.floor(Decimal.mul(percentage, Decimal.min(maxBuyObtainium, maxBuyOffering)).div(100))
+  )
   const canBuy = Decimal.lte(obtainiumCost, player.researchPoints) && Decimal.lte(offeringCost, player.runeshards)
   return {
     canBuy, // Boolean, if false will not buy any fragments
     buyAmount: amountToBuy, // Integer, will buy as specified above.
     obtainiumCost: Decimal.mul(obtainiumCost, amountToBuy), // Integer, cost in obtainium to buy (buyAmount) resource
-    offeringCost:  Decimal.mul(offeringCost, amountToBuy) // Integer, cost in offerings to buy (buyAmount) resource
+    offeringCost: Decimal.mul(offeringCost, amountToBuy) // Integer, cost in offerings to buy (buyAmount) resource
   }
 }
 
@@ -461,7 +464,7 @@ export const buyTalismanLevels = (i: number, auto = false): boolean => {
     if (Decimal.lt(player.talismanLevels[i], calculateMaxTalismanLevel(i))) {
       if (
         player.talismanShards
-         .gte(priceMult * Math.max(0, Math.floor(1 + 1 / 8 * Math.pow(player.talismanLevels[i], 3))))
+          .gte(priceMult * Math.max(0, Math.floor(1 + 1 / 8 * Math.pow(player.talismanLevels[i], 3))))
       ) {
         checkSum++
       }
@@ -504,13 +507,27 @@ export const buyTalismanLevels = (i: number, auto = false): boolean => {
     }
 
     if (checkSum === 7) {
-      player.talismanShards = player.talismanShards.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 8 * Math.pow(player.talismanLevels[i], 3))))
-      player.commonFragments = player.commonFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 32 * Math.pow(player.talismanLevels[i] - 30, 3))))
-      player.uncommonFragments = player.uncommonFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 384 * Math.pow(player.talismanLevels[i] - 60, 3))))
-      player.rareFragments = player.rareFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 500 * Math.pow(player.talismanLevels[i] - 90, 3))))
-      player.epicFragments = player.epicFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 375 * Math.pow(player.talismanLevels[i] - 120, 3))))
-      player.legendaryFragments = player.legendaryFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 192 * Math.pow(player.talismanLevels[i] - 150, 3))))
-      player.mythicalFragments = player.mythicalFragments.sub(priceMult * Math.max(0, Math.floor(1 + 1 / 1280 * Math.pow(player.talismanLevels[i] - 150, 3))))
+      player.talismanShards = player.talismanShards.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 8 * Math.pow(player.talismanLevels[i], 3)))
+      )
+      player.commonFragments = player.commonFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 32 * Math.pow(player.talismanLevels[i] - 30, 3)))
+      )
+      player.uncommonFragments = player.uncommonFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 384 * Math.pow(player.talismanLevels[i] - 60, 3)))
+      )
+      player.rareFragments = player.rareFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 500 * Math.pow(player.talismanLevels[i] - 90, 3)))
+      )
+      player.epicFragments = player.epicFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 375 * Math.pow(player.talismanLevels[i] - 120, 3)))
+      )
+      player.legendaryFragments = player.legendaryFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 192 * Math.pow(player.talismanLevels[i] - 150, 3)))
+      )
+      player.mythicalFragments = player.mythicalFragments.sub(
+        priceMult * Math.max(0, Math.floor(1 + 1 / 1280 * Math.pow(player.talismanLevels[i] - 150, 3)))
+      )
       player.talismanLevels[i] += 1
       hasPurchased = true
     } else {

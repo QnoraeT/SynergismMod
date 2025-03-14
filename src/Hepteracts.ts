@@ -156,11 +156,18 @@ export class HepteractCraft {
       // The type of player[item] is number | Decimal | Cube.
       if (item === 'worlds') {
         itemLimits.push(
-          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player] ?? 1)).mul(this.DISCOUNT)
+          Decimal.floor(
+            Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player] ?? 1)
+          ).mul(this.DISCOUNT)
         )
       } else {
         itemLimits.push(
-          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, Decimal.mul(craftCostMulti, this.OTHER_CONVERSIONS[item as keyof Player]!)) ).mul(this.DISCOUNT)
+          Decimal.floor(
+            Decimal.div(
+              player[item as keyof Player] as Decimal,
+              Decimal.mul(craftCostMulti, this.OTHER_CONVERSIONS[item as keyof Player]!)
+            )
+          ).mul(this.DISCOUNT)
         )
       }
     }
@@ -223,7 +230,9 @@ export class HepteractCraft {
     this.BAL = Decimal.min(heptCap, Decimal.add(this.BAL, amountToCraft))
 
     // Subtract spent items from player
-    player.wowAbyssals = player.wowAbyssals.sub(Decimal.mul(amountToCraft, this.HEPTERACT_CONVERSION).mul(craftCostMulti))
+    player.wowAbyssals = player.wowAbyssals.sub(
+      Decimal.mul(amountToCraft, this.HEPTERACT_CONVERSION).mul(craftCostMulti)
+    )
 
     if (player.wowAbyssals.lt(0)) {
       player.wowAbyssals = new Decimal(0)
@@ -231,13 +240,14 @@ export class HepteractCraft {
 
     for (const item of (Object.keys(this.OTHER_CONVERSIONS) as (keyof Player)[])) {
       if (typeof player[item] === 'number') {
-        (player[item] as number) -= Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!).toNumber()
+        ;(player[item] as number) -= Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!)
+          .toNumber()
       }
 
       if (Decimal.lt(player[item] as Decimal, 0)) {
-        (player[item] as Decimal) = new Decimal(0)
+        ;(player[item] as Decimal) = new Decimal(0)
       } else if (player[item] instanceof Cube) {
-        (player[item] as Cube).sub(
+        ;(player[item] as Cube).sub(
           Decimal.mul(amountToCraft, craftCostMulti).mul(this.OTHER_CONVERSIONS[item]!)
         )
       } else if (item === 'worlds') {
@@ -323,7 +333,7 @@ export class HepteractCraft {
   /**
    * Discount has boundaries [0, 1), and upper limit
    *  is defined by (1 - EPSILON). Craft amount is multiplied by 1 / (1 - Discount)
-   * 
+   *
    * ! no, do not do this
    */
   addDiscount (amount: DecimalSource): this {
@@ -367,7 +377,9 @@ export class HepteractCraft {
       // When Auto is turned on, only Quarks and hepteracts are consumed.
       if (item === 'worlds') {
         itemLimits.push(
-          Decimal.floor(Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player]!)).mul(this.DISCOUNT)
+          Decimal.floor(
+            Decimal.div(player[item as keyof Player] as Decimal, this.OTHER_CONVERSIONS[item as keyof Player]!)
+          ).mul(this.DISCOUNT)
         )
       }
     }
@@ -405,7 +417,9 @@ export class HepteractCraft {
       }
     }
 
-    player.wowAbyssals = player.wowAbyssals.sub(Decimal.mul(amountCrafted, craftCostMulti).mul(this.HEPTERACT_CONVERSION))
+    player.wowAbyssals = player.wowAbyssals.sub(
+      Decimal.mul(amountCrafted, craftCostMulti).mul(this.HEPTERACT_CONVERSION)
+    )
     if (player.wowAbyssals.lt(0)) {
       player.wowAbyssals = new Decimal(0)
     }
@@ -510,7 +524,9 @@ export const hepteractEffective = (data: hepteractTypes) => {
   //   )
   // }
   if (Decimal.gte(amt, hepteractEffectiveValues[data].LIMIT)) {
-    amt = Decimal.div(amt, hepteractEffectiveValues[data].LIMIT).pow(Decimal.add(hepteractEffectiveValues[data].DR, exponentBoost)).mul(hepteractEffectiveValues[data].LIMIT)
+    amt = Decimal.div(amt, hepteractEffectiveValues[data].LIMIT).pow(
+      Decimal.add(hepteractEffectiveValues[data].DR, exponentBoost)
+    ).mul(hepteractEffectiveValues[data].LIMIT)
   }
 
   return amt
@@ -668,7 +684,9 @@ export const tradeHepteractToOverfluxOrb = async (buyMax?: boolean) => {
     player.wowAbyssals = new Decimal(0)
   }
 
-  const powderGain = Decimal.mul(calculatePowderConversion().mult, buyAmount).div(100).mul(player.shopUpgrades.powderAuto)
+  const powderGain = Decimal.mul(calculatePowderConversion().mult, buyAmount).div(100).mul(
+    player.shopUpgrades.powderAuto
+  )
   player.overfluxPowder = player.overfluxPowder.add(powderGain)
 
   const powderText = (powderGain.gt(0)) ? i18next.t('hepteracts.gainedPowder', { x: format(powderGain, 2, true) }) : ''

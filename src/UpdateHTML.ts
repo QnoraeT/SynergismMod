@@ -164,22 +164,30 @@ export const revealStuff = () => {
 
   const example22 = document.getElementsByClassName('chal11') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example22.length; i++) {
-    Decimal.gt(player.challengecompletions[11], 0) ? example22[i].style.display = 'block' : example22[i].style.display = 'none'
+    Decimal.gt(player.challengecompletions[11], 0)
+      ? example22[i].style.display = 'block'
+      : example22[i].style.display = 'none'
   }
 
   const example23 = document.getElementsByClassName('chal12') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example23.length; i++) {
-    Decimal.gt(player.challengecompletions[12], 0) ? example23[i].style.display = 'block' : example23[i].style.display = 'none'
+    Decimal.gt(player.challengecompletions[12], 0)
+      ? example23[i].style.display = 'block'
+      : example23[i].style.display = 'none'
   }
 
   const example24 = document.getElementsByClassName('chal13') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example24.length; i++) {
-    Decimal.gt(player.challengecompletions[13], 0) ? example24[i].style.display = 'block' : example24[i].style.display = 'none'
+    Decimal.gt(player.challengecompletions[13], 0)
+      ? example24[i].style.display = 'block'
+      : example24[i].style.display = 'none'
   }
 
   const example25 = document.getElementsByClassName('chal14') as HTMLCollectionOf<HTMLElement>
   for (let i = 0; i < example25.length; i++) {
-    Decimal.gt(player.challengecompletions[14], 0) ? example25[i].style.display = 'block' : example25[i].style.display = 'none'
+    Decimal.gt(player.challengecompletions[14], 0)
+      ? example25[i].style.display = 'block'
+      : example25[i].style.display = 'none'
   }
 
   const example26 = document.getElementsByClassName('ascendunlockib') as HTMLCollectionOf<HTMLElement>
@@ -492,10 +500,10 @@ export const revealStuff = () => {
     player.singularityChallenges.noSingularityUpgrades.completions >= 1
       ? 'block'
       : 'none'
-  //Hide Challenge Subtabs until Exalts are unlocked
+  // Hide Challenge Subtabs until Exalts are unlocked
   DOMCacheGetOrSet('challengesTabsToggle').style.display = player.highestSingularityCount >= 25
-      ? 'flex'
-      : 'none'
+    ? 'flex'
+    : 'none'
 
   Decimal.gt(player.runelevels[6], 0) || player.highestSingularityCount > 0
     ? (DOMCacheGetOrSet('singularitybtn').style.display = 'block')
@@ -729,9 +737,9 @@ export const htmlInserts = () => {
     'obtainiumDisplay'
   ] as const
   for (let i = 0; i < playerRequirements.length; i++) {
-    const text = playerRequirements[i] === 'worlds' 
-                ? format(player.worlds.QUARKS)
-                : format(player[`${playerRequirements[i]}` as const])
+    const text = playerRequirements[i] === 'worlds'
+      ? format(player.worlds.QUARKS)
+      : format(player[`${playerRequirements[i]}` as const])
     const dom = DOMCacheGetOrSet(`${domRequirements[i]}` as const)
     if (dom.textContent !== text) {
       dom.textContent = text
@@ -770,7 +778,9 @@ export const buttoncolorchange = () => {
   DOMCacheGetOrSet('ascendChallengeBtn').style.backgroundColor = player.currentChallenge.ascension === 0 ? '' : 'purple'
 
   DOMCacheGetOrSet('ascendbtn').style.backgroundColor =
-    player.autoAscend && Decimal.gt(player.challengecompletions[11], 0) && Decimal.gt(player.cubeUpgrades[10], 0) ? 'green' : ''
+    player.autoAscend && Decimal.gt(player.challengecompletions[11], 0) && Decimal.gt(player.cubeUpgrades[10], 0)
+      ? 'green'
+      : ''
 
   DOMCacheGetOrSet('singularitybtn').style.filter = Decimal.gt(player.runelevels[6], 0)
     ? ''
@@ -856,7 +866,7 @@ export const buttoncolorchange = () => {
     ;((!player.toggles[14] || player.achievements[106] === 0) && player.prestigePoints.gte(player.fifthCostDiamonds))
       ? e.classList.add('buildingPurchaseBtnAvailable')
       : e.classList.remove('buildingPurchaseBtnAvailable')
-      
+
     let k = Decimal.mul(G.rune3level, G.effectiveLevelMult).div(16).floor()
     if (player.upgrades[73] === 1 && player.currentChallenge.reincarnation !== 0) {
       k = k.add(10)
@@ -865,12 +875,14 @@ export const buttoncolorchange = () => {
     for (let i = 0; i < 5; i++) {
       const htmlThing = DOMCacheGetOrSet(`buycrystalupgrade${i + 1}`)
       player.achievements[79 + 7 * i] < 1
-      ? (player.prestigeShards.gte(
-          Decimal.sub(player.crystalUpgrades[i], k).add(0.5).pow(2).div(2).floor().mul(G.crystalUpgradeCostIncrement[i]).add(G.crystalUpgradesCost[i]).pow10()
-        )
-        ? htmlThing.style.backgroundColor = 'purple'
-        : htmlThing.style.backgroundColor = '')
-      : htmlThing.style.backgroundColor = 'green'
+        ? (player.prestigeShards.gte(
+            Decimal.sub(player.crystalUpgrades[i], k).add(0.5).pow(2).div(2).floor().mul(
+              G.crystalUpgradeCostIncrement[i]
+            ).add(G.crystalUpgradesCost[i]).pow10()
+          )
+          ? htmlThing.style.backgroundColor = 'purple'
+          : htmlThing.style.backgroundColor = '')
+        : htmlThing.style.backgroundColor = 'green'
     }
   }
 
@@ -892,7 +904,8 @@ export const buttoncolorchange = () => {
       const g = DOMCacheGetOrSet('buyTalismanItem7')
       const arr = [a, b, c, d, e, f, g]
       for (let i = 0; i < arr.length; i++) {
-        ;(Decimal.gt(player.researchPoints, G.talismanResourceObtainiumCosts[i]) && Decimal.gt(player.runeshards, G.talismanResourceOfferingCosts[i]))
+        ;(Decimal.gt(player.researchPoints, G.talismanResourceObtainiumCosts[i])
+            && Decimal.gt(player.runeshards, G.talismanResourceOfferingCosts[i]))
           ? arr[i].classList.add('talisminBtnAvailable')
           : arr[i].classList.remove('talisminBtnAvailable')
       }
@@ -1054,11 +1067,11 @@ const updateAscensionStats = () => {
   const addedAsterisk = player.singularityUpgrades.oneMind.getEffect().bonus
   const fillers: Record<string, string> = {
     ascLen: formatTimeShort(player.ascStatToggles[6] ? player.ascensionCounter : player.ascensionCounterReal),
-    ascCubes: format(Decimal.mul(cubes, (player.ascStatToggles[1] ? 1 : t.recip())), 2),
-    ascTess: format(Decimal.mul(tess, (player.ascStatToggles[2] ? 1 : t.recip())), 3),
-    ascHyper: format(Decimal.mul(hyper, (player.ascStatToggles[3] ? 1 : t.recip())), 4),
-    ascPlatonic: format(Decimal.mul(platonic, (player.ascStatToggles[4] ? 1 : t.recip())), 5),
-    ascHepteract: format(Decimal.mul(hepteract, (player.ascStatToggles[5] ? 1 : t.recip())), 3),
+    ascCubes: format(Decimal.mul(cubes, player.ascStatToggles[1] ? 1 : t.recip()), 2),
+    ascTess: format(Decimal.mul(tess, player.ascStatToggles[2] ? 1 : t.recip()), 3),
+    ascHyper: format(Decimal.mul(hyper, player.ascStatToggles[3] ? 1 : t.recip()), 4),
+    ascPlatonic: format(Decimal.mul(platonic, player.ascStatToggles[4] ? 1 : t.recip()), 5),
+    ascHepteract: format(Decimal.mul(hepteract, player.ascStatToggles[5] ? 1 : t.recip()), 3),
     ascC10: `${format(player.challengecompletions[10])}`,
     ascTimeAccel: `${format(calculateTimeAcceleration().mult, 3)}x`,
     ascAscensionTimeAccel: `${format(calculateAscensionAcceleration(), 3)}x${addedAsterisk ? '*' : ''}`,

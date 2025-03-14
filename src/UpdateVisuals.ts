@@ -22,15 +22,16 @@ import {
   calculateTotalOcteractObtainiumBonus,
   calculateTotalOcteractOfferingBonus,
   calculateTotalOcteractQuarkBonus,
-  octeractGainPerSecond,
-  constantEffects
+  constantEffects,
+  getGoldenFragmentsEff,
+  octeractGainPerSecond
 } from './Calculate'
 import { CalcECC } from './Challenges'
 import { version } from './Config'
 import type { IMultiBuy } from './Cubes'
 import type { hepteractTypes } from './Hepteracts'
 import { hepteractTypeList } from './Hepteracts'
-import { quarkHandler } from './Quark'
+import { getQuarkBonus, quarkHandler } from './Quark'
 import { displayRuneInformation } from './Runes'
 import { getShopCosts, isShopUpgradeUnlocked, shopData, shopUpgradeTypes } from './Shop'
 import { getGoldenQuarkCost } from './singularity'
@@ -39,7 +40,7 @@ import { format, formatTimeShort, player } from './Synergism'
 import { Tabs } from './Tabs'
 import { calculateMaxTalismanLevel } from './Talismans'
 import type { Player, ZeroToFour } from './types/Synergism'
-import { sumContentsNumber, sumContentsDecimal } from './Utility'
+import { sumContentsDecimal, sumContentsNumber } from './Utility'
 import { Globals as G } from './Variables'
 
 export const visualUpdateBuildings = () => {
@@ -148,7 +149,9 @@ export const visualUpdateBuildings = () => {
       'buildings.acceleratorBoost',
       {
         amount: format(
-          Decimal.mul(G.tuSevenMulti, 1 + player.researches[16] / 50).mul(CalcECC('transcend', player.challengecompletions[2]).div(100).add(1)),
+          Decimal.mul(G.tuSevenMulti, 1 + player.researches[16] / 50).mul(
+            CalcECC('transcend', player.challengecompletions[2]).div(100).add(1)
+          ),
           2
         )
       }
@@ -186,7 +189,7 @@ export const visualUpdateBuildings = () => {
         root: format(G.coinProduceTrue.max(1).log(G.produceTotal.max(10)), 4)
       })
     }
-    
+
     DOMCacheGetOrSet('taxinfo').textContent = i18next.t(
       'buildings.excessiveWealth',
       {
@@ -196,10 +199,11 @@ export const visualUpdateBuildings = () => {
       }
     )
 
-    DOMCacheGetOrSet('sc1info').style.display = Decimal.gte(G.globalCoinMultiplier, "ee20") ? 'block' : 'none'
+    DOMCacheGetOrSet('sc1info').style.display = Decimal.gte(G.globalCoinMultiplier, 'ee20') ? 'block' : 'none'
     DOMCacheGetOrSet('sc1info').textContent = i18next.t(
       'buildings.softcappedWealth',
       {
+        start: format(G.coinSC1Start),
         root: format(G.coinSC1Eff, 4),
         result: format(G.coinAfterSc1)
       }
@@ -445,7 +449,7 @@ export const visualUpdateBuildings = () => {
           mult: format(
             Decimal.pow(
               10,
-              Decimal.sub(G.reincarnationPointGain.add(1).log10(),  player.reincarnationPoints.add(1).log10())
+              Decimal.sub(G.reincarnationPointGain.add(1).log10(), player.reincarnationPoints.add(1).log10())
             ),
             2
           )
@@ -513,14 +517,14 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('ascendShardEff1').textContent = i18next.t(
       'buildings.constantEff1',
       {
-        x: format(constantEffects().tax, 4, true),
+        x: format(constantEffects().tax, 4, true)
       }
     )
 
     DOMCacheGetOrSet('ascendShardEff2').textContent = i18next.t(
       'buildings.constantEff2',
       {
-        x: format(constantEffects().antSoftcap, 2, true),
+        x: format(constantEffects().antSoftcap, 2, true)
       }
     )
 
@@ -528,7 +532,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('ascendShardEff3').textContent = i18next.t(
       'buildings.constantEff3',
       {
-        x: format(constantEffects().particleBuildingScale, 0, true),
+        x: format(constantEffects().particleBuildingScale, 0, true)
       }
     )
 
@@ -536,7 +540,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('ascendShardEff4').textContent = i18next.t(
       'buildings.constantEff4',
       {
-        x: format(constantEffects().buildingSlowDown, 3, true),
+        x: format(constantEffects().buildingSlowDown, 3, true)
       }
     )
 
@@ -544,7 +548,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('ascendShardEff5').textContent = i18next.t(
       'buildings.constantEff5',
       {
-        x: format(constantEffects().c3Effect, 2, true),
+        x: format(constantEffects().c3Effect, 2, true)
       }
     )
 
@@ -552,7 +556,7 @@ export const visualUpdateBuildings = () => {
     DOMCacheGetOrSet('ascendShardEff6').textContent = i18next.t(
       'buildings.constantEff6',
       {
-        x: format(constantEffects().cubeSoftcap, 4, true),
+        x: format(constantEffects().cubeSoftcap, 4, true)
       }
     )
 
@@ -561,7 +565,7 @@ export const visualUpdateBuildings = () => {
       'buildings.constantEff7',
       {
         x: format(constantEffects().accelScale[0], 2, true),
-        y: format(constantEffects().accelScale[1], 2, true),
+        y: format(constantEffects().accelScale[1], 2, true)
       }
     )
 
@@ -570,54 +574,34 @@ export const visualUpdateBuildings = () => {
       'buildings.constantEff8',
       {
         x: format(constantEffects().multScale[0], 2, true),
-        y: format(constantEffects().multScale[1], 2, true),
+        y: format(constantEffects().multScale[1], 2, true)
       }
     )
 
-    DOMCacheGetOrSet('ascendShardEff9').style.display = Decimal.gte(player.ascendShards, "1e616") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff9').style.display = Decimal.gte(player.ascendShards, '1e616') ? 'block' : 'none'
     DOMCacheGetOrSet('ascendShardEff9').textContent = i18next.t(
       'buildings.constantEff9',
       {
-        x: format(constantEffects().boostScale, 3, true),
+        x: format(constantEffects().boostScale, 3, true)
       }
     )
 
-    DOMCacheGetOrSet('ascendShardEff10').style.display = Decimal.gte(player.ascendShards, "1e1000") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff10').style.display = Decimal.gte(player.ascendShards, '1e1000') ? 'block' : 'none'
     DOMCacheGetOrSet('ascendShardEff10').textContent = i18next.t(
       'buildings.constantEff10',
       {
-        x: format(constantEffects().siEffectPower, 4, true),
+        x: format(constantEffects().siEffectPower, 4, true)
       }
     )
 
-    DOMCacheGetOrSet('ascendShardEff11').style.display = Decimal.gte(player.ascendShards, "e100000") ? 'block' : 'none'
+    DOMCacheGetOrSet('ascendShardEff11').style.display = Decimal.gte(player.ascendShards, 'e100000') ? 'block' : 'none'
     DOMCacheGetOrSet('ascendShardEff11').textContent = i18next.t(
       'buildings.constantEff11',
       {
-        x: format(constantEffects().pBuildEff, 4, true),
+        x: format(constantEffects().pBuildEff, 4, true)
       }
     )
 
-    // if (amt.gte(1e100)) {
-    //   i.cubeSoftcap = amt.log10().log10().div(2).pow(3)
-    // }
-    // if (amt.gte(1e308)) {
-    //   i.accelScale[0] = amt.log10().div(308).sqrt()
-    //   i.accelScale[1] = amt.log10().div(154).sqrt()
-    // }
-    // if (amt.gte("1e616")) {
-    //   i.multScale[0] = amt.log10().div(616).sqrt()
-    //   i.multScale[1] = amt.log10().div(308).sqrt()
-    // }
-    // if (amt.gte("1e1000")) {
-    //   i.boostScale = amt.log10().cbrt().div(10)
-    // }
-    // if (amt.gte("e100000")) {
-    //   i.siEffectPower = amt.log10().log10().div(5)
-    // }
-    // if (amt.gte("ee7")) {
-    //   i.pBuildEff = amt.log10().log10().sub(7).div(100).add(1).pow(2)
-    // }
     if (player.resettoggle4 === 1 || player.resettoggle4 === 0) {
       DOMCacheGetOrSet('autotessbuyeramount').textContent = i18next.t(
         'buildings.autoTesseract',
@@ -633,6 +617,76 @@ export const visualUpdateBuildings = () => {
         }
       )
     }
+  } else if (G.buildingSubTab === 'golden') {
+    const names = ['gq1', 'gq2', 'gq3', 'gq4', 'gq5']
+    const perSecNames = ['fragments', 'gq1', 'gq2', 'gq3', 'gq4']
+
+    for (let i = 1; i <= 5; i++) {
+      const gqBuildingI = `gcBuilding${i as 1 | 2 | 3 | 4 | 5}` as const
+
+      DOMCacheGetOrSet(`gqText${i}`).textContent = i18next.t(
+        `buildings.names.${names[i - 1]}`,
+        {
+          amount: format(player[gqBuildingI].owned, 0, true),
+          gain: format(player[gqBuildingI].generated, 2)
+        }
+      )
+
+      DOMCacheGetOrSet(`gqText${5 + i}`).textContent = i18next.t(
+        `buildings.per.${perSecNames[i - 1]}`,
+        {
+          amount: format(
+            (G.goldenQuarkBuildingProduction as Record<string, Decimal>)[
+              G.ordinals[i - 1]
+            ],
+            2
+          )
+        }
+      )
+
+      DOMCacheGetOrSet(`buyGoldenQuarks${i}`).textContent = i18next.t(
+        'buildings.costGoldenQuarks',
+        {
+          goldenQuarks: format(player[gqBuildingI].cost)
+        }
+      )
+    }
+
+    DOMCacheGetOrSet('gqInfo').textContent = i18next.t(
+      'buildings.gqsYouHave',
+      {
+        gqs: format(player.goldenQuarks)
+      }
+    )
+
+    DOMCacheGetOrSet('gfInfo').textContent = i18next.t(
+      'buildings.gfragYouHave',
+      {
+        frag: format(player.goldenFragments, 2)
+      }
+    )
+
+    DOMCacheGetOrSet('gfEff1').textContent = i18next.t(
+      'buildings.gqEff1',
+      {
+        x: format(getGoldenFragmentsEff().GQpersecond, 4, true)
+      }
+    )
+
+    DOMCacheGetOrSet('gfEff2').textContent = i18next.t(
+      'buildings.gqEff2',
+      {
+        x: format(getGoldenFragmentsEff().quarkBonus.sub(1).mul(100), 2, true)
+      }
+    )
+
+    DOMCacheGetOrSet('gfEff3').style.display = Decimal.gte(player.goldenFragments, 1e3) ? 'block' : 'none'
+    DOMCacheGetOrSet('gfEff3').textContent = i18next.t(
+      'buildings.gqEff3',
+      {
+        x: format(getGoldenFragmentsEff().gameSpeed, 0, true)
+      }
+    )
   }
 }
 
@@ -809,7 +863,14 @@ export const visualUpdateRunes = () => {
   }
 
   if (G.runescreen === 'spirits') {
-    const spiritMultiplierArray = [new Decimal(0), new Decimal(1), new Decimal(1), new Decimal(20), new Decimal(1), new Decimal(100)]
+    const spiritMultiplierArray = [
+      new Decimal(0),
+      new Decimal(1),
+      new Decimal(1),
+      new Decimal(20),
+      new Decimal(1),
+      new Decimal(100)
+    ]
     const subtract = [0, 0, 0, 1, 0, 0]
     for (let i = 1; i <= 5; i++) {
       spiritMultiplierArray[i] = spiritMultiplierArray[i].mul(calculateCorruptionPoints().div(400))
@@ -915,7 +976,12 @@ export const visualUpdateAnts = () => {
         Decimal.pow(
           Decimal.max(1, player.antPoints),
           new Decimal(100000)
-            .add(calculateSigmoidExponential(49900000, ((Decimal.add(player.antUpgrades[1]!, G.bonusant2).div(5000)).mul(500)).div(499)))
+            .add(
+              calculateSigmoidExponential(
+                49900000,
+                ((Decimal.add(player.antUpgrades[1]!, G.bonusant2).div(5000)).mul(500)).div(499)
+              )
+            )
         )
       )
     }
@@ -1443,17 +1509,20 @@ export const visualUpdateSettings = () => {
     const maxExportQuarks = quarkData.capacity
 
     let goldenQuarkMultiplier = new Decimal(1)
-    goldenQuarkMultiplier = Decimal.mul(goldenQuarkMultiplier, player.worlds.BONUS.div(100).add(1))
-    goldenQuarkMultiplier = Decimal.mul(goldenQuarkMultiplier, player.highestSingularityCount >= 100
-      ? 1 + player.highestSingularityCount / 50
-      : 1)
+    goldenQuarkMultiplier = Decimal.mul(goldenQuarkMultiplier, getQuarkBonus().div(100).add(1))
+    goldenQuarkMultiplier = Decimal.mul(
+      goldenQuarkMultiplier,
+      player.highestSingularityCount >= 100
+        ? 1 + player.highestSingularityCount / 50
+        : 1
+    )
 
     DOMCacheGetOrSet('quarktimerdisplay').textContent = i18next.t(
       'settings.exportQuark',
       {
         x: format(
-          Decimal.div(3600, quarkData.perHour).sub(player.quarkstimer.mod(3600.00001 / quarkData.perHour))
-            , 2
+          Decimal.div(3600, quarkData.perHour).sub(player.quarkstimer.mod(3600.00001 / quarkData.perHour)),
+          2
         ),
         y: player.worlds.toString(1)
       }
@@ -1470,10 +1539,18 @@ export const visualUpdateSettings = () => {
       'settings.exportGoldenQuark',
       {
         x: format(
-          Decimal.div(3600, Decimal.max(
-            1,
-            player.singularityUpgrades.goldenQuarks3.getEffect().bonus
-          )).sub(Decimal.mod(player.goldenQuarksTimer, (3600.00001 / Math.max(1, player.singularityUpgrades.goldenQuarks3.getEffect().bonus))))
+          Decimal.div(
+            3600,
+            Decimal.max(
+              1,
+              player.singularityUpgrades.goldenQuarks3.getEffect().bonus
+            )
+          ).sub(
+            Decimal.mod(
+              player.goldenQuarksTimer,
+              3600.00001 / Math.max(1, player.singularityUpgrades.goldenQuarks3.getEffect().bonus)
+            )
+          )
         ),
         y: format(goldenQuarkMultiplier, 2, true)
       }
@@ -1482,12 +1559,13 @@ export const visualUpdateSettings = () => {
       'settings.goldenQuarksOnExport',
       {
         x: format(
-          Decimal.mul(player.goldenQuarksTimer, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).div(3600).floor().mul(goldenQuarkMultiplier)
-          ,
+          Decimal.mul(player.goldenQuarksTimer, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).div(3600)
+            .floor().mul(goldenQuarkMultiplier),
           2
         ),
         y: format(
-          Decimal.mul(goldenQuarkMultiplier, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).mul(168).floor()
+          Decimal.mul(goldenQuarkMultiplier, player.singularityUpgrades.goldenQuarks3.getEffect().bonus).mul(168)
+            .floor()
         )
       }
     )
@@ -1657,12 +1735,15 @@ export const visualUpdateAmbrosia = () => {
   const barWidth = Decimal.div(player.blueberryTime, requiredTime).min(1).mul(100).toNumber()
   const pixelBarWidth = Decimal.div(player.ultimateProgress, 1e6).min(1).mul(100).toNumber()
 
-
   DOMCacheGetOrSet('ambrosiaProgress').style.width = `${barWidth}%`
-  DOMCacheGetOrSet('ambrosiaProgressText').textContent = `${format(player.blueberryTime, 0, true)} / ${format(requiredTime, 0, true)} [+${format(totalTimePerSecond, 0, true)}/s]`
+  DOMCacheGetOrSet('ambrosiaProgressText').textContent = `${format(player.blueberryTime, 0, true)} / ${
+    format(requiredTime, 0, true)
+  } [+${format(totalTimePerSecond, 0, true)}/s]`
 
   DOMCacheGetOrSet('pixelProgress').style.width = `${pixelBarWidth}%`
-  DOMCacheGetOrSet('pixelProgressText').textContent = `${format(player.ultimateProgress, 0, true)} / ${format(1000000, 0, true)} [+${format(Decimal.mul(progressTimePerSecond, 0.02), 2, true)}/s]`
+  DOMCacheGetOrSet('pixelProgressText').textContent = `${format(player.ultimateProgress, 0, true)} / ${
+    format(1000000, 0, true)
+  } [+${format(Decimal.mul(progressTimePerSecond, 0.02), 2, true)}/s]`
   const extraLuckHTML = Decimal.gt(luckBonusPercent, 0.01)
     ? `[<span style='color: var(--amber-text-color)'>☘${
       format(
@@ -1692,7 +1773,7 @@ export const visualUpdateAmbrosia = () => {
       extra: extraLuckHTML
     }
   )
- /* DOMCacheGetOrSet('ambrosiaRNG').innerHTML = i18next.t(
+  /* DOMCacheGetOrSet('ambrosiaRNG').innerHTML = i18next.t(
     'ambrosia.blueberrySecond',
     {
       blueberrySecond: format(player.blueberryTime, 0, true),

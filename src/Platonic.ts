@@ -1,9 +1,9 @@
+import Decimal from 'break_eternity.js'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { Synergism } from './Events'
 import { calculateSingularityDebuff } from './singularity'
 import { format, player } from './Synergism'
 import { Alert, revealStuff } from './UpdateHTML'
-import Decimal from 'break_eternity.js'
 
 const platonicUpgradeDesc = [
   '+0.0090% Cubes per Corruption level per level!',
@@ -289,24 +289,39 @@ const checkPlatonicUpgrade = (
     if (auto && (resources[i] === 'obtainium' || resources[i] === 'offerings')) {
       checksum++
       checks[resources[i]] = true
-    } else if (Decimal.lte(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)), player[resourceNames[i] as "researchPoints" | "runeshards"])) {
+    } else if (
+      Decimal.lte(
+        Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)),
+        player[resourceNames[i] as 'researchPoints' | 'runeshards']
+      )
+    ) {
       checksum++
       checks[resources[i]] = true
-    } else if (Decimal.lte(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)), player[resourceNames[i] as "wowCubes" | "wowTesseracts" | "wowHypercubes" | "wowPlatonicCubes"].value)) {
+    } else if (
+      Decimal.lte(
+        Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index][resources[i]], priceMultiplier)),
+        player[resourceNames[i] as 'wowCubes' | 'wowTesseracts' | 'wowHypercubes' | 'wowPlatonicCubes'].value
+      )
+    ) {
       checksum++
       checks[resources[i]] = true
     }
   }
 
   if (
-    Decimal.gte(player.hepteractCrafts.abyss.BAL, Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)))
+    Decimal.gte(
+      player.hepteractCrafts.abyss.BAL,
+      Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier))
+    )
     || Decimal.eq(platUpgradeBaseCosts[index].abyssals, 0)
   ) {
     checksum++
     checks.abyssals = true
   }
 
-  if (checksum === resources.length && Decimal.lt(player.platonicUpgrades[index], platUpgradeBaseCosts[index].maxLevel)) {
+  if (
+    checksum === resources.length && Decimal.lt(player.platonicUpgrades[index], platUpgradeBaseCosts[index].maxLevel)
+  ) {
     checks.canBuy = true
   }
   return checks
@@ -430,14 +445,20 @@ export const buyPlatonicUpgrades = (index: number, auto = false) => {
       player.platonicUpgrades[index] += 1
       // Auto Platonic Upgrades no longer claim the cost of Offerings and Obtainiums
       if (!auto) {
-        player.researchPoints = player.researchPoints.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].obtainium, priceMultiplier)))
-        player.runeshards = player.runeshards.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].offerings, priceMultiplier)))
+        player.researchPoints = player.researchPoints.sub(
+          Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].obtainium, priceMultiplier))
+        )
+        player.runeshards = player.runeshards.sub(
+          Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].offerings, priceMultiplier))
+        )
       }
       player.wowCubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].cubes, priceMultiplier)))
       player.wowTesseracts.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].tesseracts, priceMultiplier)))
       player.wowHypercubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].hypercubes, priceMultiplier)))
       player.wowPlatonicCubes.sub(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].platonics, priceMultiplier)))
-      player.hepteractCrafts.abyss.spend(Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier)))
+      player.hepteractCrafts.abyss.spend(
+        Decimal.floor(Decimal.mul(platUpgradeBaseCosts[index].abyssals, priceMultiplier))
+      )
 
       Synergism.emit('boughtPlatonicUpgrade', platUpgradeBaseCosts[index])
       if (index === 20 && !auto && player.singularityCount === 0) {

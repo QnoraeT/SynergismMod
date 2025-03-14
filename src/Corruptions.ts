@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { format, player } from './Synergism'
@@ -6,7 +7,6 @@ import { toggleCorruptionLevel } from './Toggles'
 import { Alert, Prompt } from './UpdateHTML'
 import { getElementById } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export const maxCorruptionLevel = () => {
   let max = 0

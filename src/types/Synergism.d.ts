@@ -1,3 +1,4 @@
+import type { Decimal, DecimalSource } from 'break_eternity.js'
 import type { BlueberryUpgrade } from '../BlueberryUpgrades'
 import type { WowCubes, WowHypercubes, WowPlatonicCubes, WowTesseracts } from '../CubeExperimental'
 import type { HepteractCraft } from '../Hepteracts'
@@ -14,7 +15,6 @@ import type {
   BlueberryInventoryCache
 } from '../StatCache'
 import type { Tabs } from '../Tabs'
-import type { Decimal, DecimalSource } from 'break_eternity.js'
 
 type ArrayStartingWithNull<T> = [null, ...T[]]
 
@@ -192,6 +192,43 @@ export interface Player {
     multiplier: Decimal
   }
   ascendBuilding5: {
+    cost: Decimal
+    owned: Decimal
+    generated: Decimal
+    multiplier: Decimal
+  }
+
+  goldenFragments: Decimal
+
+  gcBuilding1: {
+    cost: Decimal
+    owned: Decimal
+    generated: Decimal
+    multiplier: Decimal
+  }
+
+  gcBuilding2: {
+    cost: Decimal
+    owned: Decimal
+    generated: Decimal
+    multiplier: Decimal
+  }
+
+  gcBuilding3: {
+    cost: Decimal
+    owned: Decimal
+    generated: Decimal
+    multiplier: Decimal
+  }
+
+  gcBuilding4: {
+    cost: Decimal
+    owned: Decimal
+    generated: Decimal
+    multiplier: Decimal
+  }
+
+  gcBuilding5: {
     cost: Decimal
     owned: Decimal
     generated: Decimal
@@ -553,6 +590,7 @@ export interface Player {
   runeSpiritBuyAmount: number
 
   autoTesseracts: boolean[]
+  autoGoldenQuarks: boolean[]
 
   saveString: string
   exporttest: string | boolean
@@ -722,10 +760,11 @@ export interface GlobalVariables {
   produceFourth: Decimal
   produceFifth: Decimal
   produceTotal: Decimal
-  
+
+  coinSC1Start: Decimal
   coinSC1Eff: Decimal
   coinAfterSc1: Decimal
-  
+
   coinProduceTrue: Decimal
 
   produceFirstDiamonds: Decimal
@@ -936,6 +975,15 @@ export interface GlobalVariables {
     fourth: Decimal
     fifth: Decimal
   }
+
+  goldenQuarkBuildingProduction: {
+    first: Decimal
+    second: Decimal
+    third: Decimal
+    fourth: Decimal
+    fifth: Decimal
+  }
+
   freeUpgradeAccelerator: Decimal
   freeUpgradeMultiplier: Decimal
 
@@ -1047,6 +1095,7 @@ export type BuildingSubtab =
   | 'mythos'
   | 'particle'
   | 'tesseract'
+  | 'golden'
 
 export type ZeroToFour = 0 | 1 | 2 | 3 | 4
 

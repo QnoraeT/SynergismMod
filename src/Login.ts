@@ -1,7 +1,8 @@
 import i18next from 'i18next'
 import localforage from 'localforage'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { QuarkHandler } from './Quark'
+import { importSynergism } from './ImportExport'
+import { QuarkHandler, setQuarkBonus } from './Quark'
 import { player } from './Synergism'
 import { Alert } from './UpdateHTML'
 
@@ -70,6 +71,8 @@ interface SynergismPatreonUserAPIResponse extends SynergismUserAPIResponse {
   type: 'patreon'
 }
 
+type CloudSave = null | { save: string }
+
 export async function handleLogin () {
   const subtabElement = document.querySelector('#accountSubTab > div.scrollbarX')!
   const currentBonus = DOMCacheGetOrSet('currentBonus')
@@ -86,33 +89,42 @@ export async function handleLogin () {
     | SynergismDiscordUserAPIResponse
     | SynergismPatreonUserAPIResponse
 
-  player.worlds = new QuarkHandler({
-    quarks: player.worlds.QUARKS,
-    bonus: 100 * (1 + globalBonus / 100) * (1 + personalBonus / 100) - 100 // Multiplicative
-  })
+  setQuarkBonus(100 * (1 + globalBonus / 100) * (1 + personalBonus / 100) - 100)
+  player.worlds = new QuarkHandler(player.worlds.QUARKS)
 
   currentBonus.textContent = `Generous patrons give you a bonus of ${globalBonus}% more Quarks!`
+
+  const cookies = parseDocumentCookie()
+
+  if (cookies.id || cookies.patreonId) {
+    Alert('You may need to login to your account again for bonuses to apply! Thank you!')
+  }
+
+  if (cookies.id) document.cookie = 'id=;Max-Age=0'
+  if (cookies.patreonId) document.cookie = 'patreonId=;Max-Age=0'
 
   if (location.hostname !== 'synergism.cc') {
     // TODO: better error, make link clickable, etc.
     subtabElement.textContent = 'Login is not available here, go to https://synergism.cc instead!'
-  } else if (parseDocumentCookie().id || parseDocumentCookie().patreonId) {
+  } else if (cookies.token) {
     if (!member) {
       console.log(response, globalBonus, member, personalBonus, document.cookie)
+      Alert('Your individual bonuses were not applied. Try refreshing the page!')
+      return
     }
 
     currentBonus.textContent +=
       ` You also receive an extra ${personalBonus}% bonus for being a Patreon member and/or boosting the Discord server! Multiplicative with global bonus!`
 
-      let user: string | null
+    let user: string | null
 
-      if (type === 'discord') {
-        user = member?.nick ?? member?.user?.username ?? member?.user?.global_name ?? null
-      } else {
-        user = member.user.username
-      }
-  
-      const boosted = type === 'discord' ? Boolean(member?.premium_since) : false
+    if (type === 'discord') {
+      user = member?.nick ?? member?.user?.username ?? member?.user?.global_name ?? null
+    } else {
+      user = member?.user.username
+    }
+
+    const boosted = type === 'discord' ? Boolean(member?.premium_since) : false
     const hasTier1 = member?.roles.includes(TRANSCENDED_BALLER) ?? false
     const hasTier2 = member?.roles.includes(REINCARNATED_BALLER) ?? false
     const hasTier3 = member?.roles.includes(ASCENDED_BALLER) ?? false
@@ -159,12 +171,15 @@ export async function handleLogin () {
       cloudSaveElement.addEventListener('click', saveToCloud)
       cloudSaveElement.style.cssText = 'border: 2px solid #5865F2; height: 25px; width: 150px;'
       cloudSaveElement.textContent = 'Save to Cloud ☁'
+      loadCloudSaveElement.addEventListener('click', getCloudSave)
+
       loadCloudSaveElement.style.cssText = 'border: 2px solid #5865F2; height: 25px; width: 150px;'
-      loadCloudSaveElement.textContent = 'Load from Cloud ☽ [WIP]'
+      loadCloudSaveElement.textContent = 'Load from Cloud ☽'
     }
 
     const cloudSaveParent = document.createElement('div')
-    cloudSaveParent.style.cssText = 'display: flex; flex-direction: row; justify-content: space-evenly; padding: 5px; width: 45%; margin: 0 auto;'
+    cloudSaveParent.style.cssText =
+      'display: flex; flex-direction: row; justify-content: space-evenly; padding: 5px; width: 45%; margin: 0 auto;'
 
     cloudSaveParent.appendChild(cloudSaveElement)
     cloudSaveParent.appendChild(loadCloudSaveElement)
@@ -223,6 +238,13 @@ async function saveToCloud () {
     await Alert(`Received an error: ${await response.text()}`)
     return
   }
+}
+
+async function getCloudSave () {
+  const response = await fetch('https://synergism.cc/api/v1/saves/get')
+  const save = await response.json() as CloudSave
+
+  await importSynergism(save?.save ?? null)
 }
 
 function parseDocumentCookie () {

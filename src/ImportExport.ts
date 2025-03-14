@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import ClipboardJS from 'clipboard'
 import i18next from 'i18next'
 import localforage from 'localforage'
@@ -8,7 +9,7 @@ import { octeractGainPerSecond } from './Calculate'
 import { testing, version } from './Config'
 import { Synergism } from './Events'
 import { addTimers } from './Helper'
-import { quarkHandler } from './Quark'
+import { getQuarkBonus, quarkHandler } from './Quark'
 import { playerJsonSchema } from './saves/PlayerJsonSchema'
 import { shopData } from './Shop'
 import { singularityData } from './singularity'
@@ -20,7 +21,6 @@ import { Alert, Confirm, Prompt } from './UpdateHTML'
 import { cleanString, getElementById, productContentsNumber, sumContentsNumber } from './Utility'
 import { btoa } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 const format24 = new Intl.DateTimeFormat('EN-GB', {
   year: 'numeric',
@@ -241,12 +241,18 @@ export const exportSynergism = async (
     const quarkData = quarkHandler()
 
     let bonusGQMultiplier = new Decimal(1)
-    bonusGQMultiplier = Decimal.mul(bonusGQMultiplier, player.worlds.BONUS.div(100).add(1))
-    bonusGQMultiplier = Decimal.mul(bonusGQMultiplier, player.highestSingularityCount >= 100
-      ? 1 + player.highestSingularityCount / 50
-      : 1)
+    bonusGQMultiplier = Decimal.mul(bonusGQMultiplier, getQuarkBonus().div(100).add(1))
+    bonusGQMultiplier = Decimal.mul(
+      bonusGQMultiplier,
+      player.highestSingularityCount >= 100
+        ? 1 + player.highestSingularityCount / 50
+        : 1
+    )
     if (player.singularityUpgrades.goldenQuarks3.getEffect().bonus > 0) {
-      player.goldenQuarks = player.goldenQuarks.add(Decimal.floor(Decimal.div(player.goldenQuarksTimer, 3600 / player.singularityUpgrades.goldenQuarks3.getEffect().bonus))
+      player.goldenQuarks = player.goldenQuarks.add(
+        Decimal.floor(
+          Decimal.div(player.goldenQuarksTimer, 3600 / player.singularityUpgrades.goldenQuarks3.getEffect().bonus)
+        )
       ).mul(bonusGQMultiplier)
       player.goldenQuarksTimer = player.goldenQuarksTimer
         .mod(3600 / player.singularityUpgrades.goldenQuarks3.getEffect().bonus)
@@ -451,10 +457,13 @@ export const promocodes = async (input: string | null, amount?: number) => {
       || player.highestSingularityCount > 0
     ) {
       player.hepteractCrafts.quark.CAP = Decimal.mul(player.hepteractCrafts.quark.CAP, 2)
-      player.hepteractCrafts.quark.BAL = Decimal.add(player.hepteractCrafts.quark.BAL, Decimal.min(
-        1e13,
-        Decimal.div(player.hepteractCrafts.quark.CAP, 2)
-      ))
+      player.hepteractCrafts.quark.BAL = Decimal.add(
+        player.hepteractCrafts.quark.BAL,
+        Decimal.min(
+          1e13,
+          Decimal.div(player.hepteractCrafts.quark.CAP, 2)
+        )
+      )
     }
     if (player.highestSingularityCount > 0) {
       player.singularityUpgrades.goldenQuarks1.freeLevels += 1 + Math.floor(player.highestSingularityCount / 10)
@@ -570,7 +579,10 @@ export const promocodes = async (input: string | null, amount?: number) => {
       rolls += player.shopUpgrades.shopImprovedDaily2
       rolls += player.shopUpgrades.shopImprovedDaily3
       rolls += player.shopUpgrades.shopImprovedDaily4
-      rolls += Decimal.mul(player.singularityUpgrades.platonicPhi.getEffect().bonus, Decimal.min(50, player.singularityCounter.div(720 * 24))).toNumber()
+      rolls += Decimal.mul(
+        player.singularityUpgrades.platonicPhi.getEffect().bonus,
+        Decimal.min(50, player.singularityCounter.div(720 * 24))
+      ).toNumber()
       rolls += +player.octeractUpgrades.octeractImprovedDaily3.getEffect().bonus
       rolls *= +player.octeractUpgrades.octeractImprovedDaily2.getEffect().bonus
       rolls *= 1
@@ -617,13 +629,31 @@ export const promocodes = async (input: string | null, amount?: number) => {
       }
 
       if (player.highestSingularityCount >= 200 && player.highestSingularityCount < 205) {
-        const freeLevelOct1 = Math.max(player.octeractUpgrades.octeractGain.level / 100, Math.pow(player.octeractUpgrades.octeractGain.level * player.octeractUpgrades.octeractGain.freeLevels / 1000, 0.5))
+        const freeLevelOct1 = Math.max(
+          player.octeractUpgrades.octeractGain.level / 100,
+          Math.pow(
+            player.octeractUpgrades.octeractGain.level * player.octeractUpgrades.octeractGain.freeLevels / 1000,
+            0.5
+          )
+        )
         player.octeractUpgrades.octeractGain.freeLevels += freeLevelOct1
         freeLevels.octeractGain = freeLevelOct1
-      }
-      else if (player.highestSingularityCount >= 205) {
-        const freeLevelOct1 = Math.max(player.octeractUpgrades.octeractGain.level / 100, Math.pow(player.octeractUpgrades.octeractGain.level * player.octeractUpgrades.octeractGain.freeLevels / 640, 0.5))
-        const freeLevelOct2 = Math.max(player.octeractUpgrades.octeractGain2.level / 100, Math.pow(Math.pow(player.octeractUpgrades.octeractGain2.level, 2) * player.octeractUpgrades.octeractGain2.freeLevels / 125000, 0.333))
+      } else if (player.highestSingularityCount >= 205) {
+        const freeLevelOct1 = Math.max(
+          player.octeractUpgrades.octeractGain.level / 100,
+          Math.pow(
+            player.octeractUpgrades.octeractGain.level * player.octeractUpgrades.octeractGain.freeLevels / 640,
+            0.5
+          )
+        )
+        const freeLevelOct2 = Math.max(
+          player.octeractUpgrades.octeractGain2.level / 100,
+          Math.pow(
+            Math.pow(player.octeractUpgrades.octeractGain2.level, 2) * player.octeractUpgrades.octeractGain2.freeLevels
+              / 125000,
+            0.333
+          )
+        )
 
         player.octeractUpgrades.octeractGain.freeLevels += freeLevelOct1
         player.octeractUpgrades.octeractGain2.freeLevels += freeLevelOct2
@@ -908,7 +938,9 @@ export const promocodes = async (input: string | null, amount?: number) => {
       player.promoCodeTiming.time = Date.now()
 
       if (Decimal.lte(diff, Decimal.mul(player.cubeUpgrades[61], 125).add(2500))) {
-        const reward = Decimal.mul(player.highestSingularityCount, 25).add(125).min(1000).mul(player.cubeUpgrades[61].div(50).add(1)).floor()
+        const reward = Decimal.mul(player.highestSingularityCount, 25).add(125).min(1000).mul(
+          player.cubeUpgrades[61].div(50).add(1)
+        ).floor()
         let actualQuarkAward = player.worlds.applyBonus(reward)
         let blueberryTime = 0
         // why is this sc here
@@ -1132,7 +1164,7 @@ const dailyCodeFormatFreeLevelMessage = (
   const upgradeNiceName = upgradeKey in singularityData
     ? i18next.t(`singularity.data.${upgradeKey}.name`)
     : i18next.t(`octeract.data.${upgradeKey}.name`)
-    return `\n+${format(freeLevelAmount, 0, true)} extra levels of '${upgradeNiceName}'`
+  return `\n+${format(freeLevelAmount, 0, true)} extra levels of '${upgradeNiceName}'`
 }
 
 const dailyCodeReward = () => {

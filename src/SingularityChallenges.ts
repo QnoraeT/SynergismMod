@@ -1,11 +1,12 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { 
-  calculateAdditiveLuckMult, 
-  calculateAmbrosiaGenerationSpeed, 
-  calculateAmbrosiaLuck, 
-  calculateBlueberryInventory, 
-  calculateGoldenQuarkGain 
+import {
+  calculateAdditiveLuckMult,
+  calculateAmbrosiaGenerationSpeed,
+  calculateAmbrosiaLuck,
+  calculateBlueberryInventory,
+  calculateGoldenQuarkGain
 } from './Calculate'
 import { singularity } from './Reset'
 import { player } from './Synergism'
@@ -13,7 +14,6 @@ import type { Player } from './types/Synergism'
 import { Alert, Confirm } from './UpdateHTML'
 import { toOrdinal } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export interface ISingularityChallengeData {
   baseReq: number
@@ -243,7 +243,7 @@ export class SingularityChallenge {
   scaleString (): string {
     let text = ''
     for (let i = 1; i <= this.scalingrewardcount; i++) {
-      const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.ScalingReward${i}`);
+      const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.ScalingReward${i}`)
       text += i > 1 ? `\n${list}` : list
     }
     return text
@@ -253,7 +253,7 @@ export class SingularityChallenge {
   uniqueString (): string {
     let text = ''
     for (let i = 1; i <= this.uniquerewardcount; i++) {
-      const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.UniqueReward${i}`);
+      const list = i18next.t(`singularityChallenge.data.${String(this.HTMLTag)}.UniqueReward${i}`)
       text += i > 1 ? `\n${list}` : list
     }
     return text
@@ -300,12 +300,14 @@ export const singularityChallengeData: Record<
       }
     },
     cacheUpdates: [
-      () => {G.ambrosiaCurrStats = {
-        ambrosiaAdditiveLuckMult: calculateAdditiveLuckMult().value,
-        ambrosiaLuck: calculateAmbrosiaLuck().value,
-        ambrosiaBlueberries: calculateBlueberryInventory().value,
-        ambrosiaGenerationSpeed: calculateAmbrosiaGenerationSpeed().value
-      }}
+      () => {
+        G.ambrosiaCurrStats = {
+          ambrosiaAdditiveLuckMult: calculateAdditiveLuckMult().value,
+          ambrosiaLuck: calculateAmbrosiaLuck().value,
+          ambrosiaBlueberries: calculateBlueberryInventory().value,
+          ambrosiaGenerationSpeed: calculateAmbrosiaGenerationSpeed().value
+        }
+      }
     ]
   },
   oneChallengeCap: {
@@ -321,7 +323,7 @@ export const singularityChallengeData: Record<
     effect: (n: number) => {
       return {
         corrScoreIncrease: 0.03 * n,
-        blueberrySpeedMult: (1 + n/100),
+        blueberrySpeedMult: (1 + n / 100),
         capIncrease: n > 0 ? 3 : 0,
         freeCorruptionLevel: n >= 20 ? 1 : 0,
         shopUpgrade: n >= 20 ? 1 : 0

@@ -49,7 +49,7 @@ import { toggleAutoChallengeModeText } from './Toggles'
 import type { OneToFive, Player, resetNames } from './types/Synergism'
 import { Alert, revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { upgradeupdate } from './Upgrades'
-import { assert, getElementById, updateClassList, sumContentsDecimal } from './Utility'
+import { assert, getElementById, sumContentsDecimal, updateClassList } from './Utility'
 import { Globals as G } from './Variables'
 
 let repeatreset: ReturnType<typeof setTimeout>
@@ -539,7 +539,9 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.reincarnatenoaccelerator = true
     player.reincarnatenomultiplier = true
 
-    if (Decimal.lt(player.reincarnationcounter, player.fastestreincarnate) && player.currentChallenge.reincarnation === 0) {
+    if (
+      Decimal.lt(player.reincarnationcounter, player.fastestreincarnate) && player.currentChallenge.reincarnation === 0
+    ) {
       player.fastestreincarnate = player.reincarnationcounter
     }
 
@@ -607,10 +609,35 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.thirdCostParticles = new Decimal(1e4)
     player.fourthCostParticles = new Decimal(1e8)
     player.fifthCostParticles = new Decimal(1e16)
-    player.runeexp = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), player.runeexp[5], player.runeexp[6]]
-    player.runelevels = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), player.runelevels[5], player.runelevels[6]]
+    player.runeexp = [
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      player.runeexp[5],
+      player.runeexp[6]
+    ]
+    player.runelevels = [
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      player.runelevels[5],
+      player.runelevels[6]
+    ]
     player.runeshards = new Decimal(0)
-    player.crystalUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+    player.crystalUpgrades = [
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0)
+    ]
 
     player.runelevels[0] = Decimal.mul(player.cubeUpgrades[26], 3)
     player.runelevels[1] = Decimal.mul(player.cubeUpgrades[26], 3)
@@ -632,7 +659,8 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
       // Metadata is defined up in the top of the (i > 3.5) case
       // Protect the cube from developer mistakes
       if (
-        Decimal.isFinite(metaData[4]) && Decimal.isFinite(metaData[5]) && Decimal.isFinite(metaData[6]) && Decimal.isFinite(metaData[7])
+        Decimal.isFinite(metaData[4]) && Decimal.isFinite(metaData[5]) && Decimal.isFinite(metaData[6])
+        && Decimal.isFinite(metaData[7])
         && Decimal.isFinite(metaData[8])
       ) {
         player.wowCubes.add(metaData[4])
@@ -762,7 +790,9 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     const numberOfAutoCraftsAndOrbs = autoHepteractCrafts.length + (player.overfluxOrbsAutoBuy ? 1 : 0)
     if (player.highestSingularityCount >= 1 && numberOfAutoCraftsAndOrbs > 0) {
       // Computes the max number of Hepteracts to spend on each auto Hepteract craft
-      const heptAutoSpend = Decimal.div(player.wowAbyssals, numberOfAutoCraftsAndOrbs).mul(player.hepteractAutoCraftPercentage).div(100).floor()
+      const heptAutoSpend = Decimal.div(player.wowAbyssals, numberOfAutoCraftsAndOrbs).mul(
+        player.hepteractAutoCraftPercentage
+      ).div(100).floor()
 
       for (const craft of autoHepteractCrafts) {
         craft.autoCraft(heptAutoSpend)
@@ -772,7 +802,9 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
         const orbsAmount = Decimal.floor(heptAutoSpend.div(250000))
         if (player.wowAbyssals.sub(orbsAmount.mul(250000)).gte(0)) {
           player.overfluxOrbs = player.overfluxOrbs.add(orbsAmount)
-          player.overfluxPowder = player.overfluxPowder.add(Decimal.mul(player.shopUpgrades.powderAuto, calculatePowderConversion().mult).mul(orbsAmount).div(100))
+          player.overfluxPowder = player.overfluxPowder.add(
+            Decimal.mul(player.shopUpgrades.powderAuto, calculatePowderConversion().mult).mul(orbsAmount).div(100)
+          )
           player.wowAbyssals = player.wowAbyssals.sub(orbsAmount.mul(250000))
         }
         if (player.wowAbyssals.lt(0)) {
@@ -866,7 +898,19 @@ export const reset = (input: resetNames, fast = false, from = 'unknown') => {
     player.ascendBuilding5.owned = new Decimal(0)
     player.ascendBuilding5.generated = new Decimal(0)
 
-    player.constantUpgrades = [null, new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+    player.constantUpgrades = [
+      null,
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0)
+    ]
 
     player.wowCubes = new WowCubes(new Decimal(0))
     player.wowTesseracts = new WowCubes(new Decimal(0))
@@ -1345,7 +1389,6 @@ export const singularity = async (setSingNumber = -1): Promise<void> => {
   const saveCode47 = player.codes.get(47) ?? false
   const saveCode48 = player.codes.get(48) ?? false
 
-
   await importSynergism(btoa(JSON.stringify(hold)), true)
   // Techically possible to import game during reset. But that will only "hurt" that imported save
 
@@ -1460,8 +1503,25 @@ const resetUpgrades = (i: number) => {
   }
 
   if (i > 1.5) {
-    player.crystalUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
-    player.crystalUpgradesCost = [new Decimal(7), new Decimal(15), new Decimal(20), new Decimal(40), new Decimal(100), new Decimal(200), new Decimal(500), new Decimal(1000)
+    player.crystalUpgrades = [
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0)
+    ]
+    player.crystalUpgradesCost = [
+      new Decimal(7),
+      new Decimal(15),
+      new Decimal(20),
+      new Decimal(40),
+      new Decimal(100),
+      new Decimal(200),
+      new Decimal(500),
+      new Decimal(1000)
     ]
 
     updateEffectiveLevelMult() // update before prism rune, fixes c15 bug
@@ -1516,7 +1576,20 @@ export const resetAnts = () => {
   }
 
   const ant12 = player.antUpgrades[12 - 1]
-  player.antUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), ant12]
+  player.antUpgrades = [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    ant12
+  ]
   player.antPoints = new Decimal(1)
 
   if (player.currentChallenge.ascension === 12) {

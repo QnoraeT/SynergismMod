@@ -1,5 +1,5 @@
 import { sacrificeAnts } from './Ants'
-import { buyMaxBoostAccel, buyMaxAccels, buyMaxMuls } from './Buy'
+import { buyMaxAccels, buyMaxBoostAccel, buyMaxMuls } from './Buy'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { promocodes } from './ImportExport'
 import { useConsumable } from './Shop'

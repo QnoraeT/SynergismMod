@@ -14,7 +14,7 @@ import {
   highestChallengeRewards,
   runChallengeSweep
 } from './Challenges'
-import { btoa, cleanString, sortWithIndices, sumContentsNumber, sumContentsDecimal } from './Utility'
+import { btoa, cleanString, sortWithIndices, sumContentsDecimal, sumContentsNumber } from './Utility'
 import { blankGlobals, Globals as G } from './Variables'
 
 import {
@@ -28,18 +28,19 @@ import { antSacrificePointsToMultiplier, autoBuyAnts, calculateCrumbToCoinExp } 
 import { autoUpgrades } from './Automation'
 import type { TesseractBuildings } from './Buy'
 import {
-  buyMaxBoostAccel,
-  buyMaxAccels,
   buyCrystalUpgrades,
+  buyGoldenQuarkBuilding,
   buyMax,
+  buyMaxAccels,
+  buyMaxBoostAccel,
   buyMaxMuls,
   buyParticleBuilding,
   buyRuneBonusLevels,
   buyTesseractBuilding,
   calculateTessBuildingsInBudget,
   getCost,
-  getReductionValue,
-  getParticleCostq
+  getParticleCostq,
+  getReductionValue
 } from './Buy'
 import {
   calculateAcceleratorMultiplier,
@@ -55,9 +56,9 @@ import {
   calculateTimeAcceleration,
   calculateTotalAcceleratorBoost,
   calculateTotalCoinOwned,
+  constantEffects,
   dailyResetCheck,
-  exitOffline,
-  constantEffects
+  exitOffline
 } from './Calculate'
 import {
   corrChallengeMinimum,
@@ -87,7 +88,7 @@ import {
   updateSingularityGlobalPerks,
   updateTesseractAutoBuyAmount
 } from './Reset'
-import { redeemShards, getRuneEffective } from './Runes'
+import { getRuneEffective, redeemShards } from './Runes'
 import { c15RewardUpdate } from './Statistics'
 import {
   buyTalismanEnhance,
@@ -159,7 +160,7 @@ import { init as i18nInit } from './i18n'
 import { handleLogin } from './Login'
 import { octeractData, OcteractUpgrade } from './Octeracts'
 import { updatePlatonicUpgradeBG } from './Platonic'
-import { QuarkHandler } from './Quark'
+import { getQuarkBonus, QuarkHandler } from './Quark'
 import { playerJsonSchema } from './saves/PlayerJsonSchema'
 import { playerSchema } from './saves/PlayerSchema'
 import { getFastForwardTotalMultiplier, singularityData, SingularityUpgrade } from './singularity'
@@ -178,7 +179,7 @@ import type { PlayerSave } from './types/LegacySynergism'
 
 export const player: Player = {
   firstPlayed: new Date().toISOString(),
-  worlds: new QuarkHandler({ quarks: new Decimal(0), bonus: new Decimal(0) }),
+  worlds: new QuarkHandler(new Decimal(0)),
   coins: new Decimal(100),
   coinsThisPrestige: new Decimal(100),
   coinsThisTranscension: new Decimal(100),
@@ -329,31 +330,64 @@ export const player: Player = {
     cost: new Decimal(1),
     owned: new Decimal(0),
     multiplier: new Decimal(0.01),
-    generated: new Decimal(0),
+    generated: new Decimal(0)
   },
   ascendBuilding2: {
     cost: new Decimal(10),
     owned: new Decimal(0),
     multiplier: new Decimal(0.01),
-    generated: new Decimal(0),
+    generated: new Decimal(0)
   },
   ascendBuilding3: {
     cost: new Decimal(100),
     owned: new Decimal(0),
     multiplier: new Decimal(0.01),
-    generated: new Decimal(0),
+    generated: new Decimal(0)
   },
   ascendBuilding4: {
     cost: new Decimal(1000),
     owned: new Decimal(0),
     multiplier: new Decimal(0.01),
-    generated: new Decimal(0),
+    generated: new Decimal(0)
   },
   ascendBuilding5: {
     cost: new Decimal(10000),
     owned: new Decimal(0),
     multiplier: new Decimal(0.01),
-    generated: new Decimal(0),
+    generated: new Decimal(0)
+  },
+
+  goldenFragments: new Decimal(0),
+
+  gcBuilding1: {
+    cost: new Decimal(100),
+    owned: new Decimal(0),
+    multiplier: new Decimal(1),
+    generated: new Decimal(0)
+  },
+  gcBuilding2: {
+    cost: new Decimal(1000),
+    owned: new Decimal(0),
+    multiplier: new Decimal(1),
+    generated: new Decimal(0)
+  },
+  gcBuilding3: {
+    cost: new Decimal(1e6),
+    owned: new Decimal(0),
+    multiplier: new Decimal(1),
+    generated: new Decimal(0)
+  },
+  gcBuilding4: {
+    cost: new Decimal(1e9),
+    owned: new Decimal(0),
+    multiplier: new Decimal(1),
+    generated: new Decimal(0)
+  },
+  gcBuilding5: {
+    cost: new Decimal(1e12),
+    owned: new Decimal(0),
+    multiplier: new Decimal(1),
+    generated: new Decimal(0)
   },
 
   multiplierCost: new Decimal(1e4),
@@ -425,8 +459,42 @@ export const player: Player = {
     43: false
   },
 
-  challengecompletions: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
-  highestchallengecompletions: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
+  challengecompletions: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
+  highestchallengecompletions: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
   challenge15Exponent: new Decimal(0),
   highestChallenge15Exponent: new Decimal(0),
 
@@ -487,11 +555,45 @@ export const player: Player = {
   reincarnatenocoinprestigeortranscendupgrades: true,
   reincarnatenocoinprestigetranscendorgeneratorupgrades: true,
 
-  crystalUpgrades: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
-  crystalUpgradesCost: [new Decimal(7), new Decimal(15), new Decimal(20), new Decimal(40), new Decimal(100), new Decimal(200), new Decimal(500), new Decimal(1000)],
+  crystalUpgrades: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
+  crystalUpgradesCost: [
+    new Decimal(7),
+    new Decimal(15),
+    new Decimal(20),
+    new Decimal(40),
+    new Decimal(100),
+    new Decimal(200),
+    new Decimal(500),
+    new Decimal(1000)
+  ],
 
-  runelevels: [new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(1), new Decimal(0), new Decimal(0)],
-  runeexp: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
+  runelevels: [
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(1),
+    new Decimal(0),
+    new Decimal(0)
+  ],
+  runeexp: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
   runeshards: new Decimal(0),
   maxofferings: new Decimal(0),
   offeringpersecond: new Decimal(0),
@@ -637,7 +739,20 @@ export const player: Player = {
   goldenQuarksTimer: new Decimal(90000),
 
   antPoints: new Decimal(1),
-  antUpgrades: [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
+  antUpgrades: [
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
   antSacrificePoints: new Decimal(0),
   antSacrificeTimer: new Decimal(900),
   antSacrificeTimerReal: new Decimal(900),
@@ -884,7 +999,19 @@ export const player: Player = {
   ],
   corruptionShowStats: true,
 
-  constantUpgrades: [null, new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)],
+  constantUpgrades: [
+    null,
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0),
+    new Decimal(0)
+  ],
   history: { ants: [], ascend: [], reset: [], singularity: [] },
   historyShowPerSecond: false,
 
@@ -921,6 +1048,7 @@ export const player: Player = {
   runeSpiritBuyAmount: 0,
 
   autoTesseracts: [false, false, false, false, false, false],
+  autoGoldenQuarks: [false, false, false, false, false, false],
 
   saveString: 'Synergism-$VERSION$-$TIME$.txt',
   exporttest: !testing,
@@ -1508,7 +1636,7 @@ export const saveCheck = { canSave: true }
 
 export const saveSynergy = async (button?: boolean): Promise<boolean> => {
   if (Decimal.isNaN(player.coins)) {
-    throw new Error("the save is fucked")
+    throw new Error('the save is fucked')
   }
   player.offlinetick = Date.now()
   player.loaded1009 = true
@@ -1589,7 +1717,7 @@ const loadSynergy = async () => {
       Object.assign(player, validatedPlayer.data)
     } else {
       console.error(validatedPlayer.error)
-      console.warn("PLAYER DATA:")
+      console.warn('PLAYER DATA:')
       console.log(data)
       clearTimers()
       return
@@ -1617,6 +1745,18 @@ const loadSynergy = async () => {
       for (let i = player.codes.size + 1; i <= size; i++) {
         if (!player.codes.has(i)) {
           player.codes.set(i, false)
+        }
+      }
+    }
+    
+    // TODO(@KhafraDev): remove G.currentSingChallenge
+    // fix current sing challenge blank
+    if (player.insideSingularityChallenge) {
+      const challenges = Object.keys(player.singularityChallenges);
+      for (let i = 0; i < challenges.length; i++) {
+        if (player.singularityChallenges[challenges[i]].enabled) {
+          G.currentSingChallenge = singularityChallengeData[challenges[i]].HTMLTag;
+          break;
         }
       }
     }
@@ -1661,11 +1801,11 @@ const loadSynergy = async () => {
       || data.loaded1009hotfix1 === null
       || data.shopUpgrades?.offeringPotion === undefined
     ) {
-      player.firstOwnedParticles =  new Decimal(0)
+      player.firstOwnedParticles = new Decimal(0)
       player.secondOwnedParticles = new Decimal(0)
-      player.thirdOwnedParticles =  new Decimal(0)
+      player.thirdOwnedParticles = new Decimal(0)
       player.fourthOwnedParticles = new Decimal(0)
-      player.fifthOwnedParticles =  new Decimal(0)
+      player.fifthOwnedParticles = new Decimal(0)
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
@@ -1683,11 +1823,11 @@ const loadSynergy = async () => {
     if (!data.loaded1009hotfix1) {
       player.loaded1009hotfix1 = true
       player.codes.set(19, true)
-      player.firstOwnedParticles =  new Decimal(0)
+      player.firstOwnedParticles = new Decimal(0)
       player.secondOwnedParticles = new Decimal(0)
-      player.thirdOwnedParticles =  new Decimal(0)
+      player.thirdOwnedParticles = new Decimal(0)
       player.fourthOwnedParticles = new Decimal(0)
-      player.fifthOwnedParticles =  new Decimal(0)
+      player.fifthOwnedParticles = new Decimal(0)
       player.firstCostParticles = new Decimal(1)
       player.secondCostParticles = new Decimal(100)
       player.thirdCostParticles = new Decimal(1e4)
@@ -1793,7 +1933,20 @@ const loadSynergy = async () => {
       //    player.shopUpgrades.antSpeed = 0;
       //    player.shopUpgrades.shopTalisman = 0;
 
-      player.antUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+      player.antUpgrades = [
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0),
+        new Decimal(0)
+      ]
 
       player.unlocks.rrow4 = false
       player.researchPoints = player.researchPoints.add(3e7 * player.researches[50])
@@ -2709,137 +2862,176 @@ const loadSynergy = async () => {
   player.dayTimer = 60 * 60 * 24 - (s + 60 * m + 60 * 60 * h)
 }
 
-const abbSuffixes = ["", "K", "M", "B", "T", "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc",
-                    "UDc", "DDc", "TDc", "QaDc", "QiDc", "SxDc", "SpDc", "OcDc", "NoDc", "Vg"];
+const abbSuffixes = [
+  '',
+  'K',
+  'M',
+  'B',
+  'T',
+  'Qa',
+  'Qi',
+  'Sx',
+  'Sp',
+  'Oc',
+  'No',
+  'Dc',
+  'UDc',
+  'DDc',
+  'TDc',
+  'QaDc',
+  'QiDc',
+  'SxDc',
+  'SpDc',
+  'OcDc',
+  'NoDc',
+  'Vg'
+]
 
 const timeList = [
-    { name: "pt",  stop: true,  amt: 5.39e-44    },
-    { name: "qs",  stop: true,  amt: 1 / 1e30    },
-    { name: "rs",  stop: true,  amt: 1 / 1e27    },
-    { name: "ys",  stop: true,  amt: 1 / 1e24    },
-    { name: "zs",  stop: true,  amt: 1 / 1e21    },
-    { name: "as",  stop: true,  amt: 1 / 1e18    },
-    { name: "fs",  stop: true,  amt: 1 / 1e15    },
-    { name: "ps",  stop: true,  amt: 1 / 1e12    },
-    { name: "ns",  stop: true,  amt: 1 / 1e9     },
-    { name: "µs",  stop: true,  amt: 1 / 1e6     },
-    { name: "ms",  stop: true,  amt: 1 / 1e3     },
-    { name: "s",   stop: true,  amt: 1           },
-    { name: "m",   stop: false, amt: 60          },
-    { name: "h",   stop: false, amt: 3600        },
-    { name: "d",   stop: false, amt: 86400       },
-    { name: "mo",  stop: false, amt: 2592000     },
-    { name: "y",   stop: false, amt: 3.1536e7    },
-    { name: "mil", stop: false, amt: 3.1536e10   },
-    { name: "uni", stop: false, amt: 4.320432e17 },
-];
+  { name: 'pt', stop: true, amt: 5.39e-44 },
+  { name: 'qs', stop: true, amt: 1 / 1e30 },
+  { name: 'rs', stop: true, amt: 1 / 1e27 },
+  { name: 'ys', stop: true, amt: 1 / 1e24 },
+  { name: 'zs', stop: true, amt: 1 / 1e21 },
+  { name: 'as', stop: true, amt: 1 / 1e18 },
+  { name: 'fs', stop: true, amt: 1 / 1e15 },
+  { name: 'ps', stop: true, amt: 1 / 1e12 },
+  { name: 'ns', stop: true, amt: 1 / 1e9 },
+  { name: 'µs', stop: true, amt: 1 / 1e6 },
+  { name: 'ms', stop: true, amt: 1 / 1e3 },
+  { name: 's', stop: true, amt: 1 },
+  { name: 'm', stop: false, amt: 60 },
+  { name: 'h', stop: false, amt: 3600 },
+  { name: 'd', stop: false, amt: 86400 },
+  { name: 'mo', stop: false, amt: 2592000 },
+  { name: 'y', stop: false, amt: 3.1536e7 },
+  { name: 'mil', stop: false, amt: 3.1536e10 },
+  { name: 'uni', stop: false, amt: 4.320432e17 }
+]
 
-const abbExp = 1e66;
+const abbExp = 1e66
 
-export const format = (number: 
+export const format = (
+  number:
     | Decimal
     | number
     | { [Symbol.toPrimitive]: unknown }
     | string
     | null
     | undefined,
-    dec = 0, long = false, expdec = 3): string => {
-    if (number === undefined) {
-      return "undefined"
-    }
-    if (number === null) {
-      return "null"
-    }
-    if (typeof number === 'object' && Symbol.toPrimitive in number) {
-      number = Number(number)
-    }
-    const n = new Decimal(number);
-    if (n.lt(0)) return `-${format(n.negate(), dec, long, expdec)}`;
-    if (n.eq(0)) return (0).toFixed(dec);
-    if (Decimal.isNaN(n)) return "NaN";
-    if (!Decimal.isFinite(n)) return "Infinity";
-    if (n.lt(0.001)) {
-        return `1 / ${format(n.recip(), dec, long, expdec)}`;
-    } else if (n.lt(long ? 1e12 : 1e9)) {
-        return n.toNumber().toFixed(dec).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ",");
-    } else if (n.lt(abbExp)) {
-        const abb = n.log10().mul(0.33333333336666665).floor();
-        return `${n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec)} ${abbSuffixes[abb.toNumber()]}`;
-    } else if (n.lt(long ? "e1e9" : "e1e6")) {
-        const exp = n.log10().mul(1.0000000001).floor();
-        return `${n.div(exp.pow10()).toNumber().toFixed(expdec)}e${format(exp, 0, long, expdec)}`;
-    } else if (n.lt("10^^7")) {
-        return `e${format(n.log10(), dec, long, expdec)}`;
-    } else {
-        return `F${format(n.slog(10), dec, long, expdec)}`;
-    }
+  dec = 0,
+  long = false,
+  expdec = 3
+): string => {
+  if (number === undefined) {
+    return 'undefined'
+  }
+  if (number === null) {
+    return 'null'
+  }
+  if (typeof number === 'object' && Symbol.toPrimitive in number) {
+    number = Number(number)
+  }
+  const n = new Decimal(number)
+  if (n.lt(0)) return `-${format(n.negate(), dec, long, expdec)}`
+  if (n.eq(0)) return (0).toFixed(dec)
+  if (Decimal.isNaN(n)) return 'NaN'
+  if (!Decimal.isFinite(n)) return 'Infinity'
+  if (n.lt(0.001)) {
+    return `1 / ${format(n.recip(), dec, long, expdec)}`
+  } else if (n.lt(long ? 1e12 : 1e9)) {
+    return n.toNumber().toFixed(dec).toString().replace(/\B(?<!\.\d*)(?=(\d{3})+(?!\d))/g, ',')
+  } else if (n.lt(abbExp)) {
+    const abb = n.log10().mul(0.33333333336666665).floor()
+    return `${n.div(abb.mul(3).pow10()).toNumber().toFixed(expdec)} ${abbSuffixes[abb.toNumber()]}`
+  } else if (n.lt(long ? 'e1e9' : 'e1e6')) {
+    const exp = n.log10().mul(1.0000000001).floor()
+    return `${n.div(exp.pow10()).toNumber().toFixed(expdec)}e${format(exp, 0, long, expdec)}`
+  } else if (n.lt('10^^7')) {
+    return `e${format(n.log10(), dec, long, expdec)}`
+  } else {
+    return `F${format(n.slog(10), dec, long, expdec)}`
+  }
 }
 
-export const formatPerc = (number: 
-  | Decimal
-  | number
-  | { [Symbol.toPrimitive]: unknown }
-  | null
-  | undefined, dec = 3, long = false, expdec = 3): string => {
-    if (number === undefined) {
-      return "undefined"
-    }
-    if (number === null) {
-      return "null"
-    }
-    if (typeof number === 'object' && Symbol.toPrimitive in number) {
-      number = Number(number)
-    }
-    const n = new Decimal(number);
-    if (n.gte(1000)) {
-        return `${format(n, dec, long, expdec)}x`;
-    } else {
-        return `${format(Decimal.sub(100, Decimal.div(100, n)), dec, long, expdec)}%`;
-    }
+export const formatPerc = (
+  number:
+    | Decimal
+    | number
+    | { [Symbol.toPrimitive]: unknown }
+    | null
+    | undefined,
+  dec = 3,
+  long = false,
+  expdec = 3
+): string => {
+  if (number === undefined) {
+    return 'undefined'
+  }
+  if (number === null) {
+    return 'null'
+  }
+  if (typeof number === 'object' && Symbol.toPrimitive in number) {
+    number = Number(number)
+  }
+  const n = new Decimal(number)
+  if (n.gte(1000)) {
+    return `${format(n, dec, long, expdec)}x`
+  } else {
+    return `${format(Decimal.sub(100, Decimal.div(100, n)), dec, long, expdec)}%`
+  }
 }
 
-export const formatTime = (number: 
-  | Decimal
-  | number
-  | { [Symbol.toPrimitive]: unknown }
-  | null
-  | undefined, dec = 0, long = false, expdec = 3, limit = 2): string => {
-    if (number === undefined) {
-      return "undefined"
+export const formatTime = (
+  number:
+    | Decimal
+    | number
+    | { [Symbol.toPrimitive]: unknown }
+    | null
+    | undefined,
+  dec = 0,
+  long = false,
+  expdec = 3,
+  limit = 2
+): string => {
+  if (number === undefined) {
+    return 'undefined'
+  }
+  if (number === null) {
+    return 'null'
+  }
+  if (typeof number === 'object' && Symbol.toPrimitive in number) {
+    number = Number(number)
+  }
+  let n = new Decimal(number)
+  if (n.lt(0)) return `-${formatTime(n.negate(), dec, long, expdec)}`
+  if (n.eq(0)) return (0).toFixed(dec)
+  if (Number.isNaN(n.mag)) return 'I don\'t know?'
+  if (!Number.isFinite(n.mag)) return 'Forever'
+  let lim = 0
+  let str = ''
+  let end = false
+  for (let i = timeList.length - 1; i >= 0; i--) {
+    if (lim >= limit) {
+      break
     }
-    if (number === null) {
-      return "null"
+    if (n.gte(timeList[i].amt)) {
+      end = lim + 1 >= limit || timeList[i].stop
+      str = `${str} ${format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, long, expdec)}${
+        timeList[i].name
+      }`
+      n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt))
+      lim++
+      if (timeList[i].stop) {
+        break
+      }
+    } else {
+      if (i === 0) {
+        return `${str} ${format(n, dec, long, expdec)}s`.slice(1)
+      }
     }
-    if (typeof number === 'object' && Symbol.toPrimitive in number) {
-      number = Number(number)
-    }
-    let n = new Decimal(number);
-    if (n.lt(0)) return `-${formatTime(n.negate(), dec, long, expdec)}`;
-    if (n.eq(0)) return (0).toFixed(dec);
-    if (Number.isNaN(n.mag)) return "I don't know?";
-    if (!Number.isFinite(n.mag)) return "Forever";
-    let lim = 0;
-    let str = "";
-    let end = false;
-    for (let i = timeList.length - 1; i >= 0; i--) {
-        if (lim >= limit) {
-            break;
-        }
-        if (n.gte(timeList[i].amt)) {
-            end = lim + 1 >= limit || timeList[i].stop;
-            str = `${str} ${format(n.div(timeList[i].amt).sub(end ? 0 : 0.5), end ? dec : 0, long, expdec)}${timeList[i].name}`
-            n = n.sub(n.div(timeList[i].amt).floor().mul(timeList[i].amt));
-            lim++;
-            if (timeList[i].stop) {
-                break;
-            }
-        } else {
-            if (i === 0) {
-                return `${str} ${format(n, dec, long, expdec)}s`.slice(1);
-            }
-        }
-    }
-    return str.slice(1);
+  }
+  return str.slice(1)
 }
 
 export const formatTimeShort = (
@@ -2874,11 +3066,14 @@ export const updateAllTick = (): void => {
   }
   if (player.upgrades[27] !== 0) {
     a = a.add(player.coins.max(0).add(1).log(1e3).floor().min(250)).add(
-        player.coins.max(0).add(1).log(1e15).floor().sub(50).max(0).min(1750)
-      )
+      player.coins.max(0).add(1).log(1e15).floor().sub(50).max(0).min(1750)
+    )
   }
   if (player.upgrades[29] !== 0) {
-    a = a.add(Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(80).min(2000).floor())
+    a = a.add(
+      Decimal.add(player.firstOwnedCoin, player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin)
+        .add(player.fifthOwnedCoin).div(80).min(2000).floor()
+    )
   }
   if (player.upgrades[32] !== 0) {
     a = a.add(player.prestigePoints.max(0).add(1).log(1e25).floor().min(500))
@@ -2913,8 +3108,11 @@ export const updateAllTick = (): void => {
 
   a = a.add(Decimal.mul(5, CalcECC('transcend', player.challengecompletions[2])))
   G.freeUpgradeAccelerator = a
-  a = a.add(Decimal.add(G.cubeBonusMultiplier[1], 4).add(2 * player.researches[18]).add(2 * player.researches[19]).add(3 * player.researches[20]).mul(G.totalAcceleratorBoost)
-)
+  a = a.add(
+    Decimal.add(G.cubeBonusMultiplier[1], 4).add(2 * player.researches[18]).add(2 * player.researches[19]).add(
+      3 * player.researches[20]
+    ).mul(G.totalAcceleratorBoost)
+  )
   if (player.unlocks.prestige) {
     a = a.add(Decimal.floor(Decimal.pow(getRuneEffective(1).div(4), 1.5)))
     a = a.mul(getRuneEffective(1).div(200).add(1))
@@ -2949,7 +3147,9 @@ export const updateAllTick = (): void => {
   }
 
   G.acceleratorPower = Decimal.pow(
-    Decimal.mul(G.tuSevenMulti, G.totalAcceleratorBoost.div(100)).mul(CalcECC('transcend', player.challengecompletions[2]).div(20).add(1)).add(1.1),
+    Decimal.mul(G.tuSevenMulti, G.totalAcceleratorBoost.div(100)).mul(
+      CalcECC('transcend', player.challengecompletions[2]).div(20).add(1)
+    ).add(1.1),
     CalcECC('reincarnation', player.challengecompletions[7]).mul(0.04).add(1)
   )
   G.acceleratorPower = G.acceleratorPower.add(
@@ -2976,9 +3176,11 @@ export const updateAllTick = (): void => {
     }
     if (player.currentChallenge.transcension === 3) {
       G.acceleratorPower = new Decimal(1.05)
-        .add(Decimal.mul(G.tuSevenMulti, 2)
-          .mul(G.totalAcceleratorBoost.div(300))
-          .mul(CalcECC('transcend', player.challengecompletions[2]).div(20).add(1)))
+        .add(
+          Decimal.mul(G.tuSevenMulti, 2)
+            .mul(G.totalAcceleratorBoost.div(300))
+            .mul(CalcECC('transcend', player.challengecompletions[2]).div(20).add(1))
+        )
     }
   }
 
@@ -3041,10 +3243,19 @@ export const updateAllMultiplier = (): void => {
     a = a.add(1)
   }
   if (player.upgrades[28] > 0) {
-    a = a.add(player.firstOwnedCoin.add(player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(player.fifthOwnedCoin).div(160).floor().min(1000))
+    a = a.add(
+      player.firstOwnedCoin.add(player.secondOwnedCoin).add(player.thirdOwnedCoin).add(player.fourthOwnedCoin).add(
+        player.fifthOwnedCoin
+      ).div(160).floor().min(1000)
+    )
   }
   if (player.upgrades[30] > 0) {
-    a = a.add(Decimal.add(player.coins.max(0).add(1).log10().div(10).floor().min(75), player.coins.max(0).add(1).log10().div(30).floor().min(925)))
+    a = a.add(
+      Decimal.add(
+        player.coins.max(0).add(1).log10().div(10).floor().min(75),
+        player.coins.max(0).add(1).log10().div(30).floor().min(925)
+      )
+    )
   }
   if (player.upgrades[33] > 0) {
     a = a.add(G.totalAcceleratorBoost)
@@ -3082,7 +3293,8 @@ export const updateAllMultiplier = (): void => {
   if (player.achievements[59] > 0.5) {
     a = a.add(1)
   }
-  a = a.add(Decimal.floor(
+  a = a.add(
+    Decimal.floor(
       (G.rune1level
         .add(G.rune2level)
         .add(G.rune3level)
@@ -3121,12 +3333,14 @@ export const updateAllMultiplier = (): void => {
   ))
   a = a.mul(1 + 0.03 * player.upgrades[34] + 0.02 * player.upgrades[35])
   a = a.mul(CalcECC('ascension', player.challengecompletions[14]).div(2).add(1).mul(player.researches[2]).div(5).add(1))
-  a = a.mul(1
-    + 0.05 * player.researches[11]
-    + 0.04 * player.researches[12]
-    + 0.03 * player.researches[13]
-    + 0.02 * player.researches[14]
-    + 0.02 * player.researches[15])
+  a = a.mul(
+    1
+      + 0.05 * player.researches[11]
+      + 0.04 * player.researches[12]
+      + 0.03 * player.researches[13]
+      + 0.02 * player.researches[14]
+      + 0.02 * player.researches[15]
+  )
   a = a.mul(getRuneEffective(2).div(400).add(1))
   a = a.mul(1 + (1 / 20) * player.researches[87])
   a = a.mul(1 + (1 / 100) * player.researches[128])
@@ -3215,8 +3429,12 @@ export const updateAllMultiplier = (): void => {
 export const multipliers = (): void => {
   let s = new Decimal(1)
   let c = new Decimal(1)
-  let crystalExponent = new Decimal(1/3)
-  crystalExponent = crystalExponent.add(Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.05).add(10).add(Decimal.mul((calculateCorruptionPoints().div(20)), G.effectiveRuneSpiritPower[3])).min(Decimal.mul(0.05, player.crystalUpgrades[3])))
+  let crystalExponent = new Decimal(1 / 3)
+  crystalExponent = crystalExponent.add(
+    Decimal.mul(player.researches[129], Decimal.add(player.commonFragments, 1).log(4)).mul(0.05).add(10).add(
+      Decimal.mul(calculateCorruptionPoints().div(20), G.effectiveRuneSpiritPower[3])
+    ).min(Decimal.mul(0.05, player.crystalUpgrades[3]))
+  )
   crystalExponent = crystalExponent.add(Decimal.mul(0.04, CalcECC('transcend', player.challengecompletions[3])))
   crystalExponent = crystalExponent.add(Decimal.mul(0.08, player.researches[28]))
   crystalExponent = crystalExponent.add(Decimal.mul(0.08, player.researches[29]))
@@ -3224,22 +3442,21 @@ export const multipliers = (): void => {
   crystalExponent = crystalExponent.add(Decimal.mul(8, player.cubeUpgrades[17]))
   G.prestigeMultiplier = player.prestigeShards.max(0).pow(crystalExponent).add(1)
 
-  G.buildingPower = 
-  player.reincarnationShards.add(1).log10().mul(
+  G.buildingPower = player.reincarnationShards.add(1).log10().mul(
     1 - Math.pow(2, -1 / 160)
   ).mul(
     Decimal.add(
       Decimal.mul(
-        player.researches[36], 
+        player.researches[36],
         0.05
-      ), 
+      ),
       Decimal.mul(
-        player.researches[37], 
+        player.researches[37],
         0.025
       )
     ).add(
       Decimal.mul(
-        player.researches[38], 
+        player.researches[38],
         0.025
       )
     ).add(1)
@@ -3324,7 +3541,11 @@ export const multipliers = (): void => {
     player.currentChallenge.ascension === 15
     && player.platonicUpgrades[14] > 0
   ) {
-    lol = lol.pow(Decimal.mul(player.usedCorruptions[9], player.coins.add(1).log10()).mul(0.05).div(player.coins.add(1).log10().add(1e7)).add(1))
+    lol = lol.pow(
+      Decimal.mul(player.usedCorruptions[9], player.coins.add(1).log10()).mul(0.05).div(
+        player.coins.add(1).log10().add(1e7)
+      ).add(1)
+    )
   }
   if (
     player.currentChallenge.ascension === 15
@@ -3348,7 +3569,8 @@ export const multipliers = (): void => {
   }
   if (player.upgrades[10] > 0.5) {
     G.coinOneMulti = G.coinOneMulti.mul(
-      Decimal.pow(2, Decimal.div(player.secondOwnedCoin, 15).min(50)))
+      Decimal.pow(2, Decimal.div(player.secondOwnedCoin, 15).min(50))
+    )
   }
   if (player.upgrades[56] > 0.5) {
     G.coinOneMulti = G.coinOneMulti.mul('1e5000')
@@ -3436,9 +3658,11 @@ export const multipliers = (): void => {
       Decimal.min('1e6000', Decimal.pow(player.reincarnationPoints.max(0).add(1), 6))
     )
   }
-  
+
   if (player.researches[39] > 0.5) {
-    G.globalCrystalMultiplier = G.globalCrystalMultiplier.mul(G.reincarnationMultiplier.add(10).log10().pow(0.9).mul(0.2).pow10())
+    G.globalCrystalMultiplier = G.globalCrystalMultiplier.mul(
+      G.reincarnationMultiplier.add(10).log10().pow(0.9).mul(0.2).pow10()
+    )
   }
 
   G.globalCrystalMultiplier = G.globalCrystalMultiplier.mul(
@@ -3459,11 +3683,11 @@ export const multipliers = (): void => {
   G.globalCrystalMultiplier = G.globalCrystalMultiplier.mul(
     Decimal.pow(
       Decimal.min(
-          new Decimal(0.12)
-            .add(0.88 * player.upgrades[122])
-            .add(player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001)),
-          Decimal.mul(0.001, player.crystalUpgrades[2])
-        ).add(1),
+        new Decimal(0.12)
+          .add(0.88 * player.upgrades[122])
+          .add(player.commonFragments.add(1).log(4).mul(player.researches[129]).mul(0.001)),
+        Decimal.mul(0.001, player.crystalUpgrades[2])
+      ).add(1),
       Decimal.add(player.firstOwnedDiamonds, player.secondOwnedDiamonds)
         .add(player.thirdOwnedDiamonds)
         .add(player.fourthOwnedDiamonds)
@@ -3534,7 +3758,9 @@ export const multipliers = (): void => {
     )
   }
   if (player.researches[40] > 0.5) {
-    G.globalMythosMultiplier = G.globalMythosMultiplier.mul(G.reincarnationMultiplier.add(10).log10().pow(0.8).mul(0.15).pow10())
+    G.globalMythosMultiplier = G.globalMythosMultiplier.mul(
+      G.reincarnationMultiplier.add(10).log10().pow(0.8).mul(0.15).pow10()
+    )
   }
   G.grandmasterMultiplier = new Decimal(1)
   G.totalMythosOwned = Decimal.add(player.firstOwnedMythos, player.secondOwnedMythos)
@@ -3545,7 +3771,7 @@ export const multipliers = (): void => {
   G.mythosBuildingPower = CalcECC('transcend', player.challengecompletions[3]).div(200).add(1)
   G.challengeThreeMultiplier = Decimal.pow(G.mythosBuildingPower, G.totalMythosOwned)
 
-  let softcapStart = new Decimal("ee7")
+  let softcapStart = new Decimal('ee7')
   G.challengeThreeSoftcap = new Decimal(1)
   softcapStart = softcapStart.pow(constantEffects().c3Effect)
   if (G.challengeThreeMultiplier.gte(softcapStart)) {
@@ -3589,13 +3815,13 @@ export const multipliers = (): void => {
   G.globalConstantMult = G.globalConstantMult.mul(
     Decimal.pow(
       Decimal.min(
-            new Decimal(100)
-              .add(10 * player.achievements[270])
-              .add(10 * player.shopUpgrades.constantEX)
-              .add(G.challenge15Rewards.exponent.sub(1).mul(1000))
-              .add(3 * player.platonicUpgrades[18]),
-            player.constantUpgrades[2]
-          ).mul(0.001).add(1),
+        new Decimal(100)
+          .add(10 * player.achievements[270])
+          .add(10 * player.shopUpgrades.constantEX)
+          .add(G.challenge15Rewards.exponent.sub(1).mul(1000))
+          .add(3 * player.platonicUpgrades[18]),
+        player.constantUpgrades[2]
+      ).mul(0.001).add(1),
       ascendBuildingDR()
     )
   )
@@ -3760,7 +3986,14 @@ export const resourceGain = (dt: Decimal): void => {
 
   let pm = new Decimal(1)
   if (player.upgrades[67] > 0.5) {
-    pm = pm.mul(Decimal.pow(1.03, player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(player.fourthOwnedParticles).add(player.fifthOwnedParticles)))
+    pm = pm.mul(
+      Decimal.pow(
+        1.03,
+        player.firstOwnedParticles.add(player.secondOwnedParticles).add(player.thirdOwnedParticles).add(
+          player.fourthOwnedParticles
+        ).add(player.fifthOwnedParticles)
+      )
+    )
   }
   G.produceFifthParticles = player.fifthGeneratedParticles
     .add(player.fifthOwnedParticles)
@@ -3842,8 +4075,18 @@ export const resourceGain = (dt: Decimal): void => {
   for (let i = 1; i <= 5; i++) {
     if (
       player.researches[70 + i] > 0.5
-      && Decimal.lt(player.challengecompletions[i], Decimal.min(player.highestchallengecompletions[i], 25 + 5 * player.researches[65 + i] + 925 * player.researches[105]))
-      && player.coins.gte(Decimal.mul(G.challengeBaseRequirements[i - 1], Decimal.add(player.challengecompletions[i], 1).pow(2)).mul([1.25, 1.6, 1.7, 1.45, 2][i - 1]).pow10())
+      && Decimal.lt(
+        player.challengecompletions[i],
+        Decimal.min(
+          player.highestchallengecompletions[i],
+          25 + 5 * player.researches[65 + i] + 925 * player.researches[105]
+        )
+      )
+      && player.coins.gte(
+        Decimal.mul(G.challengeBaseRequirements[i - 1], Decimal.add(player.challengecompletions[i], 1).pow(2)).mul(
+          [1.25, 1.6, 1.7, 1.45, 2][i - 1]
+        ).pow10()
+      )
     ) {
       player.challengecompletions[i] = Decimal.add(player.challengecompletions[i], 1)
       challengeachievementcheck(i, true)
@@ -3894,12 +4137,14 @@ export const resourceGain = (dt: Decimal): void => {
   }
   if (ascendchal !== 0 && ascendchal < 15) {
     if (
-      Decimal.gte(player.challengecompletions[10]
-        , challengeRequirement(
+      Decimal.gte(
+        player.challengecompletions[10],
+        challengeRequirement(
           ascendchal,
           player.challengecompletions[ascendchal],
           ascendchal
-        ))
+        )
+      )
     ) {
       void resetCheck('ascensionChallenge', false)
       challengeachievementcheck(ascendchal, true)
@@ -3925,11 +4170,13 @@ export const updateAntMultipliers = (): void => {
   // Update 2.9.0: Updated to give a 5x multiplier no matter what
   // tearonq modification: 20x
   G.globalAntMult = new Decimal(1000)
-  G.globalAntMult = G.globalAntMult.mul( 
+  G.globalAntMult = G.globalAntMult.mul(
     Decimal.pow(
       getRuneEffective(5)
-      .mul(1 + (player.researches[84] / 200))
-      .add(Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400)), 2).div(2500).add(1)
+        .mul(1 + (player.researches[84] / 200))
+        .add(Decimal.mul(G.effectiveRuneSpiritPower[5], calculateCorruptionPoints()).div(400)),
+      2
+    ).div(2500).add(1)
   )
   if (player.upgrades[76] === 1) {
     G.globalAntMult = G.globalAntMult.mul(5)
@@ -4015,7 +4262,7 @@ export const updateAntMultipliers = (): void => {
 
   let softcapStr = new Decimal(1e33)
   softcapStr = softcapStr.mul(constantEffects().antSoftcap)
-  
+
   if (G.globalAntMult.gte(softcapStr)) {
     G.antSoftcapPow = G.globalAntMult
     G.globalAntMult = G.globalAntMult.log(softcapStr).pow(0.85).pow_base(softcapStr)
@@ -4036,7 +4283,8 @@ export const updateAntMultipliers = (): void => {
 
   if (player.currentChallenge.ascension !== 15) {
     G.globalAntMult = G.globalAntMult.pow(
-      Decimal.sub(1, Decimal.min(99, sumContentsNumber(player.usedCorruptions)).mul(0.01)))
+      Decimal.sub(1, Decimal.min(99, sumContentsNumber(player.usedCorruptions)).mul(0.01))
+    )
   } else {
     // C15 used to have 9 corruptions set to 11, which above would provide a power of 0.01. Now it's hardcoded this way.
     G.globalAntMult = Decimal.pow(G.globalAntMult, 0.01)
@@ -4180,7 +4428,7 @@ export const resetCurrency = (): void => {
     && player.currentChallenge.reincarnation !== 10
   ) {
     let mult = G.acceleratorEffect.root(3)
-    if (mult.gte("e1000")) {
+    if (mult.gte('e1000')) {
       mult = mult.log10().log10().div(3).pow(0.75).mul(3).pow10().pow10()
     }
     G.prestigePointGain = G.prestigePointGain.mul(mult)
@@ -4431,12 +4679,14 @@ export const resetCheck = async (
 
     if (a !== 0 && a < 15) {
       if (
-        Decimal.gte(player.challengecompletions[10]
-          , challengeRequirement(
+        Decimal.gte(
+          player.challengecompletions[10],
+          challengeRequirement(
             a,
             player.challengecompletions[a],
             a
-          ))
+          )
+        )
         && Decimal.lt(player.challengecompletions[a], maxCompletions)
       ) {
         player.challengecompletions[a] = Decimal.add(player.challengecompletions[a], 1)
@@ -4536,7 +4786,7 @@ export const resetCheck = async (
         i18next.t('main.singularityMessage4', {
           x: format(nextSingularityNumber),
           y: format(calculateGoldenQuarkGain(), 2, true),
-          z: format(player.worlds.BONUS)
+          z: format(getQuarkBonus())
         })
       )
       await Alert(i18next.t('main.singularityMessage5'))
@@ -4613,7 +4863,9 @@ export const resetConfirmation = async (i: string): Promise<void> => {
 
 export const updateEffectiveLevelMult = (): void => {
   G.effectiveLevelMult = new Decimal(1)
-  G.effectiveLevelMult = G.effectiveLevelMult.mul(CalcECC('ascension', player.challengecompletions[14]).div(2).add(1).mul(player.researches[4] / 10).add(1)) // Research 1x4
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(
+    CalcECC('ascension', player.challengecompletions[14]).div(2).add(1).mul(player.researches[4] / 10).add(1)
+  ) // Research 1x4
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[21] / 100) // Research 2x6
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[90] / 100) // Research 4x15
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + player.researches[131] / 200) // Research 6x6
@@ -4621,7 +4873,9 @@ export const updateEffectiveLevelMult = (): void => {
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[176] / 200) * 2) / 5) // Research 8x1
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[191] / 200) * 1) / 5) // Research 8x16
   G.effectiveLevelMult = G.effectiveLevelMult.mul(1 + ((player.researches[146] / 200) * 4) / 5) // Research 6x21
-  G.effectiveLevelMult = G.effectiveLevelMult.mul(player.talismanShards.add(1).log(4).div(100).mul(Decimal.min(1, player.constantUpgrades[9])).add(1))
+  G.effectiveLevelMult = G.effectiveLevelMult.mul(
+    player.talismanShards.add(1).log(4).div(100).mul(Decimal.min(1, player.constantUpgrades[9])).add(1)
+  )
   G.effectiveLevelMult = G.effectiveLevelMult.mul(G.challenge15Rewards.runeBonus)
 }
 
@@ -4795,7 +5049,13 @@ export const updateAll = (): void => {
   if (
     player.achievements[79] > 0.5
     && player.prestigeShards.gte(
-      Decimal.add(G.crystalUpgradesCost[0], Decimal.mul(G.crystalUpgradeCostIncrement[0], Decimal.sub(player.crystalUpgrades[0], c).sub(0.5).pow(2).div(2).floor())).pow10()
+      Decimal.add(
+        G.crystalUpgradesCost[0],
+        Decimal.mul(
+          G.crystalUpgradeCostIncrement[0],
+          Decimal.sub(player.crystalUpgrades[0], c).sub(0.5).pow(2).div(2).floor()
+        )
+      ).pow10()
     )
   ) {
     buyCrystalUpgrades(1, true)
@@ -4803,7 +5063,13 @@ export const updateAll = (): void => {
   if (
     player.achievements[86] > 0.5
     && player.prestigeShards.gte(
-      Decimal.add(G.crystalUpgradesCost[1], Decimal.mul(G.crystalUpgradeCostIncrement[1], Decimal.sub(player.crystalUpgrades[1], c).sub(0.5).pow(2).div(2).floor())).pow10()
+      Decimal.add(
+        G.crystalUpgradesCost[1],
+        Decimal.mul(
+          G.crystalUpgradeCostIncrement[1],
+          Decimal.sub(player.crystalUpgrades[1], c).sub(0.5).pow(2).div(2).floor()
+        )
+      ).pow10()
     )
   ) {
     buyCrystalUpgrades(2, true)
@@ -4811,7 +5077,13 @@ export const updateAll = (): void => {
   if (
     player.achievements[93] > 0.5
     && player.prestigeShards.gte(
-      Decimal.add(G.crystalUpgradesCost[2], Decimal.mul(G.crystalUpgradeCostIncrement[2], Decimal.sub(player.crystalUpgrades[2], c).sub(0.5).pow(2).div(2).floor())).pow10()
+      Decimal.add(
+        G.crystalUpgradesCost[2],
+        Decimal.mul(
+          G.crystalUpgradeCostIncrement[2],
+          Decimal.sub(player.crystalUpgrades[2], c).sub(0.5).pow(2).div(2).floor()
+        )
+      ).pow10()
     )
   ) {
     buyCrystalUpgrades(3, true)
@@ -4819,7 +5091,13 @@ export const updateAll = (): void => {
   if (
     player.achievements[100] > 0.5
     && player.prestigeShards.gte(
-      Decimal.add(G.crystalUpgradesCost[3], Decimal.mul(G.crystalUpgradeCostIncrement[3], Decimal.sub(player.crystalUpgrades[3], c).sub(0.5).pow(2).div(2).floor())).pow10()
+      Decimal.add(
+        G.crystalUpgradesCost[3],
+        Decimal.mul(
+          G.crystalUpgradeCostIncrement[3],
+          Decimal.sub(player.crystalUpgrades[3], c).sub(0.5).pow(2).div(2).floor()
+        )
+      ).pow10()
     )
   ) {
     buyCrystalUpgrades(4, true)
@@ -4827,7 +5105,13 @@ export const updateAll = (): void => {
   if (
     player.achievements[107] > 0.5
     && player.prestigeShards.gte(
-      Decimal.add(G.crystalUpgradesCost[4], Decimal.mul(G.crystalUpgradeCostIncrement[4], Decimal.sub(player.crystalUpgrades[4], c).sub(0.5).pow(2).div(2).floor())).pow10()
+      Decimal.add(
+        G.crystalUpgradesCost[4],
+        Decimal.mul(
+          G.crystalUpgradeCostIncrement[4],
+          Decimal.sub(player.crystalUpgrades[4], c).sub(0.5).pow(2).div(2).floor()
+        )
+      ).pow10()
     )
   ) {
     buyCrystalUpgrades(5, true)
@@ -5130,7 +5414,6 @@ export const updateAll = (): void => {
     player.researchPoints = new Decimal(0)
   }
 
-
   G.optimalOfferingTimer = new Decimal(600)
     .add(30 * player.researches[85])
     .add(G.rune5level.mul(0.4))
@@ -5302,7 +5585,7 @@ const tick = () => {
     // tack will compute dtEffective milliseconds of game time
     dtEffective = dt
     // If the mean lag (deltaMean) is more than a whole frame (16ms), compensate by computing deltaMean - dt ms, up to 1 hour
-    dtEffective += (deltaMean > 16 ? Math.min(3600 * 1000, deltaMean - dt) : 0)
+    dtEffective += deltaMean > 16 ? Math.min(3600 * 1000, deltaMean - dt) : 0
     // compute at max delta ms to avoid negative delta
     dtEffective = Math.min(delta, dtEffective)
     // run tack and record timings
@@ -5314,7 +5597,7 @@ const tick = () => {
 
 const tack = (dt: Decimal) => {
   if (Decimal.isNaN(player.coins)) {
-    throw new Error("the save is fucked")
+    throw new Error('the save is fucked')
   }
   if (!G.timeWarp) {
     // Adds Resources (coins, ants, etc)
@@ -5491,7 +5774,8 @@ export const synergismHotkeys = (event: KeyboardEvent, key: string): void => {
     diamond: 'Diamonds',
     mythos: 'Mythos',
     particle: 'Particles',
-    tesseract: 'Tesseracts'
+    tesseract: 'Tesseracts',
+    golden: 'Golden Quarks'
   } as const
 
   const type = types[G.buildingSubTab]
@@ -5537,6 +5821,8 @@ export const synergismHotkeys = (event: KeyboardEvent, key: string): void => {
           buyParticleBuilding(num)
         } else if (type === 'Tesseracts') {
           buyTesseractBuilding(num)
+        } else if (type === 'Golden Quarks') {
+          buyGoldenQuarkBuilding(num)
         } else {
           buyMax(num, type)
         }

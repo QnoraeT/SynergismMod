@@ -51,8 +51,12 @@ export const getMaxChallenges = (i: number) => {
     }
 
     maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension.getEffect().bonus))
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension2.getEffect().bonus))
-    maxChallenge = maxChallenge.add(Decimal.mul(2, player.singularityUpgrades.singChallengeExtension3.getEffect().bonus))
+    maxChallenge = maxChallenge.add(
+      Decimal.mul(2, player.singularityUpgrades.singChallengeExtension2.getEffect().bonus)
+    )
+    maxChallenge = maxChallenge.add(
+      Decimal.mul(2, player.singularityUpgrades.singChallengeExtension3.getEffect().bonus)
+    )
 
     maxChallenge = maxChallenge.add(player.singularityChallenges.oneChallengeCap.rewards.capIncrease)
     return maxChallenge
@@ -171,7 +175,9 @@ export const challengeDisplay = (i: number, changefocus = true) => {
       }
       case 3: {
         current1 = format(CalcECC('transcend', player.challengecompletions[3]).mul(0.04), 2, true)
-        current2 = `${format(CalcECC('transcend', player.challengecompletions[3]).mul(0.5), 2, true)}%, (${format(G.challengeThreeMultiplier, 2, true)}x Grandmaster production total)`
+        current2 = `${format(CalcECC('transcend', player.challengecompletions[3]).mul(0.5), 2, true)}%, (${
+          format(G.challengeThreeMultiplier, 2, true)
+        }x Grandmaster production total)`
         if (G.challengeThreeSoftcap.neq(1)) {
           current2 += ` Softcap hit! This reduces it's effect by ^${format(G.challengeThreeSoftcap, 4)}! `
         }
@@ -303,14 +309,14 @@ export const challengeDisplay = (i: number, changefocus = true) => {
     && Decimal.lt(player.highestchallengecompletions[i], maxChallenges) && changefocus && player.ascensionCount.lt(1)
   ) {
     j.textContent = i18next.t(descriptor ? 'challenges.firstTimeBonusQuarks' : 'challenges.firstTimeBonus', {
-      x: Decimal.floor( 
-        Decimal.mul(quarksMultiplier, player.highestchallengecompletions[i]).div(10) 
-        .add(1)
-        .add(player.cubeUpgrades[1]) 
-        .add(player.cubeUpgrades[11]) 
-        .add(player.cubeUpgrades[21]) 
-        .add(player.cubeUpgrades[31]) 
-        .add(player.cubeUpgrades[41])
+      x: Decimal.floor(
+        Decimal.mul(quarksMultiplier, player.highestchallengecompletions[i]).div(10)
+          .add(1)
+          .add(player.cubeUpgrades[1])
+          .add(player.cubeUpgrades[11])
+          .add(player.cubeUpgrades[21])
+          .add(player.cubeUpgrades[31])
+          .add(player.cubeUpgrades[41])
       )
     })
   }
@@ -369,7 +375,16 @@ export const getChallengeConditions = (i?: number) => {
     G.rune3level = new Decimal(1)
     G.rune4level = new Decimal(1)
     G.rune5level = new Decimal(1)
-    player.crystalUpgrades = [new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0), new Decimal(0)]
+    player.crystalUpgrades = [
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0),
+      new Decimal(0)
+    ]
   }
   G.prestigePointGain = new Decimal(0)
   if (typeof i === 'number') {
@@ -415,7 +430,10 @@ export const calculateChallengeRequirementMultiplier = (
   completions = new Decimal(completions)
   let requirementMultiplier = new Decimal(1)
   if (type !== 'ascension') {
-    requirementMultiplier = Decimal.max(1, G.hyperchallengedMultiplier[player.usedCorruptions[4]] / (1 + player.platonicUpgrades[8] / 2.5))
+    requirementMultiplier = Decimal.max(
+      1,
+      G.hyperchallengedMultiplier[player.usedCorruptions[4]] / (1 + player.platonicUpgrades[8] / 2.5)
+    )
   }
   let i = completions
   switch (type) {
@@ -441,7 +459,12 @@ export const calculateChallengeRequirementMultiplier = (
       }
 
       if (Decimal.gte(i, 60) && (special === 9 || special === 10)) {
-        i = Decimal.pow(60, i.div(60).mul(1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).pow(0.25 + 0.025 * (special - 6))).min(i)
+        i = Decimal.pow(
+          60,
+          i.div(60).mul(1 - 0.01 * player.shopUpgrades.challengeTome - 0.01 * player.shopUpgrades.challengeTome2).pow(
+            0.25 + 0.025 * (special - 6)
+          )
+        ).min(i)
       }
 
       if (Decimal.gte(i, 25)) {
@@ -455,7 +478,7 @@ export const calculateChallengeRequirementMultiplier = (
       if (special !== 15) {
         if (Decimal.gte(i, 10)) {
           i = Decimal.sub(i, 10).mul(2).add(10)
-        }  
+        }
 
         requirementMultiplier = requirementMultiplier.mul(i.add(1))
       } else {
@@ -469,7 +492,7 @@ export const calculateChallengeRequirementMultiplier = (
  * Works to mitigate the difficulty of calculating challenge reward multipliers when considering softcapping
  */
 export const CalcECC = (type: 'transcend' | 'reincarnation' | 'ascension', completions: Decimal) => { // ECC stands for "Effective Challenge Completions"
-    // * tearonq modifications:
+  // * tearonq modifications:
   let effective = new Decimal(completions)
   if (type === 'transcend') {
     effective = effective.sub(0)

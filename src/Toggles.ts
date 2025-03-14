@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
 import { DOMCacheGetOrSet } from './Cache/DOM'
@@ -12,7 +13,6 @@ import type { BuildingSubtab, Player } from './types/Synergism'
 import { Alert, Prompt, showCorruptionStatsLoadouts, updateChallengeDisplay } from './UpdateHTML'
 import { visualUpdateAmbrosia, visualUpdateCubes, visualUpdateOcteracts } from './UpdateVisuals'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 export const toggleSettings = (toggle: HTMLElement) => {
   const toggleId = toggle.getAttribute('toggleId') ?? 1
@@ -366,7 +366,12 @@ export const toggleBuildingScreen = (input: string) => {
       screen: 'ascension',
       button: 'switchToTesseractBuilding',
       subtabNumber: 4
-    }
+    },
+    golden: {
+      screen: 'goldenlmao',
+      button: 'switchToTesseractBuilding',
+      subtabNumber: 5
+    },
   }
 
   for (const key in screen) {
@@ -917,6 +922,19 @@ export const toggleAutoTesseracts = (i: number) => {
   }
 
   player.autoTesseracts[i] = !player.autoTesseracts[i]
+}
+
+export const toggleAutoGoldenQuarks = (i: number) => {
+  const el = DOMCacheGetOrSet(`goldenQuarkAutoToggle${i}`)
+  if (player.autoGoldenQuarks[i]) {
+    el.textContent = i18next.t('general.autoOffBracket')
+    el.style.border = '2px solid red'
+  } else {
+    el.textContent = i18next.t('general.autoOnBracket')
+    el.style.border = '2px solid green'
+  }
+
+  player.autoGoldenQuarks[i] = !player.autoGoldenQuarks[i]
 }
 
 export const toggleCorruptionLevel = (index: number, value: number) => {

@@ -1,3 +1,4 @@
+import Decimal from 'break_eternity.js'
 import i18next from 'i18next'
 import { DOMCacheGetOrSet } from './Cache/DOM'
 import { calculateAnts, calculateRuneLevels, calculateSummationNonLinearDecimal } from './Calculate'
@@ -7,7 +8,6 @@ import { format, player } from './Synergism'
 import { revealStuff, updateChallengeDisplay } from './UpdateHTML'
 import { updateClassList } from './Utility'
 import { Globals as G } from './Variables'
-import Decimal from 'break_eternity.js'
 
 const getResearchCost = (index: number, buyAmount = 1, linGrowth = 0): IMultiBuy => {
   buyAmount = Math.min(G.researchMaxLevels[index] - player.researches[index], buyAmount)
@@ -217,7 +217,10 @@ export const researchDescriptions = (i: number, auto = false, linGrowth = 0) => 
 
 export const updateResearchBG = (j: number) => {
   if (player.researches[j] > G.researchMaxLevels[j]) {
-    player.researchPoints = Decimal.add(player.researchPoints, Decimal.sub(player.researches[j], G.researchMaxLevels[j]).mul(G.researchBaseCosts[j]))
+    player.researchPoints = Decimal.add(
+      player.researchPoints,
+      Decimal.sub(player.researches[j], G.researchMaxLevels[j]).mul(G.researchBaseCosts[j])
+    )
     player.researches[j] = G.researchMaxLevels[j]
   }
 

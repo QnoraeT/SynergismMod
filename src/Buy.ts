@@ -1,30 +1,55 @@
 import Decimal, { type DecimalSource } from 'break_eternity.js'
 import i18next from 'i18next'
 import { achievementaward } from './Achievements'
+import { ant7Effect } from './Ants'
 import { DOMCacheGetOrSet } from './Cache/DOM'
-import { calculateCorruptionPoints, calculateRuneBonuses, calculateSummationLinearDecimal, constantEffects } from './Calculate'
+import {
+  calculateCorruptionPoints,
+  calculateRuneBonuses,
+  calculateSummationLinearDecimal,
+  constantEffects
+} from './Calculate'
 import { CalcECC } from './Challenges'
+import { thriftRuneEffect } from './Runes'
 import { format, player, updateAllMultiplier, updateAllTick } from './Synergism'
 import type { FirstToFifth, OneToFive, ZeroToFour } from './types/Synergism'
 import { crystalupgradedescriptions, upgradeupdate } from './Upgrades'
 import { Globals as G, Upgrade } from './Variables'
-import { ant7Effect } from './Ants'
-import { thriftRuneEffect } from './Runes'
 
 export const getReductionValue = () => {
   let reduction = new Decimal(1)
   reduction = reduction.add(thriftRuneEffect())
-  reduction = reduction.add((player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
-    + player.researches[60]) / 200)
+  reduction = reduction.add(
+    (player.researches[56] + player.researches[57] + player.researches[58] + player.researches[59]
+      + player.researches[60]) / 200
+  )
   reduction = reduction.add(CalcECC('transcend', player.challengecompletions[4]).div(200))
   reduction = reduction.add(ant7Effect())
   reduction = reduction.mul(constantEffects().buildingSlowDown)
   return reduction
 }
 
-const coinBuildingCosts = [new Decimal(100), new Decimal(1000), new Decimal(2e4), new Decimal(4e5), new Decimal(8e6)] as const
-const diamondBuildingCosts = [new Decimal(100), new Decimal(1e5), new Decimal(1e15), new Decimal(1e40), new Decimal(1e100)] as const
-const mythosAndParticleBuildingCosts = [new Decimal(1), new Decimal(1e2), new Decimal(1e4), new Decimal(1e8), new Decimal(1e16)] as const
+const coinBuildingCosts = [
+  new Decimal(100),
+  new Decimal(1000),
+  new Decimal(2e4),
+  new Decimal(4e5),
+  new Decimal(8e6)
+] as const
+const diamondBuildingCosts = [
+  new Decimal(100),
+  new Decimal(1e5),
+  new Decimal(1e15),
+  new Decimal(1e40),
+  new Decimal(1e100)
+] as const
+const mythosAndParticleBuildingCosts = [
+  new Decimal(1),
+  new Decimal(1e2),
+  new Decimal(1e4),
+  new Decimal(1e8),
+  new Decimal(1e16)
+] as const
 
 const getOriginalCostAndNum = (index: OneToFive, type: keyof typeof buyProducerTypes) => {
   const originalCostArray = type === 'Coin'
@@ -51,12 +76,17 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
 
   const posOwnedType = `${pos}Owned${type}` as const
   const posCostType = `${pos}Cost${type}` as const
-  if (getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player[tag], Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
-    let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).sub(9).floor().max(player[posOwnedType])
+  if (
+    getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player[tag], Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
+    let boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).sub(9).floor().max(
+      player[posOwnedType]
+    )
     player[posCostType] = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     for (let i = 0; i < 10; i++) {
       if (player[tag].lt(player[posCostType])) {
-        break;
+        break
       }
       player[tag] = player[tag].sub(getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type))
       boughtBuild = boughtBuild.add(1)
@@ -65,7 +95,9 @@ export const buyMax = (index: OneToFive, type: keyof typeof buyProducerTypes) =>
       player[posCostType] = cost
     }
   } else {
-    const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).floor().add(1).max(player[posOwnedType])
+    const boughtBuild = getMiscBuildingTarget(player[tag], originalCost, zeroIndex + 1, type).floor().add(1).max(
+      player[posOwnedType]
+    )
     player[posOwnedType] = boughtBuild
     const cost = getMiscBuildingCost(boughtBuild, originalCost, zeroIndex + 1, type)
     player[posCostType] = cost
@@ -132,7 +164,8 @@ export const calculateCrystalBuy = (i: number) => {
   const exponent = Decimal.log(player.prestigeShards.add(1), 10)
 
   const toBuy = Decimal.floor(
-    Decimal.sub(exponent, G.crystalUpgradesCost[u]).div(G.crystalUpgradeCostIncrement[u]).mul(2).add(0.25).max(0).sqrt().add(0.5)
+    Decimal.sub(exponent, G.crystalUpgradesCost[u]).div(G.crystalUpgradeCostIncrement[u]).mul(2).add(0.25).max(0).sqrt()
+      .add(0.5)
   )
   return toBuy
 }
@@ -152,7 +185,9 @@ export const buyCrystalUpgrades = (i: number, auto = false) => {
     player.crystalUpgrades[u] = Decimal.add(toBuy, c)
     if (toBuy.gt(0)) {
       player.prestigeShards = player.prestigeShards.sub(
-        Decimal.mul(G.crystalUpgradeCostIncrement[u], toBuy.sub(0.5).pow(2).div(2).sub(0.125)).add(G.crystalUpgradesCost[u]).pow10()
+        Decimal.mul(G.crystalUpgradeCostIncrement[u], toBuy.sub(0.5).pow(2).div(2).sub(0.125)).add(
+          G.crystalUpgradesCost[u]
+        ).pow10()
       )
       if (!auto) {
         crystalupgradedescriptions(i)
@@ -169,12 +204,15 @@ export const buyParticleBuilding = (
   const pos = G.ordinals[zeroIndex]
   const key = `${pos}OwnedParticles` as const
 
-  if (getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.reincarnationPoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
+  if (
+    getParticleTarget(player.reincarnationPoints, originalCost).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player.reincarnationPoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
     let boughtPartBuild = getParticleTarget(player.reincarnationPoints, originalCost).sub(9).floor().max(player[key])
     player[`${pos}CostParticles` as const] = getParticleCostq(boughtPartBuild, originalCost)
     for (let i = 0; i < 10; i++) {
       if (player.reincarnationPoints.lt(player[`${pos}CostParticles` as const])) {
-        break;
+        break
       }
       player.reincarnationPoints = player.reincarnationPoints.sub(getParticleCostq(boughtPartBuild, originalCost))
       boughtPartBuild = boughtPartBuild.add(1)
@@ -199,7 +237,13 @@ export const tesseractBuildingCosts = [1, 10, 100, 1000, 10000] as const
 // in total. Use cost(owned+buyAmount) - cost(owned) to figure the cost of
 // buying multiple buildings.
 
-export type TesseractBuildings = [DecimalSource | null, DecimalSource | null, DecimalSource | null, DecimalSource | null, DecimalSource | null]
+export type TesseractBuildings = [
+  DecimalSource | null,
+  DecimalSource | null,
+  DecimalSource | null,
+  DecimalSource | null,
+  DecimalSource | null
+]
 
 const buyTessBuildingsToCheapestPrice = (
   ownedBuildings: TesseractBuildings,
@@ -228,7 +272,11 @@ const buyTessBuildingsToCheapestPrice = (
     if (buyFrom === null || buyTo === null) {
       continue
     }
-    price = price.add(Decimal.mul(buyTo, Decimal.add(buyTo, 1)).div(2).pow(2).sub(Decimal.mul(buyFrom, Decimal.add(buyFrom, 1)).div(2).pow(2))).mul(tesseractBuildingCosts[i])
+    price = price.add(
+      Decimal.mul(buyTo, Decimal.add(buyTo, 1)).div(2).pow(2).sub(
+        Decimal.mul(buyFrom, Decimal.add(buyFrom, 1)).div(2).pow(2)
+      )
+    ).mul(tesseractBuildingCosts[i])
   }
 
   return [price, buyToBuildings]
@@ -365,7 +413,9 @@ export const calculateTessBuildingsInBudget = (
       // However, that requires 1e47 tesseracts to get to, which shouldn't
       // ever happen.
       buildings[minimum.index]! = Decimal.add(buildings[minimum.index]!, 1)
-      currentPrices[minimum.index] = Decimal.pow(Decimal.add(buildings[minimum.index]!, 1), 3).mul(tesseractBuildingCosts[minimum.index])
+      currentPrices[minimum.index] = Decimal.pow(Decimal.add(buildings[minimum.index]!, 1), 3).mul(
+        tesseractBuildingCosts[minimum.index]
+      )
     } else {
       // Can't afford cheapest any more - break.
       break
@@ -394,7 +444,8 @@ export const getTesseractCost = (
 
   let actualBuy: Decimal
   if (checkCanAfford) {
-    const buyTo = player.wowTesseracts.value.add(subCost).div(intCost).sqrt().mul(8).add(1).sqrt().div(2).sub(0.5).floor()
+    const buyTo = player.wowTesseracts.value.add(subCost).div(intCost).sqrt().mul(8).add(1).sqrt().div(2).sub(0.5)
+      .floor()
     actualBuy = Decimal.min(buyTo, Decimal.add(buyFrom, amount))
   } else {
     actualBuy = Decimal.add(buyFrom, amount)
@@ -471,17 +522,32 @@ export const updateRuneBlessing = (type: 'Blessings' | 'Spirits', index: number)
     DOMCacheGetOrSet(`runeBlessingPower${index}Value1`).innerHTML = i18next.t('runes.blessings.blessingPower', {
       reward: i18next.t(`runes.blessings.rewards.${index - 1}`),
       value: format(G.runeBlessings[index]),
-      speed: format(Decimal.sub(1, Decimal.mul(blessingMultiplierArray[index], G.effectiveRuneBlessingPower[index]).add(t)), 4, true)
+      speed: format(
+        Decimal.sub(1, Decimal.mul(blessingMultiplierArray[index], G.effectiveRuneBlessingPower[index]).add(t)),
+        4,
+        true
+      )
     })
   } else if (type === 'Spirits') {
-    const spiritMultiplierArray = [new Decimal(0), new Decimal(1), new Decimal(1), new Decimal(20), new Decimal(1), new Decimal(100)]
+    const spiritMultiplierArray = [
+      new Decimal(0),
+      new Decimal(1),
+      new Decimal(1),
+      new Decimal(20),
+      new Decimal(1),
+      new Decimal(100)
+    ]
     spiritMultiplierArray[index] = spiritMultiplierArray[index].mul(calculateCorruptionPoints().div(400))
     const t = (index === 3) ? 1 : 0
 
     DOMCacheGetOrSet(`runeSpiritPower${index}Value1`).innerHTML = i18next.t('runes.spirits.spiritPower', {
       reward: i18next.t(`runes.spirits.rewards.${index - 1}`),
       value: format(G.runeSpirits[index]),
-      speed: format(Decimal.sub(1, Decimal.mul(spiritMultiplierArray[index], G.effectiveRuneSpiritPower[index]).add(t)), 4, true)
+      speed: format(
+        Decimal.sub(1, Decimal.mul(spiritMultiplierArray[index], G.effectiveRuneSpiritPower[index]).add(t)),
+        4,
+        true
+      )
     })
   }
 }
@@ -504,7 +570,9 @@ export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100,
         }
 
         const [level, cost] = calculateSummationLinearDecimal(baseLevels, baseCost, runeshards, levelCap)
-        if (Decimal.gt(level, baseLevels) && (!auto || Decimal.gt(Decimal.sub(level, baseLevels).mul(10000), baseLevels))) {
+        if (
+          Decimal.gt(level, baseLevels) && (!auto || Decimal.gt(Decimal.sub(level, baseLevels).mul(10000), baseLevels))
+        ) {
           if (type === 'Spirits') {
             player.runeSpiritLevels[index] = level
           } else {
@@ -523,7 +591,6 @@ export const buyAllBlessings = (type: 'Blessings' | 'Spirits', percentage = 100,
     }
   }
 }
-
 
 // heck you
 
@@ -566,7 +633,7 @@ export const getAccelCost = (bought: number | Decimal): Decimal => {
   }
 
   if (i.gte(scaling[1])) {
-    i = i.div(scaling[1]).pow(2).mul(scaling[1])   
+    i = i.div(scaling[1]).pow(2).mul(scaling[1])
   }
 
   if (i.gte(scaling[0])) {
@@ -580,17 +647,17 @@ export const getAccelCost = (bought: number | Decimal): Decimal => {
 
 export const getAccelTarget = (amt: Decimal): Decimal => {
   const baseCost = new Decimal(500)
-  if (amt.lt(baseCost)) { return new Decimal(0) }
+  if (amt.lt(baseCost)) return new Decimal(0)
   let i = Decimal.mul(amt.div(baseCost).log(4), G.costDivisor)
 
   const scaling = getAccelScaling()
   if (i.gte(scaling[0])) {
-      i = i.div(scaling[0]).pow(1/1.35).mul(scaling[0])
-      i = i.sub(scaling[0]).div(2).add(scaling[0])
+    i = i.div(scaling[0]).root(1.35).mul(scaling[0])
+    i = i.sub(scaling[0]).div(2).add(scaling[0])
   }
 
   if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).pow(1/2).mul(scaling[1])   
+    i = i.div(scaling[1]).root(2).mul(scaling[1])
   }
 
   if (player.currentChallenge.transcension === 4) {
@@ -600,7 +667,7 @@ export const getAccelTarget = (amt: Decimal): Decimal => {
   if (player.currentChallenge.reincarnation === 8) {
     i = i.add(10.001356440896176).log10().root(1.2).pow10().root(2.5).sub(2.512)
   }
-  
+
   return i
 }
 
@@ -617,12 +684,12 @@ export const getMulCost = (bought: number | Decimal): Decimal => {
   }
 
   if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).pow(2).mul(scaling[1])   
+    i = i.div(scaling[1]).pow(2).mul(scaling[1])
   }
 
   if (i.gte(scaling[0])) {
-      i = i.sub(scaling[0]).mul(2).add(scaling[0])
-      i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
+    i = i.sub(scaling[0]).mul(2).add(scaling[0])
+    i = i.div(scaling[0]).pow(1.35).mul(scaling[0])
   }
 
   const baseCost = new Decimal(1e4)
@@ -631,17 +698,17 @@ export const getMulCost = (bought: number | Decimal): Decimal => {
 
 export const getMulTarget = (amt: Decimal): Decimal => {
   const baseCost = new Decimal(1e4)
-  if (amt.lt(baseCost)) { return new Decimal(0) }
+  if (amt.lt(baseCost)) return new Decimal(0)
   let i = Decimal.mul(amt.div(baseCost).log10(), G.costDivisor)
 
   const scaling = getMulScaling()
   if (i.gte(scaling[0])) {
-      i = i.div(scaling[0]).root(1.35).mul(scaling[0])
-      i = i.sub(scaling[0]).div(2).add(scaling[0])
+    i = i.div(scaling[0]).root(1.35).mul(scaling[0])
+    i = i.sub(scaling[0]).div(2).add(scaling[0])
   }
 
   if (i.gte(scaling[1])) {
-      i = i.div(scaling[1]).root(2).mul(scaling[1])   
+    i = i.div(scaling[1]).root(2).mul(scaling[1])
   }
 
   if (player.currentChallenge.transcension === 4) {
@@ -660,33 +727,33 @@ export const getAccelBoostCost = (bought: number | Decimal): Decimal => {
   const scaling = getBoostScaling()
 
   if (i.gte(1e15)) {
-      i = i.div(1e15).pow(7/3).mul(1e15)
+    i = i.div(1e15).pow(7 / 3).mul(1e15)
   }
 
   if (i.gte(scaling)) {
-      i = i.div(scaling).pow(3).mul(scaling)
+    i = i.div(scaling).pow(3).mul(scaling)
   }
 
   return i.pow(2).mul(0.5).add(i.mul(10.5)).add(3).pow10()
 }
 
 export const getAccelBoostTarget = (amt: Decimal): Decimal => {
-  if (amt.lt(1000)) { return new Decimal(0) }
+  if (amt.lt(1000)) return new Decimal(0)
   let i = Decimal.mul(8, amt.log10()).add(417).sqrt().mul(0.5).sub(10.5)
   const scaling = getBoostScaling()
 
   if (i.gte(scaling)) {
-      i = i.div(scaling).root(3).mul(scaling)
+    i = i.div(scaling).root(3).mul(scaling)
   }
 
   if (i.gte(1e15)) {
-    i = i.div(1e15).root(7/3).mul(1e15)
+    i = i.div(1e15).root(7 / 3).mul(1e15)
   }
 
   return i
 }
 
-function particleBuildScale() {
+function particleBuildScale () {
   let i = (player.currentChallenge.ascension !== 15) ? new Decimal(300000) : new Decimal(1000)
   if (player.currentChallenge.ascension !== 15) {
     i = i.add(constantEffects().particleBuildingScale)
@@ -700,25 +767,117 @@ export const getParticleCostq = (bought: number | Decimal, baseCost: number | De
   const scaling = particleBuildScale()
 
   if (i.gte(scaling)) {
-      i = i.div(scaling).pow(2).mul(scaling)
+    i = i.div(scaling).pow(2).mul(scaling)
   }
 
   return Decimal.pow(2, i.sub(1)).mul(baseCost)
 }
 
 export const getParticleTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
-  if (amt.lt(baseCost)) { return new Decimal(0) }
+  if (amt.lt(baseCost)) return new Decimal(0)
   let i = amt.div(baseCost).log(2).add(1)
   const scaling = particleBuildScale()
 
   if (Decimal.gte(i, scaling)) {
-      i = Decimal.div(i, scaling).root(2).mul(scaling)
+    i = Decimal.div(i, scaling).root(2).mul(scaling)
   }
 
   return i
 }
 
-export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
+export const gqScaling = () => {
+  const scaling = [
+    { start: new Decimal(100), power: new Decimal(2) },
+    { start: new Decimal(1000), power: new Decimal(3) },
+    { start: new Decimal(10000), power: new Decimal(1.25) },
+    { start: new Decimal(1e6), power: new Decimal(2) }
+  ]
+  return scaling
+}
+
+
+export const buyGoldenQuarkBuilding = (
+  index: OneToFive
+) => {
+  const originalCost = [1e2, 1e3, 1e6, 1e9, 1e12][index - 1]
+  const key = `gcBuilding${index}` as const
+
+  if (
+    getGQTarget(player.goldenQuarks, originalCost).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player.goldenQuarks, Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
+    let boughtGQ = getGQTarget(player.goldenQuarks, originalCost).sub(9).floor().max(player[key].owned)
+    player[`gcBuilding${index}` as const].cost = getGQCost(boughtGQ, originalCost)
+    for (let i = 0; i < 10; i++) {
+      if (player.goldenQuarks.lt(player[`gcBuilding${index}` as const].cost)) {
+        break
+      }
+      player.goldenQuarks = player.goldenQuarks.sub(getGQCost(boughtGQ, originalCost))
+      boughtGQ = boughtGQ.add(1)
+      player[key].owned = boughtGQ
+      const cost = getGQCost(boughtGQ, originalCost)
+      player[`gcBuilding${index}` as const].cost = cost
+    }
+  } else {
+    const boughtGQ = getGQTarget(player.goldenQuarks, originalCost).floor().add(1).max(player[key].owned)
+    player[key].owned = boughtGQ
+    const cost = getGQCost(boughtGQ, originalCost)
+    player[`gcBuilding${index}` as const].cost = cost
+  }
+}
+
+export const getGQCost = (bought: number | Decimal, baseCost: number | Decimal): Decimal => {
+  let i = new Decimal(bought)
+  const scaling = gqScaling()
+
+  if (i.gte(scaling[3].start)) {
+    i = i.log(scaling[3].start).pow(scaling[3].power).pow_base(scaling[3].start).sub(scaling[3].start).div(scaling[3].power).add(scaling[3].start)
+  }
+
+  if (i.gte(scaling[2].start)) {
+    i = i.div(scaling[2].start).pow(scaling[2].power.sub(1)).sub(1).div(scaling[2].power.sub(1)).exp().mul(scaling[2].start)
+  }
+
+  if (i.gte(scaling[1].start)) {
+    i = i.div(scaling[1].start).sub(1).div(scaling[1].power).add(1).pow(scaling[1].power).mul(scaling[1].start)
+  }
+
+  if (i.gte(scaling[0].start)) {
+    i = i.div(scaling[0].start).sub(1).div(scaling[0].power).add(1).pow(scaling[0].power).mul(scaling[0].start)
+  }
+
+  return Decimal.pow(1.25, i.sub(1)).mul(baseCost)
+}
+
+export const getGQTarget = (amt: Decimal, baseCost: number | Decimal): Decimal => {
+  if (amt.lt(baseCost)) return new Decimal(0)
+  let i = amt.div(baseCost).log(1.25).add(1)
+  const scaling = gqScaling()
+
+  if (i.gte(scaling[0].start)) {
+    i = i.div(scaling[0].start).root(scaling[0].power).sub(1).mul(scaling[0].power).add(1).mul(scaling[0].start)
+  }
+
+  if (i.gte(scaling[1].start)) {
+    i = i.div(scaling[1].start).root(scaling[1].power).sub(1).mul(scaling[1].power).add(1).mul(scaling[1].start)
+  }
+
+  if (i.gte(scaling[2].start)) {
+    i = i.div(scaling[2].start).ln().mul(scaling[2].power.sub(1)).add(1).root(scaling[2].power.sub(1).mul(scaling[2].start))
+  }
+
+  if (i.gte(scaling[3].start)) {
+    i = i.sub(scaling[3].start).mul(scaling[3].power).add(scaling[3].start).log(scaling[3].start).root(scaling[3].power).pow_base(scaling[3].start)
+  }
+
+  return i
+}
+export const getMiscBuildingCost = (
+  bought: number | Decimal,
+  baseCost: Decimal,
+  index: number,
+  type: string
+): Decimal => {
   let i = new Decimal(bought)
 
   if (type === 'Coin' || type === 'Diamonds' || type === 'Mythos') {
@@ -726,7 +885,7 @@ export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal,
       i = i.add(2.512).pow(2.5).log10().pow(1.2).pow10().sub(10.001356440896176)
     }
   }
-  
+
   if (type === 'Coin' || type === 'Diamonds') {
     if (player.currentChallenge.transcension === 4) {
       i = i.pow(2)
@@ -734,14 +893,21 @@ export const getMiscBuildingCost = (bought: number | Decimal, baseCost: Decimal,
   }
 
   i = i.div(getReductionValue())
-  i = i.pow(2).mul(Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index))).add(i.mul(Decimal.pow(1.25, index).log10())).pow10().mul(baseCost)
+  i = i.pow(2).mul(Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index))).add(
+    i.mul(Decimal.pow(1.25, index).log10())
+  ).pow10().mul(baseCost)
   return i
 }
 
 export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: number, type: string): Decimal => {
-  if (amt.lt(baseCost)) { return new Decimal(0) }
+  if (amt.lt(baseCost)) return new Decimal(0)
   let i = amt
-  i = inverseQuad(i.log10(), Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index)), Decimal.pow(1.25, index).log10(), baseCost.log10())
+  i = inverseQuad(
+    i.log10(),
+    Decimal.log10(1 + ((type === 'Mythos') ? 0.0025 : 0.0005 * index)),
+    Decimal.pow(1.25, index).log10(),
+    baseCost.log10()
+  )
 
   i = i.mul(getReductionValue())
 
@@ -761,17 +927,20 @@ export const getMiscBuildingTarget = (amt: Decimal, baseCost: Decimal, index: nu
 
 export const inverseQuad = (x: Decimal, a: Decimal, b: Decimal, c: Decimal): Decimal => {
   return a.eq(0)
-          ? x.sub(c).div(b)
-          : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
+    ? x.sub(c).div(b)
+    : x.sub(c).mul(a).mul(4).add(b.pow(2)).sqrt().sub(b).div(a.mul(2))
 }
 
 export const buyMaxAccels = () => {
-  if (getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
+  if (
+    getAccelTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
     let boughtAccel = getAccelTarget(player.coins).sub(9).floor().max(player.acceleratorBought)
     player.acceleratorCost = getAccelCost(boughtAccel)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.acceleratorCost)) {
-        break;
+        break
       }
       player.coins = player.coins.sub(getAccelCost(boughtAccel))
       boughtAccel = boughtAccel.add(1)
@@ -814,12 +983,15 @@ export const buyMaxAccels = () => {
 }
 
 export const buyMaxMuls = () => {
-  if (getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
+  if (
+    getMulTarget(player.coins).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player.coins, Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
     let boughtMul = getMulTarget(player.coins).sub(9).floor().max(player.multiplierBought)
     player.multiplierCost = getMulCost(boughtMul)
     for (let i = 0; i < 10; i++) {
       if (player.coins.lt(player.multiplierCost)) {
-        break;
+        break
       }
       player.coins = player.coins.sub(getMulCost(boughtMul))
       boughtMul = boughtMul.add(1)
@@ -862,12 +1034,15 @@ export const buyMaxMuls = () => {
 }
 
 export const buyMaxBoostAccel = () => {
-  if (getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER) && Decimal.lt(player.prestigePoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))) {
+  if (
+    getAccelBoostTarget(player.prestigePoints).lt(Number.MAX_SAFE_INTEGER)
+    && Decimal.lt(player.prestigePoints, Decimal.pow10(Number.MAX_SAFE_INTEGER))
+  ) {
     let boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).sub(9).floor().max(player.acceleratorBoostBought)
     player.acceleratorBoostCost = getAccelBoostCost(boughtAccelBoost)
     for (let i = 0; i < 10; i++) {
       if (player.prestigePoints.lt(player.acceleratorBoostCost)) {
-        break;
+        break
       }
       player.prestigePoints = player.prestigePoints.sub(getAccelBoostCost(boughtAccelBoost))
       boughtAccelBoost = boughtAccelBoost.add(1)
@@ -876,7 +1051,9 @@ export const buyMaxBoostAccel = () => {
       player.acceleratorBoostCost = cost
     }
   } else {
-    const boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).floor().add(1).max(player.acceleratorBoostBought)
+    const boughtAccelBoost = getAccelBoostTarget(player.prestigePoints).floor().add(1).max(
+      player.acceleratorBoostBought
+    )
     player.acceleratorBoostBought = boughtAccelBoost
     const cost = getAccelBoostCost(boughtAccelBoost)
     player.acceleratorBoostCost = cost
